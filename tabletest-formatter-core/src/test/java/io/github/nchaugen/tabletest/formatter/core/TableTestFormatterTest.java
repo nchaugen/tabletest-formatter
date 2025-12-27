@@ -197,4 +197,65 @@ class TableTestFormatterTest {
         var lines = result.split("\n");
         assertThat(lines[1]).isEqualTo(formatted);
     }
+
+    @Test
+    void shouldPreserveCommentLines() {
+        var input = """
+                name|age
+                // This is a comment
+                Alice|30
+                Bob|25
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo("""
+                name  | age
+                // This is a comment
+                Alice | 30
+                Bob   | 25
+                """);
+    }
+
+    @Test
+    void shouldPreserveBlankLines() {
+        var input = """
+                name|age
+                Alice|30
+
+                Bob|25
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo("""
+                name  | age
+                Alice | 30
+
+                Bob   | 25
+                """);
+    }
+
+    @Test
+    void shouldPreserveCommentsAndBlankLinesTogether() {
+        var input = """
+                name|age
+                // First group
+                Alice|30
+
+                // Second group
+                Bob|25
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo("""
+                name  | age
+                // First group
+                Alice | 30
+
+                // Second group
+                Bob   | 25
+                """);
+    }
 }

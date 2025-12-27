@@ -18,6 +18,8 @@ package io.github.nchaugen.tabletest.formatter.core;
 import io.github.nchaugen.tabletest.parser.Table;
 import io.github.nchaugen.tabletest.parser.TableParser;
 
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,8 +42,38 @@ public class TableTestFormatter {
      * @return the formatted table text
      */
     public String format(String tableText) {
+        String[] lines = tableText.split("\n", -1);
+
+        // Identify comment and blank lines
+        List<Integer> commentOrBlankLines = IntStream.range(0, lines.length)
+                .filter(i -> isCommentLine(lines[i]) || isBlankLine(lines[i]))
+                .boxed()
+                .toList();
+
+        // Format the table (parser ignores comments and blank lines)
         Table table = TableParser.parse(tableText);
-        return formatTable(table);
+        String formatted = formatTable(table);
+
+        // Add back preserved comments and blank lines
+        return addBackCommentsAndBlankLines(lines, commentOrBlankLines, formatted);
+    }
+
+    private boolean isCommentLine(String line) {
+        return line.trim().startsWith("//");
+    }
+
+    private boolean isBlankLine(String line) {
+        return line.trim().isEmpty();
+    }
+
+    private String addBackCommentsAndBlankLines(
+            String[] originalLines, List<Integer> commentOrBlankIndices, String formatted) {
+        Iterator<String> formattedIterator =
+                Arrays.stream(formatted.split("\n", -1)).iterator();
+
+        return IntStream.range(0, originalLines.length)
+                .mapToObj(i -> commentOrBlankIndices.contains(i) ? originalLines[i] : formattedIterator.next())
+                .collect(joining("\n"));
     }
 
     /**
