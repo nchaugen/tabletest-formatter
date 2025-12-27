@@ -290,4 +290,34 @@ class TableTestFormatterTest {
                 test | [[a: 1], [b: 2]]
                 """);
     }
+
+    @Test
+    void shouldFormatNestedCollectionsRecursively() {
+        var input = """
+                col|nested
+                test|[a:[1,2],b:[3,4]]
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo("""
+                col  | nested
+                test | [a: [1, 2], b: [3, 4]]
+                """);
+    }
+
+    @Test
+    void shouldFormatDeeplyNestedCollections() {
+        var input = """
+                col|deep
+                test|[a:{[1,2]},b:{[3,4]}]
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo("""
+                col  | deep
+                test | [a: {[1, 2]}, b: {[3, 4]}]
+                """);
+    }
 }
