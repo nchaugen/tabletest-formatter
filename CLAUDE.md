@@ -175,7 +175,15 @@ TableTest can appear in:
 - User prefers pair programming style (discuss then implement)
 - Follow TDD: Red → Green → Refactor
 - Use TableTest for test organization when appropriate
-- Prefer functional style, streams over loops
 - British English (Oxford spelling)
 - No copyright headers (added by build)
 - Keep commits focused and atomic
+
+### Programming Style
+
+- **Functional style preferred**: Use streams and functional patterns over imperative loops
+- **Imports**: Always use `import` and `static import` instead of fully qualified names
+  - Good: `import static java.util.stream.Collectors.joining;`
+  - Bad: `java.util.stream.Collectors.joining(...)`
+- **Pure functions**: Extract behaviour into pure functions where possible
+- **Method chaining**: Prefer fluent APIs and method chaining for readability
