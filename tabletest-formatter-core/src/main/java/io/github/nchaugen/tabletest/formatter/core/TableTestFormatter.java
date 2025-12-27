@@ -19,6 +19,8 @@ import io.github.nchaugen.tabletest.parser.Table;
 import io.github.nchaugen.tabletest.parser.TableParser;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.joining;
@@ -39,7 +41,7 @@ public class TableTestFormatter {
      */
     public String format(String tableText) {
         Table table = TableParser.parse(tableText);
-        return rebuildTable(table);
+        return formatTable(table);
     }
 
     /**
@@ -53,14 +55,13 @@ public class TableTestFormatter {
         return calculateColumnWidths(table);
     }
 
-    private String rebuildTable(Table table) {
+    private String formatTable(Table table) {
         int[] columnWidths = calculateColumnWidths(table);
 
-        String headerRow = buildRow(table.headers(), columnWidths);
+        String headerRow = formatRow(table.headers(), columnWidths);
 
-        String dataRows = IntStream.range(0, table.rowCount())
-                .mapToObj(table::row)
-                .map(row -> buildRow(row.values(), columnWidths))
+        String dataRows = table.rows().stream()
+                .map(row -> formatRow(row.values(), columnWidths))
                 .collect(joining("\n"));
 
         return headerRow + "\n" + dataRows + "\n";
@@ -75,8 +76,8 @@ public class TableTestFormatter {
     private int calculateColumnWidth(Table table, int columnIndex) {
         int headerWidth = cellWidth(table.header(columnIndex));
 
-        int maxDataWidth = IntStream.range(0, table.rowCount())
-                .map(row -> cellWidth(table.row(row).value(columnIndex)))
+        int maxDataWidth = table.rows().stream()
+                .mapToInt(row -> cellWidth(row.value(columnIndex)))
                 .max()
                 .orElse(0);
 
@@ -84,21 +85,45 @@ public class TableTestFormatter {
     }
 
     private int cellWidth(Object cell) {
-        return cell != null ? DisplayWidth.of(cell.toString()) : 0;
+        return DisplayWidth.of(formatCell(cell));
     }
 
-    private String buildRow(List<?> cells, int[] columnWidths) {
+    private String formatRow(List<?> cells, int[] columnWidths) {
         return IntStream.range(0, cells.size())
-                .mapToObj(i -> i == cells.size() - 1 ? cellValue(cells.get(i)) : padCell(cells.get(i), columnWidths[i]))
+                .mapToObj(i -> {
+                    String value = formatCell(cells.get(i));
+                    return i == cells.size() - 1 ? value : padCell(value, columnWidths[i]);
+                })
                 .collect(joining("| "));
     }
 
-    private String cellValue(Object cell) {
-        return cell != null ? cell.toString() : "";
+    private String formatCell(Object cell) {
+        return switch (cell) {
+            case null -> "";
+            case List<?> list -> formatList(list);
+            case Set<?> set -> formatSet(set);
+            case Map<?, ?> map -> formatMap(map);
+            default -> cell.toString();
+        };
     }
 
-    private String padCell(Object cell, int width) {
-        String value = cellValue(cell);
+    private String formatList(List<?> list) {
+        return list.isEmpty() ? "[]" : list.stream().map(this::formatCell).collect(joining(", ", "[", "]"));
+    }
+
+    private String formatSet(Set<?> set) {
+        return set.isEmpty() ? "{}" : set.stream().map(this::formatCell).collect(joining(", ", "{", "}"));
+    }
+
+    private String formatMap(Map<?, ?> map) {
+        return map.isEmpty()
+                ? "[:]"
+                : map.entrySet().stream()
+                        .map(entry -> entry.getKey() + ": " + formatCell(entry.getValue()))
+                        .collect(joining(", ", "[", "]"));
+    }
+
+    private String padCell(String value, int width) {
         int paddingSpaces = width + 1 - DisplayWidth.of(value);
         return value + " ".repeat(Math.max(0, paddingSpaces));
     }
