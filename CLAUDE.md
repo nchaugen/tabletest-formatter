@@ -187,3 +187,25 @@ TableTest can appear in:
   - Bad: `java.util.stream.Collectors.joining(...)`
 - **Pure functions**: Extract behaviour into pure functions where possible
 - **Method chaining**: Prefer fluent APIs and method chaining for readability
+- **Ternary operators**: Prefer ternary operators over if-else for simple return statements
+  - Good: `return isLast ? value : value + padding;`
+  - Bad: `if (isLast) { return value; } return value + padding;`
+- **Multiline strings**: Use text blocks (multiline strings) in tests for readability
+  - Good: `var input = """\n    name|age\n    Alice|30\n    """;`
+  - Bad: `var input = "name|age\\nAlice|30";`
+- **Trailing newlines**: Include trailing newlines in test string literals to match actual file content
+
+### Package Structure
+
+- **Package naming**: Must match Maven groupId structure
+  - Maven groupId: `io.github.nchaugen.tabletest`
+  - Package name: `io.github.nchaugen.tabletest.formatter.core`
+  - NOT: `io.nchaugen.tabletest.formatter.core` (missing `github`)
+
+### Workflow
+
+- **Issue closure timing**: Close beads issues BEFORE committing
+  - Keeps commit and issue status in sync
+  - Include `.beads/issues.jsonl` changes in the same commit as the implementation
+  - Can amend commits (before push) to add issue closure
+- **Commit workflow**: Stage code → Close issue → Stage beads update → Commit all together
