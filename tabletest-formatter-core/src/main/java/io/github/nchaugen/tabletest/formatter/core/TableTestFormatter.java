@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.nchaugen.tabletest.formatter.core;
+package io.github.nchaugen.tabletest.formatter.core;
 
 import io.github.nchaugen.tabletest.parser.Table;
 import io.github.nchaugen.tabletest.parser.TableParser;
@@ -54,14 +54,16 @@ public class TableTestFormatter {
     }
 
     private String rebuildTable(Table table) {
-        String headerRow = buildRow(table.headers());
+        int[] columnWidths = calculateColumnWidths(table);
+
+        String headerRow = buildRow(table.headers(), columnWidths);
 
         String dataRows = IntStream.range(0, table.rowCount())
                 .mapToObj(table::row)
-                .map(row -> buildRow(row.values()))
+                .map(row -> buildRow(row.values(), columnWidths))
                 .collect(joining("\n"));
 
-        return headerRow + "\n" + dataRows;
+        return headerRow + "\n" + dataRows + "\n";
     }
 
     private int[] calculateColumnWidths(Table table) {
@@ -85,7 +87,14 @@ public class TableTestFormatter {
         return cell != null ? cell.toString().length() : 0;
     }
 
-    private String buildRow(List<?> cells) {
-        return cells.stream().map(cell -> cell != null ? cell.toString() : "").collect(joining("|"));
+    private String buildRow(List<?> cells, int[] columnWidths) {
+        return IntStream.range(0, cells.size())
+                .mapToObj(i -> padCell(cells.get(i), columnWidths[i], i == cells.size() - 1))
+                .collect(joining(" | "));
+    }
+
+    private String padCell(Object cell, int width, boolean isLastColumn) {
+        String value = cell != null ? cell.toString() : "";
+        return isLastColumn ? value : value + " ".repeat(Math.max(0, width - value.length()));
     }
 }
