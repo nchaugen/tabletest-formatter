@@ -43,4 +43,22 @@ class TableTestFormatterTest {
 
         assertThat(result).isEqualTo(input);
     }
+
+    @Test
+    void shouldCalculateColumnWidthsBasedOnWidestCell() {
+        var input = "a|bb|ccc\ndddd|e|ff";
+
+        int[] widths = formatter.calculateColumnWidths(input);
+
+        assertThat(widths).containsExactly(4, 2, 3);
+    }
+
+    @Test
+    void shouldCalculateColumnWidthsIncludingEmptyCells() {
+        var input = "name|value\n|longest";
+
+        int[] widths = formatter.calculateColumnWidths(input);
+
+        assertThat(widths).containsExactly(4, 7);
+    }
 }

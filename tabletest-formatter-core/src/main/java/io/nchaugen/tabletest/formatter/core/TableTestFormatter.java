@@ -42,6 +42,17 @@ public class TableTestFormatter {
         return rebuildTable(table);
     }
 
+    /**
+     * Calculates the maximum width needed for each column.
+     *
+     * @param tableText the raw table text
+     * @return an array of column widths
+     */
+    public int[] calculateColumnWidths(String tableText) {
+        Table table = TableParser.parse(tableText);
+        return calculateColumnWidths(table);
+    }
+
     private String rebuildTable(Table table) {
         String headerRow = buildRow(table.headers());
 
@@ -51,6 +62,27 @@ public class TableTestFormatter {
                 .collect(joining("\n"));
 
         return headerRow + "\n" + dataRows;
+    }
+
+    private int[] calculateColumnWidths(Table table) {
+        return IntStream.range(0, table.columnCount())
+                .map(col -> calculateColumnWidth(table, col))
+                .toArray();
+    }
+
+    private int calculateColumnWidth(Table table, int columnIndex) {
+        int headerWidth = cellWidth(table.header(columnIndex));
+
+        int maxDataWidth = IntStream.range(0, table.rowCount())
+                .map(row -> cellWidth(table.row(row).value(columnIndex)))
+                .max()
+                .orElse(0);
+
+        return Math.max(headerWidth, maxDataWidth);
+    }
+
+    private int cellWidth(Object cell) {
+        return cell != null ? cell.toString().length() : 0;
     }
 
     private String buildRow(List<?> cells) {
