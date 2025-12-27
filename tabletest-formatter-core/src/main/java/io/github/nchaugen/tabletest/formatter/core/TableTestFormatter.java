@@ -98,11 +98,14 @@ public class TableTestFormatter {
     }
 
     private String padToColumnWidth(String value, boolean isFirst, boolean isLast, int columnWidth) {
-        if (isFirst) {
-            // First cell: no leading space, just pad
+        if (isFirst && isLast) {
+            // Single column: no padding, no spacing
+            return value;
+        } else if (isFirst) {
+            // First column (not last): no leading space, just pad
             return padCell(value, columnWidth);
         } else if (isLast) {
-            // Last cell: leading space only if not empty
+            // Last column (not first): leading space only
             return value.isEmpty() ? "" : " " + value;
         } else {
             // Middle cells: leading space + padding

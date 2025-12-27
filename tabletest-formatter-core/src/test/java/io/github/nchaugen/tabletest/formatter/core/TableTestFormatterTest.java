@@ -1,5 +1,6 @@
 package io.github.nchaugen.tabletest.formatter.core;
 
+import io.github.nchaugen.tabletest.junit.TableTest;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -173,183 +174,27 @@ class TableTestFormatterTest {
                 """);
     }
 
-    @Test
-    void shouldNormalizeSpacingInLists() {
-        var input = """
-                input|expected
-                [1,2,3]|[1, 2, 3]
-                """;
+    @TableTest("""
+            Scenario                              | Input                   | Formatted?
+            Normalize spacing in lists            | "[1,2,3]"               | "[1, 2, 3]"
+            Remove extra spaces inside brackets   | "[ [] ]"                | "[[]]"
+            Format nested lists                   | "[[1,2],[3,4]]"         | "[[1, 2], [3, 4]]"
+            Format empty lists                    | "[]"                    | "[]"
+            Normalize spacing in maps             | "[a:1,b:2]"             | "[a: 1, b: 2]"
+            Format empty maps                     | "[:]"                   | "[:]"
+            Normalize spacing in sets             | "{1,2,3}"               | "{1, 2, 3}"
+            Format set with nested list           | "{[1,2]}"               | "{[1, 2]}"
+            Format empty sets                     | "{}"                    | "{}"
+            Format list of maps                   | "[[a:1],[b:2]]"         | "[[a: 1], [b: 2]]"
+            Format nested collections recursively | "[a:[1,2],b:[3,4]]"     | "[a: [1, 2], b: [3, 4]]"
+            Format deeply nested collections      | "[a:{[1,2]},b:{[3,4]}]" | "[a: {[1, 2]}, b: {[3, 4]}]"
+            """)
+    void shouldFormatCollectionInCell(String input, String formatted) {
+        var tableInput = "value\n" + input;
 
-        var result = formatter.format(input);
+        var result = formatter.format(tableInput);
 
-        assertThat(result).isEqualTo("""
-                input     | expected
-                [1, 2, 3] | [1, 2, 3]
-                """);
-    }
-
-    @Test
-    void shouldRemoveExtraSpacesInsideListBrackets() {
-        var input = """
-                input|expected
-                [ [] ]|[[]]
-                """;
-
-        var result = formatter.format(input);
-
-        assertThat(result).isEqualTo("""
-                input | expected
-                [[]]  | [[]]
-                """);
-    }
-
-    @Test
-    void shouldFormatNestedLists() {
-        var input = """
-                input|expected
-                [[1,2],[3,4]]|nested
-                """;
-
-        var result = formatter.format(input);
-
-        assertThat(result).isEqualTo("""
-                input            | expected
-                [[1, 2], [3, 4]] | nested
-                """);
-    }
-
-    @Test
-    void shouldFormatEmptyLists() {
-        var input = """
-                col|list
-                empty|[]
-                """;
-
-        var result = formatter.format(input);
-
-        assertThat(result).isEqualTo("""
-                col   | list
-                empty | []
-                """);
-    }
-
-    @Test
-    void shouldNormalizeSpacingInMaps() {
-        var input = """
-                input|expected
-                [a:1,b:2]|[a: 1, b: 2]
-                """;
-
-        var result = formatter.format(input);
-
-        assertThat(result).isEqualTo("""
-                input        | expected
-                [a: 1, b: 2] | [a: 1, b: 2]
-                """);
-    }
-
-    @Test
-    void shouldFormatEmptyMaps() {
-        var input = """
-                col|map
-                empty|[:]
-                """;
-
-        var result = formatter.format(input);
-
-        assertThat(result).isEqualTo("""
-                col   | map
-                empty | [:]
-                """);
-    }
-
-    @Test
-    void shouldNormalizeSpacingInSets() {
-        var input = """
-                input|expected
-                {1,2,3}|{1, 2, 3}
-                """;
-
-        var result = formatter.format(input);
-
-        assertThat(result).isEqualTo("""
-                input     | expected
-                {1, 2, 3} | {1, 2, 3}
-                """);
-    }
-
-    @Test
-    void shouldFormatSetWithNestedList() {
-        var input = """
-                input|expected
-                {[1,2]}|{[1, 2]}
-                """;
-
-        var result = formatter.format(input);
-
-        assertThat(result).isEqualTo("""
-                input    | expected
-                {[1, 2]} | {[1, 2]}
-                """);
-    }
-
-    @Test
-    void shouldFormatEmptySets() {
-        var input = """
-                col|set
-                empty|{}
-                """;
-
-        var result = formatter.format(input);
-
-        assertThat(result).isEqualTo("""
-                col   | set
-                empty | {}
-                """);
-    }
-
-    @Test
-    void shouldFormatListOfMaps() {
-        var input = """
-                col|list
-                test|[[a:1],[b:2]]
-                """;
-
-        var result = formatter.format(input);
-
-        assertThat(result).isEqualTo("""
-                col  | list
-                test | [[a: 1], [b: 2]]
-                """);
-    }
-
-    @Test
-    void shouldFormatNestedCollectionsRecursively() {
-        var input = """
-                col|nested
-                test|[a:[1,2],b:[3,4]]
-                """;
-
-        var result = formatter.format(input);
-
-        assertThat(result).isEqualTo("""
-                col  | nested
-                test | [a: [1, 2], b: [3, 4]]
-                """);
-    }
-
-    @Test
-    void shouldFormatDeeplyNestedCollections() {
-        var input = """
-                col|deep
-                test|[a:{[1,2]},b:{[3,4]}]
-                """;
-
-        var result = formatter.format(input);
-
-        assertThat(result).isEqualTo("""
-                col  | deep
-                test | [a: {[1, 2]}, b: {[3, 4]}]
-                """);
+        var lines = result.split("\n");
+        assertThat(lines[1]).isEqualTo(formatted);
     }
 }
