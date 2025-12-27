@@ -170,6 +170,14 @@ TableTest can appear in:
 - Spotless FormatterStep docs: Check contributing guide in Spotless repo
 - Beads: Issue tracking tool (bd command)
 
+## Unicode Width Handling
+
+**DisplayWidth implementation:** Uses wcwidth algorithm (IEEE Std 1002.1-2001) adapted from termd project (Apache 2.0). Unicode 5.0 (2007) implementation means modern emojis display as width 1.
+
+**Separator format:** `"| "` (pipe-space), NOT `" | "` (space-pipe-space)
+
+**IDE rendering caveat:** IntelliJ IDEA's source editor may show CJK/Unicode text as misaligned even when formatting is correct. IDE fonts don't always render Unicode with true monospace widths. Always verify output in actual terminals.
+
 ## Notes for Claude
 
 - User prefers pair programming style (discuss then implement)

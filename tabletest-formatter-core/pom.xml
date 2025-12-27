@@ -29,6 +29,14 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- TableTest for testing -->
+        <dependency>
+            <groupId>io.github.nchaugen</groupId>
+            <artifactId>tabletest-junit</artifactId>
+            <version>${version.tabletest}</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- AssertJ for fluent assertions -->
         <dependency>
             <groupId>org.assertj</groupId>

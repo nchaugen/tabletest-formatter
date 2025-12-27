@@ -84,17 +84,22 @@ public class TableTestFormatter {
     }
 
     private int cellWidth(Object cell) {
-        return cell != null ? cell.toString().length() : 0;
+        return cell != null ? DisplayWidth.of(cell.toString()) : 0;
     }
 
     private String buildRow(List<?> cells, int[] columnWidths) {
         return IntStream.range(0, cells.size())
-                .mapToObj(i -> padCell(cells.get(i), columnWidths[i], i == cells.size() - 1))
-                .collect(joining(" | "));
+                .mapToObj(i -> i == cells.size() - 1 ? cellValue(cells.get(i)) : padCell(cells.get(i), columnWidths[i]))
+                .collect(joining("| "));
     }
 
-    private String padCell(Object cell, int width, boolean isLastColumn) {
-        String value = cell != null ? cell.toString() : "";
-        return isLastColumn ? value : value + " ".repeat(Math.max(0, width - value.length()));
+    private String cellValue(Object cell) {
+        return cell != null ? cell.toString() : "";
+    }
+
+    private String padCell(Object cell, int width) {
+        String value = cellValue(cell);
+        int paddingSpaces = width + 1 - DisplayWidth.of(value);
+        return value + " ".repeat(Math.max(0, paddingSpaces));
     }
 }

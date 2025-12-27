@@ -78,4 +78,66 @@ class TableTestFormatterTest {
 
         assertThat(widths).containsExactly(4, 7);
     }
+
+    @Test
+    void shouldFormatTableWithCjkCharacters() {
+        var input = """
+                name|greeting
+                中文|你好
+                日本語|こんにちは
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo("""
+                name   | greeting
+                中文   | 你好
+                日本語 | こんにちは
+                """);
+    }
+
+    @Test
+    void shouldFormatTableWithMixedUnicodeContent() {
+        var input = """
+                language|text
+                Greek|Γεια
+                Cyrillic|Привет
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo("""
+                language | text
+                Greek    | Γεια
+                Cyrillic | Привет
+                """);
+    }
+
+    @Test
+    void shouldCalculateWidthsForCjkCharacters() {
+        var input = """
+                name|greeting
+                中文|你好
+                日本語|こんにちは
+                """;
+
+        int[] widths = formatter.calculateColumnWidths(input);
+
+        assertThat(widths).containsExactly(6, 10);
+    }
+
+    @Test
+    void shouldFormatTableWithEmojis() {
+        var input = """
+                col|emoji
+                test|😀
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo("""
+                col  | emoji
+                test | 😀
+                """);
+    }
 }
