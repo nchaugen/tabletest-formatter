@@ -92,9 +92,22 @@ public class TableTestFormatter {
         return IntStream.range(0, cells.size())
                 .mapToObj(i -> {
                     String value = formatCell(cells.get(i));
-                    return i == cells.size() - 1 ? value : padCell(value, columnWidths[i]);
+                    return padToColumnWidth(value, i == 0, i == cells.size() - 1, columnWidths[i]);
                 })
-                .collect(joining("| "));
+                .collect(joining("|"));
+    }
+
+    private String padToColumnWidth(String value, boolean isFirst, boolean isLast, int columnWidth) {
+        if (isFirst) {
+            // First cell: no leading space, just pad
+            return padCell(value, columnWidth);
+        } else if (isLast) {
+            // Last cell: leading space only if not empty
+            return value.isEmpty() ? "" : " " + value;
+        } else {
+            // Middle cells: leading space + padding
+            return " " + padCell(value, columnWidth);
+        }
     }
 
     private String formatCell(Object cell) {

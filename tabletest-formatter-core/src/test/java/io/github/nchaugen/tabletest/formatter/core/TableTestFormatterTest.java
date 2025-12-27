@@ -56,6 +56,38 @@ class TableTestFormatterTest {
     }
 
     @Test
+    void shouldFormatTableWithMultipleEmptyCells() {
+        var input = """
+                col1|col2|col3|col4
+                ||value|
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo("""
+                col1 | col2 | col3  | col4
+                     |      | value |
+                """);
+    }
+
+    @Test
+    void shouldFormatTableWithEmptyCellsInWideColumns() {
+        var input = """
+                name|age
+                |longest
+                short|
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo("""
+                name  | age
+                      | longest
+                short |
+                """);
+    }
+
+    @Test
     void shouldCalculateColumnWidthsBasedOnWidestCell() {
         var input = """
                 a|bb|ccc
