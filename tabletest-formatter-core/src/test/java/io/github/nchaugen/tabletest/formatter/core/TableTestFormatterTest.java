@@ -258,4 +258,94 @@ class TableTestFormatterTest {
                 Bob   | 25
                 """);
     }
+
+    @Test
+    void shouldPreserveSingleQuotes() {
+        var input = """
+                col
+                'value'
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo("""
+                col
+                'value'
+                """);
+    }
+
+    @Test
+    void shouldPreserveDoubleQuotes() {
+        var input = """
+                col
+                "value"
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo("""
+                col
+                "value"
+                """);
+    }
+
+    @Test
+    void shouldPreserveMixedQuoteStyles() {
+        var input = """
+                col1|col2|col3
+                'single'|"double"|unquoted
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo("""
+                col1     | col2     | col3
+                'single' | "double" | unquoted
+                """);
+    }
+
+    @Test
+    void shouldPreserveQuotesWithPadding() {
+        var input = """
+                short|long
+                'a'|'longer'
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo("""
+                short | long
+                'a'   | 'longer'
+                """);
+    }
+
+    @Test
+    void shouldPreserveQuotesWithPipeInside() {
+        var input = """
+                col1|col2
+                'a|b'|'c'
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo("""
+                col1  | col2
+                'a|b' | 'c'
+                """);
+    }
+
+    @Test
+    void shouldPreserveQuotesInListWithSpecialCharacters() {
+        var input = """
+                col
+                [unquoted, 'with|pipe', "with]bracket"]
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo("""
+                col
+                [unquoted, 'with|pipe', "with]bracket"]
+                """);
+    }
 }

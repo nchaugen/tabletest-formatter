@@ -51,7 +51,7 @@ public class TableTestFormatter {
                 .toList();
 
         // Format the table (parser ignores comments and blank lines)
-        Table table = TableParser.parse(tableText);
+        Table table = TableParser.parse(tableText, true);
         String formatted = formatTable(table);
 
         // Add back preserved comments and blank lines
@@ -83,7 +83,7 @@ public class TableTestFormatter {
      * @return an array of column widths
      */
     public int[] calculateColumnWidths(String tableText) {
-        Table table = TableParser.parse(tableText);
+        Table table = TableParser.parse(tableText, true);
         return calculateColumnWidths(table);
     }
 
