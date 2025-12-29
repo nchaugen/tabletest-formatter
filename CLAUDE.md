@@ -216,4 +216,12 @@ TableTest can appear in:
   - Keeps commit and issue status in sync
   - Include `.beads/issues.jsonl` changes in the same commit as the implementation
   - Can amend commits (before push) to add issue closure
-- **Commit workflow**: Stage code → Close issue → Stage beads update → Commit all together
+- **Commit workflow with copyright headers**:
+  1. Build to add copyright headers: `mvn clean install`
+  2. Stage code files: `git add <files>`
+  3. Close issue: `bd close <issue-id>`
+  4. Stage beads update: `git add .beads/issues.jsonl`
+  5. Commit all together: `git commit -m "..."`
+  6. Push: `git push`
+
+  **Why this order?** The build automatically adds copyright headers to new files. Building before staging ensures headers are included in the commit, preventing files from showing as modified after commit.
