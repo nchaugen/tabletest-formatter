@@ -1,5 +1,5 @@
 #!/bin/bash
-# Pre-commit hook: formotting + build with unit tests
+# Pre-commit hook: formatting + build with unit tests
 
 set -e
 
@@ -30,7 +30,7 @@ else
     echo "No Java files staged, skipping formatting"
 fi
 
-# 2. Build and run unit tests
+# 2. Build and run tests (also adds copyright headers during package phase)
 echo ""
 echo "Building and running tests..."
 if ! mvn clean install -q; then
@@ -39,6 +39,15 @@ if ! mvn clean install -q; then
     exit 1
 fi
 echo -e "${GREEN}✓ Build and tests successful${NC}"
+
+# 3. Re-stage any files modified by the build (e.g., copyright headers added)
+echo ""
+MODIFIED_STAGED=$(git diff --name-only --diff-filter=M | grep '\.java$' || true)
+if [ -n "$MODIFIED_STAGED" ]; then
+    echo "Re-staging files modified by build (copyright headers)..."
+    echo "$MODIFIED_STAGED" | xargs git add
+    echo -e "${GREEN}✓ Files re-staged${NC}"
+fi
 
 echo -e "${GREEN}✓ Pre-commit checks passed${NC}"
 exit 0
