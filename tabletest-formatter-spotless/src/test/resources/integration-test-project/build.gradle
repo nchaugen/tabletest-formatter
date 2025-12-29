@@ -1,0 +1,58 @@
+import io.github.nchaugen.tabletest.formatter.spotless.TableTestFormatterStep
+
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'io.github.nchaugen.tabletest:tabletest-formatter-spotless:0.1.0-SNAPSHOT'
+    }
+}
+
+plugins {
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '2.1.0'
+    id 'com.diffplug.spotless' version '8.1.0'
+}
+
+group = 'com.example'
+version = '1.0.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'io.github.nchaugen.tabletest:tabletest-junit:0.5.8'
+    testImplementation 'org.junit.jupiter:junit-jupiter:6.0.1'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:2.1.0'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+spotless {
+    format 'tableFiles', {
+        target 'src/**/*.table'
+        addStep(TableTestFormatterStep.create())
+    }
+
+    java {
+        target 'src/**/*.java'
+        addStep(TableTestFormatterStep.create())
+    }
+
+    kotlin {
+        target 'src/**/*.kt'
+        addStep(TableTestFormatterStep.create())
+    }
+}
