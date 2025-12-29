@@ -128,6 +128,79 @@ x|y                             x  | y
 
 ## Usage
 
+### Spotless Integration (Gradle)
+
+The tabletest-formatter-spotless module integrates with [Spotless](https://github.com/diffplug/spotless) to automatically format TableTest tables in your Gradle projects.
+
+**Supported file types:**
+- Java files (`.java`) with `@TableTest` annotations
+- Kotlin files (`.kt`) with `@TableTest` annotations
+- Standalone `.table` files
+
+**Note:** Maven integration requires contributing the formatter to the Spotless project itself, as the Spotless Maven plugin doesn't support programmatic custom steps. Gradle projects can use the formatter today via `addStep()`.
+
+#### Gradle Configuration
+
+Add to your `build.gradle`:
+
+```groovy
+import io.github.nchaugen.tabletest.formatter.spotless.TableTestFormatterStep
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'io.github.nchaugen.tabletest:tabletest-formatter-spotless:0.1.0-SNAPSHOT'
+    }
+}
+
+plugins {
+    id 'com.diffplug.spotless' version '8.1.0'
+}
+
+spotless {
+    // Format standalone .table files
+    format 'tableFiles', {
+        target 'src/**/*.table'
+        addStep(TableTestFormatterStep.create())
+    }
+
+    // Format @TableTest in Java files
+    java {
+        target 'src/**/*.java'
+        addStep(TableTestFormatterStep.create())
+    }
+
+    // Format @TableTest in Kotlin files
+    kotlin {
+        target 'src/**/*.kt'
+        addStep(TableTestFormatterStep.create())
+    }
+}
+```
+
+**Usage:**
+```bash
+# Check formatting (exits with error if changes needed)
+./gradlew spotlessCheck
+
+# Apply formatting
+./gradlew spotlessApply
+```
+
+#### CI Integration
+
+Add to your CI pipeline to enforce formatting:
+
+```yaml
+# GitHub Actions example
+- name: Check TableTest formatting
+  run: ./gradlew spotlessCheck
+```
+
+### Command-Line Interface
+
 Documentation coming soon.
 
 ## License
