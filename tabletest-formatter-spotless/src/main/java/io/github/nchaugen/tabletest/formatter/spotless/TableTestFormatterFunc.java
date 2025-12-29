@@ -16,12 +16,10 @@
 package io.github.nchaugen.tabletest.formatter.spotless;
 
 import com.diffplug.spotless.FormatterFunc;
-import io.github.nchaugen.tabletest.formatter.core.TableMatch;
-import io.github.nchaugen.tabletest.formatter.core.TableTestExtractor;
+import io.github.nchaugen.tabletest.formatter.core.SourceFileFormatter;
 import io.github.nchaugen.tabletest.formatter.core.TableTestFormatter;
 
 import java.io.File;
-import java.util.List;
 
 /**
  * Spotless formatter function for TableTest tables.
@@ -36,7 +34,8 @@ import java.util.List;
 public final class TableTestFormatterFunc implements FormatterFunc.NeedsFile {
 
     private final TableTestFormatterState state;
-    private final TableTestFormatter formatter;
+    private final TableTestFormatter tableFormatter;
+    private final SourceFileFormatter sourceFormatter;
 
     /**
      * Creates a new formatter function with the given state.
@@ -45,7 +44,8 @@ public final class TableTestFormatterFunc implements FormatterFunc.NeedsFile {
      */
     public TableTestFormatterFunc(TableTestFormatterState state) {
         this.state = state;
-        this.formatter = new TableTestFormatter();
+        this.tableFormatter = new TableTestFormatter();
+        this.sourceFormatter = new SourceFileFormatter();
     }
 
     @Override
@@ -62,45 +62,12 @@ public final class TableTestFormatterFunc implements FormatterFunc.NeedsFile {
     }
 
     private String formatStandaloneTableFile(String content) {
-        String formatted = formatter.format(content);
+        String formatted = tableFormatter.format(content);
         return formatted.equals(content) ? null : formatted;
     }
 
     private String formatSourceFile(String content) {
-        List<TableMatch> matches = TableTestExtractor.findAll(content);
-
-        if (matches.isEmpty()) {
-            return null;
-        }
-
-        StringBuilder result = new StringBuilder(content);
-        int offset = 0;
-
-        for (TableMatch match : matches) {
-            String originalTable = match.originalText();
-            String formattedTable = formatter.format(originalTable);
-
-            if (!formattedTable.equals(originalTable)) {
-                int startPos = match.startIndex() + offset;
-                int endPos = match.endIndex() + offset;
-
-                // Find the start of the table content (after the opening """)
-                String beforeTable = content.substring(match.startIndex(), match.endIndex());
-                int tableContentStart = beforeTable.indexOf("\"\"\"") + 3;
-                int tableContentEnd = beforeTable.lastIndexOf("\"\"\"");
-
-                // Calculate actual positions in the result string
-                int actualStart = startPos + tableContentStart;
-                int actualEnd = startPos + tableContentEnd;
-
-                result.replace(actualStart, actualEnd, formattedTable);
-
-                // Update offset for subsequent replacements
-                offset += formattedTable.length() - originalTable.length();
-            }
-        }
-
-        String resultString = result.toString();
-        return resultString.equals(content) ? null : resultString;
+        String formatted = sourceFormatter.format(content);
+        return formatted.equals(content) ? null : formatted;
     }
 }
