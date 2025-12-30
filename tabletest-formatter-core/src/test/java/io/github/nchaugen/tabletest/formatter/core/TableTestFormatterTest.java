@@ -418,4 +418,77 @@ class TableTestFormatterTest {
 
         assertThat(result).isEqualTo(input);
     }
+
+    @Test
+    void shouldHandleUnmatchedSingleQuote() {
+        var input = """
+                name|value
+                test|'unclosed
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo("""
+                name | value
+                test | 'unclosed
+                """);
+    }
+
+    @Test
+    void shouldHandleUnmatchedDoubleQuote() {
+        var input = """
+                name|value
+                test|"unclosed
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo("""
+                name | value
+                test | "unclosed
+                """);
+    }
+
+    @Test
+    void shouldReturnUnchangedWhenEscapedQuotesInValue() {
+        var input = """
+                name|message
+                test|"He said \\"hello\\""
+                """;
+
+        var result = formatter.format(input);
+
+        // Parser cannot handle escaped quotes, returns unchanged
+        assertThat(result).isEqualTo(input);
+    }
+
+    @Test
+    void shouldHandleInvalidUnicodeSequence() {
+        var input = """
+                name|value
+                test|\\uZZZZ
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo("""
+                name | value
+                test | \\uZZZZ
+                """);
+    }
+
+    @Test
+    void shouldHandleMixedQuotesWithinCell() {
+        var input = """
+                name|message
+                test|'He said "hello"'
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo("""
+                name | message
+                test | 'He said "hello"'
+                """);
+    }
 }
