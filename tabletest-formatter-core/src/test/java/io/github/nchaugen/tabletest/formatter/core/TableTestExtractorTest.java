@@ -251,4 +251,109 @@ class TableTestExtractorTest {
         assertThat(matches.get(1).originalText()).contains("x | y");
         assertThat(matches.get(2).originalText()).contains("m | n");
     }
+
+    @Test
+    void shouldHandleInvalidAnnotationSyntax() {
+        var sourceCode = """
+                class Test {
+                    @TableTest(
+                        name | age
+                        Alice | 30
+                    )
+                    void test1() {}
+
+                    @TableTest("regular string not text block")
+                    void test2() {}
+                }
+                """;
+
+        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+
+        // Invalid syntax (missing text block quotes) - finds nothing
+        assertThat(matches).isEmpty();
+    }
+
+    @Test
+    void shouldHandleMalformedStringLiterals() {
+        var sourceCode = """
+                class Test {
+                    @TableTest(\"""
+                        name | age
+                        Alice | 30
+                    void test1() {}
+
+                    @TableTest(""
+                        x | y
+                        1 | 2
+                        "")
+                    void test2() {}
+                }
+                """;
+
+        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+
+        // Malformed literals (unclosed text blocks) - finds nothing
+        assertThat(matches).isEmpty();
+    }
+
+    @Test
+    void shouldHandleNonTableTestAnnotations() {
+        var sourceCode = """
+                class Test {
+                    @Test
+                    void test1() {}
+
+                    @ParameterizedTest
+                    @CsvSource(\"""
+                        name, age
+                        Alice, 30
+                        \""")
+                    void test2(String name, int age) {}
+
+                    @MyCustomAnnotation(\"""
+                        a | b
+                        1 | 2
+                        \""")
+                    void test3() {}
+                }
+                """;
+
+        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+
+        // Non-TableTest annotations - finds nothing
+        assertThat(matches).isEmpty();
+    }
+
+    @Test
+    void shouldHandleCorruptedSourceFiles() {
+        var sourceCode = """
+                class Test {
+                    @TableTest(\"""
+                        name | age
+                        Alice | 30
+                """;
+
+        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+
+        // Incomplete/corrupted source (missing closing braces) - finds nothing
+        assertThat(matches).isEmpty();
+    }
+
+    @Test
+    void shouldHandleEmptySourceFile() {
+        var sourceCode = "";
+
+        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+
+        assertThat(matches).isEmpty();
+    }
+
+    @Test
+    void shouldHandleSourceWithOnlyWhitespace() {
+        var sourceCode = "   \n\n   \t\t  \n  ";
+
+        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+
+        assertThat(matches).isEmpty();
+    }
 }
