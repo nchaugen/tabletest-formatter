@@ -175,20 +175,20 @@ class TableTestFormatterTest {
     }
 
     @TableTest("""
-            Scenario                              | Input                   | Formatted?
-            Normalize spacing in lists            | "[1,2,3]"               | "[1, 2, 3]"
-            Remove extra spaces inside brackets   | "[ [] ]"                | "[[]]"
-            Format nested lists                   | "[[1,2],[3,4]]"         | "[[1, 2], [3, 4]]"
-            Format empty lists                    | "[]"                    | "[]"
-            Normalize spacing in maps             | "[a:1,b:2]"             | "[a: 1, b: 2]"
-            Format empty maps                     | "[:]"                   | "[:]"
-            Normalize spacing in sets             | "{1,2,3}"               | "{1, 2, 3}"
-            Format set with nested list           | "{[1,2]}"               | "{[1, 2]}"
-            Format empty sets                     | "{}"                    | "{}"
-            Format list of maps                   | "[[a:1],[b:2]]"         | "[[a: 1], [b: 2]]"
-            Format nested collections recursively | "[a:[1,2],b:[3,4]]"     | "[a: [1, 2], b: [3, 4]]"
-            Format deeply nested collections      | "[a:{[1,2]},b:{[3,4]}]" | "[a: {[1, 2]}, b: {[3, 4]}]"
-            """)
+        Scenario                              | Input                   | Formatted?
+        Normalize spacing in lists            | "[1,2,3]"               | "[1, 2, 3]"
+        Remove extra spaces inside brackets   | "[ [] ]"                | "[[]]"
+        Format nested lists                   | "[[1,2],[3,4]]"         | "[[1, 2], [3, 4]]"
+        Format empty lists                    | "[]"                    | "[]"
+        Normalize spacing in maps             | "[a:1,b:2]"             | "[a: 1, b: 2]"
+        Format empty maps                     | "[:]"                   | "[:]"
+        Normalize spacing in sets             | "{1,2,3}"               | "{1, 2, 3}"
+        Format set with nested list           | "{[1,2]}"               | "{[1, 2]}"
+        Format empty sets                     | "{}"                    | "{}"
+        Format list of maps                   | "[[a:1],[b:2]]"         | "[[a: 1], [b: 2]]"
+        Format nested collections recursively | "[a:[1,2],b:[3,4]]"     | "[a: [1, 2], b: [3, 4]]"
+        Format deeply nested collections      | "[a:{[1,2]},b:{[3,4]}]" | "[a: {[1, 2]}, b: {[3, 4]}]"
+        """)
     void shouldFormatCollectionInCell(String input, String formatted) {
         var tableInput = "value\n" + input;
 
@@ -347,5 +347,75 @@ class TableTestFormatterTest {
                 col
                 [unquoted, 'with|pipe', "with]bracket"]
                 """);
+    }
+
+    @Test
+    void shouldReturnUnchangedWhenMismatchedColumnCounts() {
+        var input = """
+                name|age
+                Alice|30
+                Bob|25|London
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo(input);
+    }
+
+    @Test
+    void shouldReturnUnchangedWhenFewerColumnsInDataRow() {
+        var input = """
+                name|age|city
+                Alice|30
+                Bob|25|London
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo(input);
+    }
+
+    @Test
+    void shouldFormatSingleColumnTable() {
+        var input = """
+                name
+                Alice
+                Bob
+                """;
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo("""
+                name
+                Alice
+                Bob
+                """);
+    }
+
+    @Test
+    void shouldReturnUnchangedWhenEmpty() {
+        var input = "";
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo(input);
+    }
+
+    @Test
+    void shouldReturnUnchangedWhenOnlyWhitespace() {
+        var input = "   \n  \n   ";
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo(input);
+    }
+
+    @Test
+    void shouldReturnUnchangedWhenSingleLine() {
+        var input = "name|age";
+
+        var result = formatter.format(input);
+
+        assertThat(result).isEqualTo(input);
     }
 }

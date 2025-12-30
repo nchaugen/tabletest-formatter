@@ -38,24 +38,38 @@ public class TableTestFormatter {
     /**
      * Formats the given TableTest table text.
      *
+     * <p>If the input cannot be parsed or formatted (malformed table structure),
+     * the original input is returned unchanged.
+     *
      * @param tableText the raw table text to format
-     * @return the formatted table text
+     * @return the formatted table text, or the original input if formatting fails
      */
     public String format(String tableText) {
-        String[] lines = tableText.split("\n", -1);
+        try {
+            String[] lines = tableText.split("\n", -1);
 
-        // Identify comment and blank lines
-        List<Integer> commentOrBlankLines = IntStream.range(0, lines.length)
-                .filter(i -> isCommentLine(lines[i]) || isBlankLine(lines[i]))
-                .boxed()
-                .toList();
+            // Identify comment and blank lines
+            List<Integer> commentOrBlankLines = IntStream.range(0, lines.length)
+                    .filter(i -> isCommentLine(lines[i]) || isBlankLine(lines[i]))
+                    .boxed()
+                    .toList();
 
-        // Format the table (parser ignores comments and blank lines)
-        Table table = TableParser.parse(tableText, true);
-        String formatted = formatTable(table);
+            // Format the table (parser ignores comments and blank lines)
+            Table table = TableParser.parse(tableText, true);
 
-        // Add back preserved comments and blank lines
-        return addBackCommentsAndBlankLines(lines, commentOrBlankLines, formatted);
+            // Single-line tables (header only, no data rows) should be returned unchanged
+            if (table.rows().isEmpty()) {
+                return tableText;
+            }
+
+            String formatted = formatTable(table);
+
+            // Add back preserved comments and blank lines
+            return addBackCommentsAndBlankLines(lines, commentOrBlankLines, formatted);
+        } catch (Exception e) {
+            // Return input unchanged if parsing or formatting fails
+            return tableText;
+        }
     }
 
     private boolean isCommentLine(String line) {
