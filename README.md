@@ -45,7 +45,7 @@ TableTest uses a pipe-delimited table format for data-driven testing. Tables can
 
 ### Value Formatting
 
-**Quoting:** Use quotes when values contain special characters: pipe (`|`), quotation marks, or start with bracket/brace. Choose single or double quotes based on content.
+**Quoting:** Use quotes when values contain special characters: pipe (`|`), quotation marks, or start with bracket/brace. Choose single or double quotes based on content. To include quotes within values, use nested quotes (e.g., `'He said "hello"'` or `"It's working"`). Backslash escaping is not supported.
 
 **Empty values:**
 - `''` or `""` represents empty string
@@ -89,6 +89,15 @@ This formatter applies consistent formatting with sensible defaults based on est
 - **Empty strings**: `''` and `""`
 - **Special characters**: Pipes, quotes, brackets in quoted values
 - **Nested collections**: Multiple levels of nesting with proper spacing
+
+### Error Handling
+
+The formatter handles invalid input gracefully:
+- **Malformed tables** (mismatched columns, corrupted structure) → returned unchanged
+- **Unparseable content** → returned unchanged
+- **Single-column tables** → formatted correctly (no pipes needed)
+
+This ensures the formatter never breaks your code, even with invalid input.
 
 ### Formatting Examples
 

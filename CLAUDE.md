@@ -72,15 +72,19 @@ mvn versions:display-dependency-updates
 2. Beads: `bd init` (select "merge" when prompted)
 
 **Hook chain**:
-- **pre-commit**: Beads wrapper → custom hook (Spotless format + `mvn clean install`) → beads sync
-- **pre-push**: Custom hook (force-push protection + `mvn clean verify`)
+- **pre-commit**: Beads wrapper → custom hook (Spotless format + `mvn clean install` + auto-restage copyright headers) → beads sync
+- **pre-push**: Custom hook (force-push protection only)
 - **commit-msg**: Custom hook (validates conventional commits, checks for Claude attribution)
 
 **Hook files**:
 - `.git/hooks/pre-commit` - Beads chaining wrapper
 - `.git/hooks/pre-commit.old` - Our custom formatting + build hook
-- `.git/hooks/pre-push` - Force-push protection + full test suite
+- `.git/hooks/pre-push` - Force-push protection (no Maven - faster!)
 - `.git/hooks/commit-msg` - Commit message validation
+
+**Recent optimization (2025-12-30):**
+- Pre-commit now auto-restages files modified by build (copyright headers)
+- Pre-push simplified to only check force-push (faster, trusts pre-commit)
 
 ### Committing
 
@@ -216,12 +220,17 @@ TableTest can appear in:
   - Keeps commit and issue status in sync
   - Include `.beads/issues.jsonl` changes in the same commit as the implementation
   - Can amend commits (before push) to add issue closure
-- **Commit workflow with copyright headers**:
-  1. Build to add copyright headers: `mvn clean install`
-  2. Stage code files: `git add <files>`
-  3. Close issue: `bd close <issue-id>`
-  4. Stage beads update: `git add .beads/issues.jsonl`
-  5. Commit all together: `git commit -m "..."`
-  6. Push: `git push`
 
-  **Why this order?** The build automatically adds copyright headers to new files. Building before staging ensures headers are included in the commit, preventing files from showing as modified after commit.
+- **Standard commit workflow**:
+  1. Stage code files: `git add <files>`
+  2. Close issue: `bd close <issue-id>`
+  3. Stage beads update: `git add .beads/issues.jsonl`
+  4. Commit: `git commit -m "..."`
+  5. Push: `git push`
+
+  **Note:** Pre-commit hook automatically handles:
+  - Spotless code formatting
+  - Copyright header insertion (and re-staging modified files)
+  - Build and tests (`mvn clean install`)
+
+  No manual build step needed before committing!
