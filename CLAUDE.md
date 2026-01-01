@@ -98,6 +98,12 @@ Follow conventional commits:
 
 **Important**: Omit Claude Code attribution footer (checked by commit-msg hook)
 
+**Note on pre-commit hook:**
+- Runs `mvn clean install` - all tests must pass before commit succeeds
+- Formats code with Spotless and auto-restages changes
+- Any test failures will block the commit
+- This catches issues early, before push
+
 ## Implementation Reference
 
 ### IntelliJ IDEA Plugin
@@ -115,14 +121,9 @@ A working reference implementation exists: `~/IdeaProjects/tabletest-intellij`
 - Implement formatting logic without PSI (text manipulation based on parsed structure)
 - Handle raw cell text extraction and reconstruction
 
-### Implementation Strategy
+### Implementation Workflow
 
-**Issue structure:** Issue bn7 (core formatter) depends on 11 implementation steps (h79-tod):
-- **Phase 1** (sequential): h79 → 8mq → sy0 (parse/rebuild, calculate widths, align)
-- **Phase 2** (after sy0): zno, yv2, bxi (collection formatting) → bm3 (nested)
-- **Phase 3** (after sy0): 9jl, lc4, 9st, tod (edge cases)
-
-Use `bd ready` to find next available step. Dependencies enforce logical ordering.
+Use `bd ready` to find available work. Issues are organized with dependencies to enforce logical ordering.
 
 ## Important Decisions & Conventions
 
@@ -186,10 +187,42 @@ TableTest can appear in:
 
 - User prefers pair programming style (discuss then implement)
 - Follow TDD: Red → Green → Refactor
-- Use TableTest for test organization when appropriate
+- **When using TableTest: ALWAYS invoke the tabletest skill first** (`Skill(skill="tabletest")`)
 - British English (Oxford spelling)
 - No copyright headers (added by build)
 - Keep commits focused and atomic
+
+### Test Organization
+
+**Regular JUnit @Test:**
+- Use for single scenarios or complex setup
+- Use when test logic differs significantly between cases
+
+**TableTest (via skill):**
+- **CRITICAL: Invoke `Skill(skill="tabletest")` BEFORE writing TableTest code**
+- Use for multiple similar test cases differing only in data
+- Quote values to preserve whitespace: `'  @TableTest...'`
+- Scenario column (first) doesn't need a parameter
+- Expected columns should use `?` suffix: `indent?`, `formatted?`
+
+**Test Consolidation:**
+- When you have 3+ similar @Test methods, consider consolidating to TableTest
+- Example: 8 indentation tests → 2 TableTest methods (more maintainable)
+
+### Debugging Workflow
+
+When investigating bugs or test failures:
+1. **Reproduce** - Add a minimal failing test case
+2. **Isolate** - Add debug output (System.out.println) to trace execution
+3. **Fix** - Make the minimal change to fix the issue
+4. **Clean** - Remove debug output, ensure tests pass
+5. **Refactor** - If needed, improve code structure (separate commit)
+
+Example from indentation bug investigation:
+- Added debug output to see actual vs expected strings
+- Traced through formatTable → addBackCommentsAndBlankLines
+- Found two bugs: lost trailing lines, extra blank lines
+- Fixed both, removed debug output, all tests pass
 
 ### Programming Style
 

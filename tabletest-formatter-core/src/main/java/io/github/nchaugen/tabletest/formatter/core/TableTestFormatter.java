@@ -18,6 +18,7 @@ package io.github.nchaugen.tabletest.formatter.core;
 import io.github.nchaugen.tabletest.parser.Table;
 import io.github.nchaugen.tabletest.parser.TableParser;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,9 +60,13 @@ public class TableTestFormatter {
      */
     public String format(String tableText, int indentSize, int baseIndent) {
         try {
-            // When using indentation, strip and normalize whitespace structure
+            // Strip and normalize whitespace structure when using indentation
             String input = indentSize > 0 ? tableText.strip() : tableText;
-            String[] lines = input.split("\n", -1);
+
+            // Trim lines when indentation will be applied to normalize spacing
+            String[] lines = indentSize > 0
+                    ? Arrays.stream(input.split("\n", -1)).map(String::trim).toArray(String[]::new)
+                    : input.split("\n", -1);
 
             // Identify comment and blank lines
             List<Integer> commentOrBlankLines = IntStream.range(0, lines.length)
@@ -72,10 +77,13 @@ public class TableTestFormatter {
             // Format the table (parser ignores comments and blank lines)
             Table table = TableParser.parse(input, true);
 
-            String formatted = formatTable(table, indentSize, baseIndent);
+            String formatted = formatTable(table);
 
             // Add back preserved comments and blank lines
-            return addBackCommentsAndBlankLines(lines, commentOrBlankLines, formatted, indentSize, baseIndent);
+            String withComments = addBackCommentsAndBlankLines(lines, commentOrBlankLines, formatted);
+
+            // Apply indentation as final step if requested
+            return indentSize > 0 ? applyIndentation(withComments, indentSize, baseIndent) : withComments;
         } catch (Exception e) {
             // Return input unchanged if parsing or formatting fails
             return tableText;
@@ -91,13 +99,8 @@ public class TableTestFormatter {
     }
 
     private String addBackCommentsAndBlankLines(
-            String[] originalLines,
-            List<Integer> commentOrBlankIndices,
-            String formatted,
-            int indentSize,
-            int baseIndent) {
+            String[] originalLines, List<Integer> commentOrBlankIndices, String formatted) {
         String[] formattedLines = formatted.split("\n", -1);
-        String indent = indentSize > 0 ? " ".repeat(baseIndent + indentSize) : "";
 
         List<String> result = new java.util.ArrayList<>();
         int formattedIndex = 0;
@@ -106,15 +109,14 @@ public class TableTestFormatter {
         for (int i = 0; i < originalLines.length; i++) {
             if (commentOrBlankIndices.contains(i)) {
                 // Preserve comment or blank line from original
-                String line = indentSize > 0 ? indent + originalLines[i].trim() : originalLines[i];
-                result.add(line);
+                result.add(originalLines[i]);
             } else {
                 // Use formatted table line
                 result.add(formattedLines[formattedIndex++]);
             }
         }
 
-        // Add any remaining formatted lines (e.g., trailing indentation)
+        // Add any remaining formatted lines
         // Skip final empty string (artifact from split with trailing newline)
         while (formattedIndex < formattedLines.length) {
             if (formattedIndex == formattedLines.length - 1 && formattedLines[formattedIndex].isEmpty()) {
@@ -124,6 +126,14 @@ public class TableTestFormatter {
         }
 
         return String.join("\n", result);
+    }
+
+    private String applyIndentation(String formatted, int indentSize, int baseIndent) {
+        String indent = " ".repeat(baseIndent + indentSize);
+        String[] lines = formatted.split("\n", -1);
+
+        // Apply indent to each line and add trailing indent for closing quote alignment
+        return Arrays.stream(lines).map(line -> indent + line).collect(joining("\n")) + "\n" + indent;
     }
 
     /**
@@ -137,26 +147,16 @@ public class TableTestFormatter {
         return calculateColumnWidths(table);
     }
 
-    private String formatTable(Table table, int indentSize, int baseIndent) {
+    private String formatTable(Table table) {
         int[] columnWidths = calculateColumnWidths(table);
 
-        // Only apply indentation if indentSize > 0
-        String indent = indentSize > 0 ? " ".repeat(baseIndent + indentSize) : "";
-
-        String headerRow = indent + formatRow(table.headers(), columnWidths);
+        String headerRow = formatRow(table.headers(), columnWidths);
 
         String dataRows = table.rows().stream()
-                .map(row -> indent + formatRow(row.values(), columnWidths))
+                .map(row -> formatRow(row.values(), columnWidths))
                 .collect(joining("\n"));
 
-        String result = table.rows().isEmpty() ? headerRow + "\n" : headerRow + "\n" + dataRows + "\n";
-
-        // Add trailing indentation for closing quote alignment (without trailing newline)
-        if (indentSize > 0) {
-            result += indent;
-        }
-
-        return result;
+        return table.rows().isEmpty() ? headerRow + "\n" : headerRow + "\n" + dataRows + "\n";
     }
 
     private int[] calculateColumnWidths(Table table) {
