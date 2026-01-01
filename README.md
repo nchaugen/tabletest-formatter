@@ -152,8 +152,8 @@ x|y                             x  | y
 ```java
 Before:
     @TableTest("""
-        Scenario|Input|Expected
-        Basic|5|10
+Scenario|Input|Expected
+Basic case|5|10
         """)
 
 After:
@@ -162,18 +162,16 @@ After:
         Basic case | 5     | 10
         """)
 ```
-The table content aligns with the `@TableTest` annotation's indentation level.
-
-**Note:** Future versions may add configuration options for formatting preferences.
+The table content aligns with the `@TableTest` annotation's indentation level, with additional indentation added based on the configured `indentSize`.
 
 ## Configuration Parameters
 
-Both the CLI and Spotless integration support the `tabSize` configuration parameter:
+Both the CLI and Spotless integration support configurable `tabSize` and `indentSize` parameters:
 
 | Parameter | CLI Option | Spotless Method | Default | Description |
 |-----------|------------|-----------------|---------|-------------|
-| **Tab Size** | `--tab-size <N>` | `create(N)` | `4` | Number of spaces a tab character represents when converting tabs to spaces |
-| **Indent Size** | `--indent-size <N>` | _(not configurable)_ | `4` (CLI only) | Number of spaces per indent level (CLI only; Spotless uses 0) |
+| **Tab Size** | `--tab-size <N>` | `create(N, ...)` | `4` | Number of spaces a tab character represents when converting tabs to spaces |
+| **Indent Size** | `--indent-size <N>` | `create(..., N)` | `4` | Number of spaces per indent level for table content |
 
 **How indentation works:**
 
@@ -183,10 +181,10 @@ Both the CLI and Spotless integration support the `tabSize` configuration parame
 - Useful for standalone `.table` files or when you want additional indentation
 
 **Spotless**:
-- Only `tabSize` is configurable via `create(N)`
+- Both `tabSize` and `indentSize` are configurable via `create(tabSize, indentSize)`
 - Base indentation is **auto-detected** from the `@TableTest` annotation's position in the source file
-- No additional indentation is added (internally uses `indentSize=0`)
-- Result: tables align perfectly with their `@TableTest` annotation
+- Additional indentation can be added via `indentSize` parameter (default: `4`)
+- Example: `create(4, 0)` aligns tables with their annotation, `create(4, 4)` adds 4 spaces of extra indentation (default)
 
 ## Usage
 
@@ -244,19 +242,28 @@ spotless {
 
 #### Configuration Options
 
-The Spotless integration supports one configuration parameter: **tab size**.
+The Spotless integration supports two configuration parameters: **tab size** and **indent size**.
 
 ```groovy
-// Default tab size (4 spaces)
+// Default configuration (tab size: 4, indent size: 4)
 addStep(TableTestFormatterStep.create())
 
-// Custom tab size (e.g., 2 spaces)
+// Custom tab size only (indent size defaults to 4)
 addStep(TableTestFormatterStep.create(2))
+
+// Custom tab size and indent size
+addStep(TableTestFormatterStep.create(4, 0))  // align with annotation, no extra indent
+addStep(TableTestFormatterStep.create(2, 2))  // 2-space tabs, 2-space indent
 ```
 
 **Tab size** controls how tab characters in source files are converted to spaces when calculating indentation. If your project uses 2-space tabs instead of 4, configure accordingly.
 
-**Indentation behaviour**: The formatter automatically detects the base indentation from the `@TableTest` annotation's position in your source file. Tables are formatted to align with their annotation, with no additional indentation added. This ensures consistent formatting that matches your existing code style.
+**Indent size** controls additional indentation added to table content beyond the base indentation:
+- **Default (4)**: Adds 4 spaces of indentation to table content
+- **Zero (0)**: Tables align exactly with their `@TableTest` annotation position
+- **Other values**: Adds that many spaces of extra indentation (e.g., `2` adds 2 spaces to each table line)
+
+**Indentation behaviour**: The formatter automatically detects the base indentation from the `@TableTest` annotation's position in your source file. The `indentSize` parameter adds additional indentation on top of this base level.
 
 **Usage:**
 ```bash

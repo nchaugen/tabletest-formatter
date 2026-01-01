@@ -87,8 +87,9 @@ public final class TableTestFormatterFunc implements FormatterFunc.NeedsFile {
     }
 
     private String formatSourceFile(String content) {
+        int indentSize = state.indentSize();
         int tabSize = state.tabSize();
-        String formatted = sourceFormatter.format(content, 0, tabSize);
+        String formatted = sourceFormatter.format(content, indentSize, tabSize);
         return formatted.equals(content) ? null : formatted;
     }
 }

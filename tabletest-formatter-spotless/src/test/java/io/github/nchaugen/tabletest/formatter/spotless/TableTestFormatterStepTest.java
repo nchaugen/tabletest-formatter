@@ -25,9 +25,24 @@ class TableTestFormatterStepTest {
     }
 
     @Test
+    void shouldCreateFormatterStepWithCustomTabSizeAndIndentSize() {
+        FormatterStep step = TableTestFormatterStep.create(2, 4);
+
+        assertThat(step).isNotNull();
+        assertThat(step.getName()).isEqualTo("tabletest");
+    }
+
+    @Test
     void shouldThrowIllegalArgumentExceptionForInvalidTabSize() {
         assertThatThrownBy(() -> TableTestFormatterStep.create(0))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("tabSize must be at least 1");
+    }
+
+    @Test
+    void shouldThrowIllegalArgumentExceptionForNegativeIndentSize() {
+        assertThatThrownBy(() -> TableTestFormatterStep.create(4, -1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("indentSize must not be negative");
     }
 }

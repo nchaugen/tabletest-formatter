@@ -32,23 +32,35 @@ public final class TableTestFormatterStep {
     }
 
     /**
-     * Creates a new FormatterStep for TableTest formatting with default tab size of 4.
+     * Creates a new FormatterStep for TableTest formatting with default tab size of 4 and indent size of 4.
      *
      * @return a configured FormatterStep instance
      */
     public static FormatterStep create() {
-        return create(4);
+        return create(4, 4);
     }
 
     /**
-     * Creates a new FormatterStep for TableTest formatting with specified tab size.
+     * Creates a new FormatterStep for TableTest formatting with specified tab size and default indent size of 4.
      *
      * @param tabSize the number of spaces a tab character should be converted to
      * @return a configured FormatterStep instance
      * @throws IllegalArgumentException if tabSize is less than 1
      */
     public static FormatterStep create(int tabSize) {
-        TableTestFormatterState state = new TableTestFormatterState(tabSize);
+        return create(tabSize, 4);
+    }
+
+    /**
+     * Creates a new FormatterStep for TableTest formatting with specified tab size and indent size.
+     *
+     * @param tabSize    the number of spaces a tab character should be converted to
+     * @param indentSize the number of spaces per indent level
+     * @return a configured FormatterStep instance
+     * @throws IllegalArgumentException if tabSize is less than 1 or indentSize is negative
+     */
+    public static FormatterStep create(int tabSize, int indentSize) {
+        TableTestFormatterState state = new TableTestFormatterState(tabSize, indentSize);
         return FormatterStep.createLazy(NAME, () -> state, TableTestFormatterFunc::new);
     }
 }
