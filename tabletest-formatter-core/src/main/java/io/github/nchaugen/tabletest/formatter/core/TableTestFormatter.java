@@ -20,8 +20,6 @@ import io.github.nchaugen.tabletest.parser.TableParser;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.joining;
@@ -33,6 +31,8 @@ import static java.util.stream.Collectors.joining;
  * spacing normalization, and quote preservation.
  */
 public class TableTestFormatter {
+
+    private final CellFormatter cellFormatter = new CellFormatter();
 
     /**
      * Formats the given TableTest table text without indentation.
@@ -177,13 +177,13 @@ public class TableTestFormatter {
     }
 
     private int cellWidth(Object cell) {
-        return DisplayWidth.of(formatCell(cell));
+        return DisplayWidth.of(cellFormatter.formatCell(cell));
     }
 
     private String formatRow(List<?> cells, int[] columnWidths) {
         return IntStream.range(0, cells.size())
                 .mapToObj(i -> {
-                    String value = formatCell(cells.get(i));
+                    String value = cellFormatter.formatCell(cells.get(i));
                     return padToColumnWidth(value, i == 0, i == cells.size() - 1, columnWidths[i]);
                 })
                 .collect(joining("|"));
@@ -203,32 +203,6 @@ public class TableTestFormatter {
             // Middle cells: leading space + padding
             return " " + padCell(value, columnWidth);
         }
-    }
-
-    private String formatCell(Object cell) {
-        return switch (cell) {
-            case null -> "";
-            case List<?> list -> formatList(list);
-            case Set<?> set -> formatSet(set);
-            case Map<?, ?> map -> formatMap(map);
-            default -> cell.toString();
-        };
-    }
-
-    private String formatList(List<?> list) {
-        return list.isEmpty() ? "[]" : list.stream().map(this::formatCell).collect(joining(", ", "[", "]"));
-    }
-
-    private String formatSet(Set<?> set) {
-        return set.isEmpty() ? "{}" : set.stream().map(this::formatCell).collect(joining(", ", "{", "}"));
-    }
-
-    private String formatMap(Map<?, ?> map) {
-        return map.isEmpty()
-                ? "[:]"
-                : map.entrySet().stream()
-                        .map(entry -> entry.getKey() + ": " + formatCell(entry.getValue()))
-                        .collect(joining(", ", "[", "]"));
     }
 
     private String padCell(String value, int width) {
