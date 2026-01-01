@@ -21,18 +21,41 @@ import java.io.Serializable;
 /**
  * Immutable state holder for TableTest formatter configuration.
  * <p>
- * Currently empty but provides extensibility for future configuration options.
  * Implements Serializable to support Spotless caching.
  */
 public final class TableTestFormatterState implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
+
+    private final int tabSize;
 
     /**
-     * Creates a new TableTestFormatterState with default configuration.
+     * Creates a new TableTestFormatterState with default configuration (tab size of 4).
      */
     public TableTestFormatterState() {
-        // Empty for now - future configuration options can be added here
+        this(4);
+    }
+
+    /**
+     * Creates a new TableTestFormatterState with specified tab size.
+     *
+     * @param tabSize the number of spaces a tab character should be converted to (must be positive)
+     * @throws IllegalArgumentException if tabSize is less than 1
+     */
+    public TableTestFormatterState(int tabSize) {
+        if (tabSize < 1) {
+            throw new IllegalArgumentException("tabSize must be at least 1, got: " + tabSize);
+        }
+        this.tabSize = tabSize;
+    }
+
+    /**
+     * Gets the configured tab size.
+     *
+     * @return the number of spaces a tab character should be converted to
+     */
+    public int tabSize() {
+        return tabSize;
     }
 }

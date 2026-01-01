@@ -32,12 +32,23 @@ public final class TableTestFormatterStep {
     }
 
     /**
-     * Creates a new FormatterStep for TableTest formatting.
+     * Creates a new FormatterStep for TableTest formatting with default tab size of 4.
      *
      * @return a configured FormatterStep instance
      */
     public static FormatterStep create() {
-        TableTestFormatterState state = new TableTestFormatterState();
+        return create(4);
+    }
+
+    /**
+     * Creates a new FormatterStep for TableTest formatting with specified tab size.
+     *
+     * @param tabSize the number of spaces a tab character should be converted to
+     * @return a configured FormatterStep instance
+     * @throws IllegalArgumentException if tabSize is less than 1
+     */
+    public static FormatterStep create(int tabSize) {
+        TableTestFormatterState state = new TableTestFormatterState(tabSize);
         return FormatterStep.createLazy(NAME, () -> state, TableTestFormatterFunc::new);
     }
 }
