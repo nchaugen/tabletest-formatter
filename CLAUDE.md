@@ -1,39 +1,28 @@
-# TableTest Formatter Project
+# TableTest Formatter - Development Notes
 
-## Project Overview
+This document contains detailed implementation notes, architectural decisions, and AI-specific guidance for the TableTest Formatter project.
 
-A tool to format TableTest tables, usable both as a CLI tool and as a Spotless integration for Maven/Gradle projects.
+**For basic setup, build instructions, and getting started:** See [CONTRIBUTING.md](CONTRIBUTING.md)
 
-**Purpose**: Format TableTest tables (used in Java/Kotlin files or standalone `.table` files) according to consistent formatting rules.
+**For user documentation and format specification:** See [README.md](README.md)
 
-**Formatting details:** See [README.md](README.md) for complete format specification and formatting rules
+---
 
-## Project Structure
+## Project Context
 
-Multi-module Maven project with hexagonal architecture:
+A tool to format TableTest tables (CLI and Spotless integration) with consistent, readable formatting rules.
 
-```
-tabletest-formatter/
-├── tabletest-formatter-core/       # Core formatting logic
-├── tabletest-formatter-cli/        # Command-line interface
-└── tabletest-formatter-spotless/   # Spotless integration (FormatterStep)
-```
+**Architecture**: Multi-module Maven project with hexagonal architecture (core, CLI, Spotless). See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed project structure.
 
-### Module Responsibilities
+## Key Technologies & Decisions
 
-- **core**: Pure formatting logic, depends on `tabletest-parser:0.5.8`
-- **cli**: Picocli-based CLI, creates uber JAR with maven-shade-plugin
-- **spotless**: Implements Spotless FormatterStep for build tool integration
+**Parser**: Uses `tabletest-parser:0.5.8` from Maven Central (external dependency, not part of this project)
 
-## Technology Stack
+**CLI**: Picocli-based with maven-shade-plugin creating uber JAR
 
-- **Java**: 21
-- **Build**: Maven 3.6+
-- **Testing**: JUnit 6.0.1, AssertJ 3.27.6
-- **CLI**: picocli 4.7.7
-- **Parser**: tabletest-parser 0.5.8 (from Maven Central)
-- **Formatting**: Spotless 3.1.0 with Palantir Java Format 2.83.0
-- **Issue Tracking**: Beads (bd)
+**Spotless Integration**: Implements `FormatterStep` for programmatic integration (Gradle via `addStep()`)
+
+**Issue Tracking**: Beads (`bd` command) - see Implementation Workflow section below
 
 ## Key Files
 
@@ -42,67 +31,33 @@ tabletest-formatter/
 - `scripts/install-git-hooks.sh` - Installs custom hooks (run before `bd init`)
 - `NEW_PROJECT.md` - Project setup template (in .gitignore, reference only)
 - `.java-version` - jenv configuration (Java 21)
+- `README.md` - User-facing documentation
+- `CONTRIBUTING.md` - Contributor setup and guidelines
+- `CLAUDE.md` - This file (AI/developer implementation notes)
 
-## Development Workflow
+## Git Hooks Strategy
 
-### Build Commands
+**For setup instructions:** See [CONTRIBUTING.md](CONTRIBUTING.md)
 
-```bash
-# Compile
-mvn clean compile
+**Architectural decisions:**
 
-# Build and test
-mvn clean install
+**Why custom hooks + Beads chaining:**
+- Need both: project-specific checks (Spotless, tests) AND beads sync
+- Beads provides chaining mechanism via `.git/hooks/pre-commit` wrapper
+- Our hooks: `.git/hooks/pre-commit.old`, `.git/hooks/pre-push`, `.git/hooks/commit-msg`
 
-# Full verification
-mvn clean verify
-
-# Format code
-mvn spotless:apply
-
-# Check for updates
-mvn versions:display-plugin-updates
-mvn versions:display-dependency-updates
-```
-
-### Git Hooks
-
-**Installation order** (important!):
-1. Custom hooks: `bash scripts/install-git-hooks.sh`
-2. Beads: `bd init` (select "merge" when prompted)
-
-**Hook chain**:
-- **pre-commit**: Beads wrapper → custom hook (Spotless format + `mvn clean install` + auto-restage copyright headers) → beads sync
-- **pre-push**: Custom hook (force-push protection only)
-- **commit-msg**: Custom hook (validates conventional commits, checks for Claude attribution)
-
-**Hook files**:
-- `.git/hooks/pre-commit` - Beads chaining wrapper
-- `.git/hooks/pre-commit.old` - Our custom formatting + build hook
-- `.git/hooks/pre-push` - Force-push protection (no Maven - faster!)
-- `.git/hooks/commit-msg` - Commit message validation
+**Installation order matters:**
+1. Install custom hooks first (`bash scripts/install-git-hooks.sh`)
+2. Then run `bd init` (select "merge") - creates chaining wrapper
 
 **Recent optimization (2025-12-30):**
-- Pre-commit now auto-restages files modified by build (copyright headers)
-- Pre-push simplified to only check force-push (faster, trusts pre-commit)
+- Pre-commit: auto-restages files modified by build (copyright headers)
+- Pre-push: simplified to only check force-push (faster, trusts pre-commit)
 
-### Committing
-
-Follow conventional commits:
-- `feat:` - New features
-- `fix:` - Bug fixes
-- `docs:` - Documentation
-- `refactor:` - Code refactoring
-- `test:` - Tests
-- `chore:` - Build/tooling
-
-**Important**: Omit Claude Code attribution footer (checked by commit-msg hook)
-
-**Note on pre-commit hook:**
-- Runs `mvn clean install` - all tests must pass before commit succeeds
-- Formats code with Spotless and auto-restages changes
-- Any test failures will block the commit
-- This catches issues early, before push
+**Rejected alternatives:**
+- Inline hooks in install script → harder to maintain
+- Complex detection of beads installation → unnecessary complexity
+- `bd hooks install` → uses different pattern (thin shims) that doesn't call custom hooks
 
 ## Implementation Reference
 
@@ -125,45 +80,16 @@ A working reference implementation exists: `~/IdeaProjects/tabletest-intellij`
 
 Use `bd ready` to find available work. Issues are organized with dependencies to enforce logical ordering.
 
-## Important Decisions & Conventions
+## Dependency Management
 
-### Plugin Versions
+**Plugin versions**: Keep up to date using `mvn versions:display-plugin-updates`
 
-Keep plugins up to date. Current versions (as of 2025-12-27):
+Current versions (as of 2025-12-27):
 - maven-compiler-plugin: 3.14.1
 - maven-surefire-plugin: 3.5.4
 - maven-javadoc-plugin: 3.12.0
 - picocli: 4.7.7
-- versions-maven-plugin: 2.18.0 (use for checking updates)
-
-### Git Hooks Strategy
-
-**Decided approach**:
-- Keep `git-hooks/` directory in repo as source of truth
-- Simple installation script (just copies files)
-- No complex detection logic
-- Run custom hooks first, then install beads (creates chaining automatically)
-
-**Rejected alternatives**:
-- Inline hooks in install script (harder to maintain)
-- Complex detection of beads installation (unnecessary complexity)
-- Only documenting hooks in NEW_PROJECT.md (team needs version-controlled hooks)
-
-### Beads Integration
-
-After trying different approaches, the working solution is:
-1. Install custom hooks with `bash scripts/install-git-hooks.sh`
-2. Run `bd init` and select "merge" for git hooks
-3. Beads creates chaining wrapper that calls custom hooks first
-
-**Note**: `bd hooks install` uses a different pattern (thin shims) that doesn't call custom hooks - use `bd init` instead.
-
-## File Targets
-
-TableTest can appear in:
-1. Java files (multiline string parameter to `@TableTest` annotation)
-2. Kotlin files (multiline string parameter to `@TableTest` annotation)
-3. Standalone `.table` files
+- versions-maven-plugin: 2.18.0
 
 ## Reference Documentation
 

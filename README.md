@@ -1,23 +1,70 @@
 # TableTest Formatter
 
-Tools to format TableTest tables (CLI and Spotless integration).
+A formatter for [TableTest](https://github.com/nchaugen/tabletest) tables that ensures consistent, readable formatting across your test suite.
 
-## Modules
+**Available as:**
+- **Spotless plugin** for Gradle (automatic formatting in your build)
+- **CLI tool** for standalone formatting or CI integration
 
-- **tabletest-formatter-core**: Core formatting logic for TableTest tables
-- **tabletest-formatter-cli**: Command-line interface for the formatter
-- **tabletest-formatter-spotless**: Spotless integration for automatic formatting
+**Formats tables in:**
+- Java files with `@TableTest` annotations
+- Kotlin files with `@TableTest` annotations
+- Standalone `.table` files
 
-## Requirements
+## Table of Contents
 
-- Java 21 or later
-- Maven 3.6+
+- [Quick Start](#quick-start)
+- [TableTest Format](#tabletest-format)
+- [Formatting Rules](#formatting-rules)
+- [Configuration Parameters](#configuration-parameters)
+- [Usage](#usage)
+  - [Spotless Integration (Gradle)](#spotless-integration-gradle)
+  - [Command-Line Interface](#command-line-interface)
+- [Contributing](#contributing)
+- [License](#license)
 
-## Building
+## Quick Start
 
+### Gradle (Spotless Integration)
+
+Add to your `build.gradle`:
+
+```groovy
+import io.github.nchaugen.tabletest.formatter.spotless.TableTestFormatterStep
+
+buildscript {
+    repositories { mavenCentral() }
+    dependencies {
+        classpath 'io.github.nchaugen.tabletest:tabletest-formatter-spotless:0.1.0-SNAPSHOT'
+    }
+}
+
+plugins {
+    id 'com.diffplug.spotless' version '8.1.0'
+}
+
+spotless {
+    java {
+        addStep(TableTestFormatterStep.create())
+    }
+}
+```
+
+Then run: `./gradlew spotlessApply`
+
+### Command-Line Tool
+
+Build the CLI tool:
 ```bash
 mvn clean install
 ```
+
+Format your files:
+```bash
+java -jar tabletest-formatter-cli/target/tabletest-formatter-cli-0.1.0-SNAPSHOT.jar src/
+```
+
+---
 
 ## TableTest Format
 
@@ -370,6 +417,14 @@ The CLI uses the following exit codes for automation and CI integration:
       exit 1
     fi
 ```
+
+## Contributing
+
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for:
+- Project structure and architecture
+- Build and test instructions
+- Development workflow and guidelines
+- Code formatting standards
 
 ## License
 
