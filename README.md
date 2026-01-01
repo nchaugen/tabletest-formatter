@@ -66,7 +66,7 @@ This formatter applies consistent formatting with sensible defaults based on est
 1. **Column alignment** - All pipes align vertically based on the widest cell in each column
 2. **Pipe spacing** - Pipes always have space padding: ` | `
 3. **Quote preservation** - User's original quote choices preserved (`'1'` stays `'1'`, `"2"` stays `"2"`)
-4. **Indentation** - Preserved when formatting tables inside Java/Kotlin files
+4. **Indentation** - Tables inside Java/Kotlin files are indented to match their `@TableTest` annotation position (base indentation is auto-detected from the annotation's leading whitespace)
 5. **Comments and blank lines** - Preserved exactly as-is, including indentation
 6. **Empty cells** - Padded with spaces to maintain column alignment
 
@@ -92,12 +92,27 @@ This formatter applies consistent formatting with sensible defaults based on est
 
 ### Error Handling
 
-The formatter handles invalid input gracefully:
-- **Malformed tables** (mismatched columns, corrupted structure) → returned unchanged
-- **Unparseable content** → returned unchanged
-- **Single-column tables** → formatted correctly (no pipes needed)
+The formatter follows a **graceful degradation** policy to ensure it never breaks your build:
 
-This ensures the formatter never breaks your code, even with invalid input.
+**Graceful degradation for malformed input:**
+- **Malformed tables** (mismatched columns, corrupted structure) → returned unchanged
+- **Unparseable content** (invalid syntax, unbalanced quotes) → returned unchanged
+- **Empty or whitespace-only input** → returned unchanged
+- **Parse failures** (any `TableTestParseException`) → returned unchanged
+
+This "fail-safe" behaviour ensures that:
+- Formatting never causes compilation errors
+- Syntax errors in tables don't block your build
+- You can gradually fix table syntax issues without breaking CI
+
+**Exceptions that propagate to caller:**
+- `NullPointerException` - if required parameters are null
+- `IllegalArgumentException` - if indent/tab size parameters are negative
+
+**Successful formatting:**
+- **Single-column tables** → formatted correctly (no pipes needed)
+- **Empty cells** → padded to maintain alignment
+- **Comments and blank lines** → preserved exactly as-is
 
 ### Formatting Examples
 
@@ -119,21 +134,59 @@ Input|Expected                   Input        | Expected
 
 **Empty cells:**
 ```
-Before:                          After:
+Before:                         After:
 a|b|c                           a | b | c
 ||                                |   |
 ```
 
 **Comments and blank lines:**
 ```
-Before:                          After:
+Before:                         After:
 a|b                             a  | b
 // comment                      // comment
 
 x|y                             x  | y
 ```
 
+**Indentation in Java/Kotlin files:**
+```java
+Before:
+    @TableTest("""
+        Scenario|Input|Expected
+        Basic|5|10
+        """)
+
+After:
+    @TableTest("""
+        Scenario   | Input | Expected
+        Basic case | 5     | 10
+        """)
+```
+The table content aligns with the `@TableTest` annotation's indentation level.
+
 **Note:** Future versions may add configuration options for formatting preferences.
+
+## Configuration Parameters
+
+Both the CLI and Spotless integration support the `tabSize` configuration parameter:
+
+| Parameter | CLI Option | Spotless Method | Default | Description |
+|-----------|------------|-----------------|---------|-------------|
+| **Tab Size** | `--tab-size <N>` | `create(N)` | `4` | Number of spaces a tab character represents when converting tabs to spaces |
+| **Indent Size** | `--indent-size <N>` | _(not configurable)_ | `4` (CLI only) | Number of spaces per indent level (CLI only; Spotless uses 0) |
+
+**How indentation works:**
+
+**CLI**:
+- Both `--tab-size` and `--indent-size` are configurable
+- Tables are indented using `indentSize` spaces per level
+- Useful for standalone `.table` files or when you want additional indentation
+
+**Spotless**:
+- Only `tabSize` is configurable via `create(N)`
+- Base indentation is **auto-detected** from the `@TableTest` annotation's position in the source file
+- No additional indentation is added (internally uses `indentSize=0`)
+- Result: tables align perfectly with their `@TableTest` annotation
 
 ## Usage
 
@@ -189,6 +242,22 @@ spotless {
 }
 ```
 
+#### Configuration Options
+
+The Spotless integration supports one configuration parameter: **tab size**.
+
+```groovy
+// Default tab size (4 spaces)
+addStep(TableTestFormatterStep.create())
+
+// Custom tab size (e.g., 2 spaces)
+addStep(TableTestFormatterStep.create(2))
+```
+
+**Tab size** controls how tab characters in source files are converted to spaces when calculating indentation. If your project uses 2-space tabs instead of 4, configure accordingly.
+
+**Indentation behaviour**: The formatter automatically detects the base indentation from the `@TableTest` annotation's position in your source file. Tables are formatted to align with their annotation, with no additional indentation added. This ensures consistent formatting that matches your existing code style.
+
 **Usage:**
 ```bash
 # Check formatting (exits with error if changes needed)
@@ -210,7 +279,90 @@ Add to your CI pipeline to enforce formatting:
 
 ### Command-Line Interface
 
-Documentation coming soon.
+The tabletest-formatter-cli module provides a standalone command-line tool for formatting TableTest tables.
+
+#### Installation
+
+Build the CLI tool:
+
+```bash
+mvn clean install
+```
+
+The executable JAR will be located at:
+```
+tabletest-formatter-cli/target/tabletest-formatter-cli-0.1.0-SNAPSHOT.jar
+```
+
+#### Basic Usage
+
+**Format files in-place:**
+```bash
+java -jar tabletest-formatter-cli.jar <files-or-directories>
+```
+
+**Check formatting without modifying files:**
+```bash
+java -jar tabletest-formatter-cli.jar --check <files-or-directories>
+```
+
+#### Command-Line Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `-c, --check` | Check if files need formatting without modifying them | `false` |
+| `-v, --verbose` | Print detailed output for each file | `false` |
+| `--indent-size <N>` | Number of spaces per indent level | `4` |
+| `--tab-size <N>` | Number of spaces a tab character represents | `4` |
+| `-h, --help` | Show help message | |
+| `--version` | Show version information | |
+
+#### Examples
+
+**Format all TableTest files in a project:**
+```bash
+java -jar tabletest-formatter-cli.jar src/
+```
+
+**Check if files need formatting (useful in CI):**
+```bash
+java -jar tabletest-formatter-cli.jar --check src/
+```
+
+**Format with custom indentation:**
+```bash
+java -jar tabletest-formatter-cli.jar --indent-size 2 --tab-size 2 src/
+```
+
+**Format specific files with verbose output:**
+```bash
+java -jar tabletest-formatter-cli.jar --verbose \
+  src/test/java/MyTest.java \
+  src/test/resources/test-data.table
+```
+
+#### Exit Codes
+
+The CLI uses the following exit codes for automation and CI integration:
+
+| Exit Code | Meaning |
+|-----------|---------|
+| `0` | Success (check: no changes needed, apply: formatting succeeded) |
+| `1` | Failure (check: changes needed OR errors, apply: errors occurred) |
+| `2` | Invalid usage (incorrect command-line arguments) |
+
+**CI Integration Example:**
+
+```yaml
+# GitHub Actions example
+- name: Check TableTest formatting
+  run: |
+    java -jar tabletest-formatter-cli.jar --check src/
+    if [ $? -ne 0 ]; then
+      echo "Formatting issues found. Run 'java -jar tabletest-formatter-cli.jar src/' to fix."
+      exit 1
+    fi
+```
 
 ## License
 
