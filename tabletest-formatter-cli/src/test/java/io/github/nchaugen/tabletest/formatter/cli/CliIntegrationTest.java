@@ -123,6 +123,90 @@ class CliIntegrationTest {
     }
 
     @Test
+    void shouldHandleDeepIndentation(@TempDir Path tempDir) throws IOException, URISyntaxException {
+        // Given: file with deeply nested classes (12+ spaces)
+        Path testFile = tempDir.resolve("DeepIndentationTest.java");
+        copyUnformattedFile(testFile);
+
+        // When: applying formatting
+        int exitCode = executeCliApplyMode(tempDir);
+
+        // Then: file is formatted with correct deep indentation
+        assertThat(exitCode).isZero();
+        assertThat(actualContent(testFile)).isEqualTo(expectedContent(testFile));
+    }
+
+    @Test
+    void shouldHandleTabIndentation(@TempDir Path tempDir) throws IOException, URISyntaxException {
+        // Given: file with tab-based indentation
+        Path testFile = tempDir.resolve("TabIndentationTest.java");
+        copyUnformattedFile(testFile);
+
+        // When: applying formatting
+        int exitCode = executeCliApplyMode(tempDir);
+
+        // Then: tabs normalized to spaces in table content
+        assertThat(exitCode).isZero();
+        assertThat(actualContent(testFile)).isEqualTo(expectedContent(testFile));
+    }
+
+    @Test
+    void shouldHandleShallowIndentation(@TempDir Path tempDir) throws IOException, URISyntaxException {
+        // Given: file with 2-space indentation
+        Path testFile = tempDir.resolve("ShallowIndentationTest.java");
+        copyUnformattedFile(testFile);
+
+        // When: applying formatting
+        int exitCode = executeCliApplyMode(tempDir);
+
+        // Then: file is formatted with 2-space base indentation
+        assertThat(exitCode).isZero();
+        assertThat(actualContent(testFile)).isEqualTo(expectedContent(testFile));
+    }
+
+    @Test
+    void shouldHandleVariedWhitespace(@TempDir Path tempDir) throws IOException, URISyntaxException {
+        // Given: file with extra whitespace and quotes on separate lines
+        Path testFile = tempDir.resolve("VariedWhitespaceTest.java");
+        copyUnformattedFile(testFile);
+
+        // When: applying formatting
+        int exitCode = executeCliApplyMode(tempDir);
+
+        // Then: file is formatted while preserving whitespace variations
+        assertThat(exitCode).isZero();
+        assertThat(actualContent(testFile)).isEqualTo(expectedContent(testFile));
+    }
+
+    @Test
+    void shouldHandleNamedParameters(@TempDir Path tempDir) throws IOException, URISyntaxException {
+        // Given: file with named parameter syntax (value = ...)
+        Path testFile = tempDir.resolve("NamedParameterTest.java");
+        copyUnformattedFile(testFile);
+
+        // When: applying formatting
+        int exitCode = executeCliApplyMode(tempDir);
+
+        // Then: file is formatted correctly with named parameters
+        assertThat(exitCode).isZero();
+        assertThat(actualContent(testFile)).isEqualTo(expectedContent(testFile));
+    }
+
+    @Test
+    void shouldHandleNestedKotlinClasses(@TempDir Path tempDir) throws IOException, URISyntaxException {
+        // Given: Kotlin file with nested classes
+        Path testFile = tempDir.resolve("NestedClassTest.kt");
+        copyUnformattedFile(testFile);
+
+        // When: applying formatting
+        int exitCode = executeCliApplyMode(tempDir);
+
+        // Then: file is formatted with correct indentation for each nesting level
+        assertThat(exitCode).isZero();
+        assertThat(actualContent(testFile)).isEqualTo(expectedContent(testFile));
+    }
+
+    @Test
     void shouldRespectIndentSizeOverride(@TempDir Path tempDir) throws IOException, URISyntaxException {
         // Given: unformatted file
         Path testFile = tempDir.resolve("SimpleTest.java");
