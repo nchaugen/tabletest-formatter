@@ -21,7 +21,6 @@ import io.github.nchaugen.tabletest.parser.TableParser;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.joining;
@@ -73,21 +72,10 @@ public class TableTestFormatter {
             // Format the table (parser ignores comments and blank lines)
             Table table = TableParser.parse(input, true);
 
-            // Single-line tables (header only, no data rows) should be returned unchanged
-            if (table.rows().isEmpty()) {
-                return tableText;
-            }
-
             String formatted = formatTable(table, indentSize, baseIndent);
 
             // Add back preserved comments and blank lines
-            String result = addBackCommentsAndBlankLines(lines, commentOrBlankLines, formatted, indentSize, baseIndent);
-
-            // When using indentation, add leading newline but NOT trailing (trailing indent is for closing quote)
-            if (indentSize > 0) {
-                return "\n" + result;
-            }
-            return result;
+            return addBackCommentsAndBlankLines(lines, commentOrBlankLines, formatted, indentSize, baseIndent);
         } catch (Exception e) {
             // Return input unchanged if parsing or formatting fails
             return tableText;
@@ -111,21 +99,31 @@ public class TableTestFormatter {
         String[] formattedLines = formatted.split("\n", -1);
         String indent = indentSize > 0 ? " ".repeat(baseIndent + indentSize) : "";
 
-        // Process original lines, merging comments/blanks with formatted lines
-        AtomicInteger formattedIndex = new AtomicInteger(0);
-        String originalProcessed = IntStream.range(0, originalLines.length)
-                .mapToObj(i -> commentOrBlankIndices.contains(i)
-                        ? (indentSize > 0 ? indent + originalLines[i].trim() : originalLines[i])
-                        : formattedLines[formattedIndex.getAndIncrement()])
-                .collect(joining("\n"));
+        List<String> result = new java.util.ArrayList<>();
+        int formattedIndex = 0;
 
-        // Append remaining formatted lines (e.g., trailing indentation), skipping final empty string
-        String remaining = IntStream.range(formattedIndex.get(), formattedLines.length)
-                .filter(i -> !formattedLines[i].isEmpty() || i < formattedLines.length - 1)
-                .mapToObj(i -> formattedLines[i])
-                .collect(joining("\n"));
+        // Merge original lines (with comments/blanks) with formatted lines
+        for (int i = 0; i < originalLines.length; i++) {
+            if (commentOrBlankIndices.contains(i)) {
+                // Preserve comment or blank line from original
+                String line = indentSize > 0 ? indent + originalLines[i].trim() : originalLines[i];
+                result.add(line);
+            } else {
+                // Use formatted table line
+                result.add(formattedLines[formattedIndex++]);
+            }
+        }
 
-        return remaining.isEmpty() ? originalProcessed : originalProcessed + "\n" + remaining;
+        // Add any remaining formatted lines (e.g., trailing indentation)
+        // Skip final empty string (artifact from split with trailing newline)
+        while (formattedIndex < formattedLines.length) {
+            if (formattedIndex == formattedLines.length - 1 && formattedLines[formattedIndex].isEmpty()) {
+                break;
+            }
+            result.add(formattedLines[formattedIndex++]);
+        }
+
+        return String.join("\n", result);
     }
 
     /**
@@ -151,7 +149,7 @@ public class TableTestFormatter {
                 .map(row -> indent + formatRow(row.values(), columnWidths))
                 .collect(joining("\n"));
 
-        String result = headerRow + "\n" + dataRows + "\n";
+        String result = table.rows().isEmpty() ? headerRow + "\n" : headerRow + "\n" + dataRows + "\n";
 
         // Add trailing indentation for closing quote alignment (without trailing newline)
         if (indentSize > 0) {

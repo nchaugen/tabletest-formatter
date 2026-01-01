@@ -77,7 +77,10 @@ public class SourceFileFormatter {
         int actualStart = match.startIndex() + tableContentStart;
         int actualEnd = match.startIndex() + tableContentEnd;
 
+        // When using indentation, add leading newline for text block formatting
+        String replacement = indentSize > 0 ? "\n" + formattedTable : formattedTable;
+
         // Replace the table content (formatted table includes closing quote indentation)
-        return result.substring(0, actualStart) + formattedTable + result.substring(actualEnd);
+        return result.substring(0, actualStart) + replacement + result.substring(actualEnd);
     }
 }
