@@ -28,8 +28,16 @@ import java.util.regex.Pattern;
  * This approach handles the majority of real-world cases where a single @TableTest annotation
  * is present per test method. Supports both direct text block parameters and named value parameters,
  * optionally combined with other parameters like resource and encoding.
- * <p>
- * Known limitations:
+ *
+ * <h2>Error Handling</h2>
+ * <p>This extractor follows a <strong>graceful approach</strong>:
+ * <ul>
+ *   <li>If no @TableTest annotations are found, returns an empty list</li>
+ *   <li>Malformed annotations are silently skipped (regex won't match)</li>
+ *   <li>Only throws exceptions for programming errors (null input)</li>
+ * </ul>
+ *
+ * <h2>Known Limitations</h2>
  * <ul>
  *   <li>May not handle complex nested structures or nested parentheses correctly</li>
  *   <li>Cannot distinguish between @TableTest in comments vs actual code</li>
@@ -43,8 +51,12 @@ public class TableTestExtractor {
     /**
      * Finds all @TableTest annotations in the provided source code.
      *
+     * <p>If no annotations are found or the source contains malformed annotations
+     * that don't match the expected pattern, returns an empty list. This method
+     * never throws exceptions due to malformed input—only for programming errors.
+     *
      * @param sourceCode the Java or Kotlin source code to search (must not be null)
-     * @return list of all @TableTest matches found, with position information
+     * @return list of all @TableTest matches found (empty if none found), with position information
      * @throws NullPointerException if sourceCode is null
      */
     public static List<TableMatch> findAll(String sourceCode) {

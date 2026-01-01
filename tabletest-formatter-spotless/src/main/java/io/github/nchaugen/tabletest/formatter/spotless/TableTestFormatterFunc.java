@@ -30,6 +30,18 @@ import java.io.File;
  *   <li>Java/Kotlin files - extracts and formats @TableTest annotations</li>
  *   <li>Other files - returns unchanged</li>
  * </ul>
+ *
+ * <h2>Error Handling</h2>
+ * <p>Inherits graceful degradation from {@link TableTestFormatter}:
+ * <ul>
+ *   <li>Malformed tables return original input unchanged</li>
+ *   <li>Parse failures never break the build</li>
+ *   <li>Files with no @TableTest annotations are unchanged</li>
+ * </ul>
+ *
+ * <p>The {@code applyWithFile} method declares {@code throws Exception} per
+ * Spotless API contract, but in practice only propagates exceptions for
+ * programming errors (null inputs, configuration issues), not formatting failures.
  */
 public final class TableTestFormatterFunc implements FormatterFunc.NeedsFile {
 
@@ -48,6 +60,14 @@ public final class TableTestFormatterFunc implements FormatterFunc.NeedsFile {
         this.sourceFormatter = new SourceFileFormatter();
     }
 
+    /**
+     * Applies formatting to the file content based on file extension.
+     *
+     * @param rawUnix the file content in Unix format (LF line endings)
+     * @param file the file being formatted
+     * @return the formatted content, or null if no changes were made
+     * @throws Exception per Spotless API contract (in practice, only for programming errors)
+     */
     @Override
     public String applyWithFile(String rawUnix, File file) throws Exception {
         String fileName = file.getName();

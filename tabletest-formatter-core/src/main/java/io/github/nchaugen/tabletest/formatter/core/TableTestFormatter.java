@@ -30,6 +30,21 @@ import static java.util.stream.Collectors.joining;
  *
  * <p>Parses TableTest table text and applies formatting such as column alignment,
  * spacing normalization, and quote preservation.
+ *
+ * <h2>Error Handling Strategy</h2>
+ * <p>This formatter follows a <strong>graceful degradation</strong> policy:
+ * <ul>
+ *   <li>If table parsing fails (malformed structure, mismatched columns, etc.),
+ *       the original input is returned unchanged</li>
+ *   <li>This ensures formatting never breaks a build due to table syntax errors</li>
+ *   <li>Parse exceptions ({@code TableTestParseException}) are caught internally</li>
+ * </ul>
+ *
+ * <p><strong>Exceptions that propagate to caller:</strong>
+ * <ul>
+ *   <li>{@link NullPointerException} - if required parameters are null</li>
+ *   <li>{@link IllegalArgumentException} - if indent parameters are negative</li>
+ * </ul>
  */
 public class TableTestFormatter {
 
@@ -38,11 +53,20 @@ public class TableTestFormatter {
     /**
      * Formats the given TableTest table text without indentation.
      *
-     * <p>If the input cannot be parsed or formatted (malformed table structure),
-     * the original input is returned unchanged.
+     * <p><strong>Graceful Degradation:</strong> If the input cannot be parsed
+     * (malformed table structure, mismatched columns, invalid syntax), the original
+     * input is returned unchanged. This ensures formatting never breaks a build.
+     *
+     * <p><strong>Examples of inputs returned unchanged:</strong>
+     * <ul>
+     *   <li>Empty strings or whitespace-only input</li>
+     *   <li>Tables with mismatched column counts between rows</li>
+     *   <li>Invalid quote escaping that the parser cannot handle</li>
+     *   <li>Any input that throws {@code TableTestParseException} during parsing</li>
+     * </ul>
      *
      * @param tableText the raw table text to format (must not be null)
-     * @return the formatted table text, or the original input if formatting fails
+     * @return the formatted table text, or the original input if parsing/formatting fails
      * @throws NullPointerException if tableText is null
      */
     public String format(String tableText) {
@@ -53,13 +77,17 @@ public class TableTestFormatter {
     /**
      * Formats the given TableTest table text with indentation.
      *
-     * <p>If the input cannot be parsed or formatted (malformed table structure),
-     * the original input is returned unchanged.
+     * <p><strong>Graceful Degradation:</strong> If the input cannot be parsed
+     * (malformed table structure, mismatched columns, invalid syntax), the original
+     * input is returned unchanged. This ensures formatting never breaks a build.
+     *
+     * <p>When {@code indentSize > 0}, the input is normalized (stripped and trimmed)
+     * before formatting, and trailing indentation is added for closing quote alignment.
      *
      * @param tableText  the raw table text to format (must not be null)
      * @param indentSize the number of spaces per indent level (must be >= 0, typically 2 or 4)
      * @param baseIndent the base indentation level in spaces (must be >= 0)
-     * @return the formatted table text with proper indentation, or the original input if formatting fails
+     * @return the formatted table text with proper indentation, or the original input if parsing/formatting fails
      * @throws NullPointerException if tableText is null
      * @throws IllegalArgumentException if indentSize or baseIndent is negative
      */
@@ -152,8 +180,13 @@ public class TableTestFormatter {
     /**
      * Calculates the maximum width needed for each column.
      *
+     * <p><strong>Note:</strong> This method does NOT follow graceful degradation.
+     * If parsing fails, the parser exception will propagate to the caller.
+     *
      * @param tableText the raw table text
      * @return an array of column widths
+     * @throws io.github.nchaugen.tabletest.parser.TableTestParseException if table cannot be parsed
+     * @throws NullPointerException if tableText is null
      */
     public int[] calculateColumnWidths(String tableText) {
         Table table = TableParser.parse(tableText, true);
