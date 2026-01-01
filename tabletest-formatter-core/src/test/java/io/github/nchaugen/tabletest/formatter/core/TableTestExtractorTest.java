@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class TableTestExtractorTest {
 
@@ -578,5 +579,14 @@ class TableTestExtractorTest {
 
         assertThat(matches).hasSize(1);
         assertThat(matches.getFirst().baseIndent()).isEqualTo(4);
+    }
+
+    // ========== Input Validation Tests ==========
+
+    @Test
+    void shouldThrowNullPointerExceptionWhenSourceCodeIsNull() {
+        assertThatThrownBy(() -> TableTestExtractor.findAll(null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("sourceCode must not be null");
     }
 }

@@ -20,6 +20,7 @@ import io.github.nchaugen.tabletest.parser.TableParser;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.joining;
@@ -40,10 +41,12 @@ public class TableTestFormatter {
      * <p>If the input cannot be parsed or formatted (malformed table structure),
      * the original input is returned unchanged.
      *
-     * @param tableText the raw table text to format
+     * @param tableText the raw table text to format (must not be null)
      * @return the formatted table text, or the original input if formatting fails
+     * @throws NullPointerException if tableText is null
      */
     public String format(String tableText) {
+        Objects.requireNonNull(tableText, "tableText must not be null");
         return format(tableText, 0, 0);
     }
 
@@ -53,12 +56,22 @@ public class TableTestFormatter {
      * <p>If the input cannot be parsed or formatted (malformed table structure),
      * the original input is returned unchanged.
      *
-     * @param tableText  the raw table text to format
-     * @param indentSize the number of spaces per indent level (typically 2 or 4)
-     * @param baseIndent the base indentation level (spaces before @TableTest annotation)
+     * @param tableText  the raw table text to format (must not be null)
+     * @param indentSize the number of spaces per indent level (must be >= 0, typically 2 or 4)
+     * @param baseIndent the base indentation level in spaces (must be >= 0)
      * @return the formatted table text with proper indentation, or the original input if formatting fails
+     * @throws NullPointerException if tableText is null
+     * @throws IllegalArgumentException if indentSize or baseIndent is negative
      */
     public String format(String tableText, int indentSize, int baseIndent) {
+        Objects.requireNonNull(tableText, "tableText must not be null");
+        if (indentSize < 0) {
+            throw new IllegalArgumentException("indentSize must not be negative: " + indentSize);
+        }
+        if (baseIndent < 0) {
+            throw new IllegalArgumentException("baseIndent must not be negative: " + baseIndent);
+        }
+
         try {
             // Strip and normalize whitespace structure when using indentation
             String input = indentSize > 0 ? tableText.strip() : tableText;

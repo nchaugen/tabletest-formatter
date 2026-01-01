@@ -1,6 +1,7 @@
 package io.github.nchaugen.tabletest.formatter.core;
 
 import io.github.nchaugen.tabletest.junit.TableTest;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -57,5 +58,10 @@ class DisplayWidthTest {
         """)
     void shouldCalculateDisplayWidthOfCodePoints(int codePoint, int expectedWidth) {
         assertThat(DisplayWidth.ofCodePoint(codePoint)).isEqualTo(expectedWidth);
+    }
+
+    @Test
+    void shouldReturnZeroForNullString() {
+        assertThat(DisplayWidth.of(null)).isEqualTo(0);
     }
 }

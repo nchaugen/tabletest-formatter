@@ -4,6 +4,7 @@ import io.github.nchaugen.tabletest.junit.TableTest;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class TableTestFormatterTest {
 
@@ -643,5 +644,39 @@ class TableTestFormatterTest {
             // Second group
             Bob   | 25
             """.indent(4) + " ".repeat(4));
+    }
+
+    // ========== Input Validation Tests ==========
+
+    @Test
+    void shouldThrowNullPointerExceptionWhenTableTextIsNull() {
+        assertThatThrownBy(() -> formatter.format(null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("tableText must not be null");
+    }
+
+    @Test
+    void shouldThrowNullPointerExceptionWhenTableTextIsNullWithIndentation() {
+        assertThatThrownBy(() -> formatter.format(null, 4, 0))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("tableText must not be null");
+    }
+
+    @Test
+    void shouldThrowIllegalArgumentExceptionWhenIndentSizeIsNegative() {
+        String input = "name|age\nAlice|30\n";
+
+        assertThatThrownBy(() -> formatter.format(input, -1, 0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("indentSize must not be negative: -1");
+    }
+
+    @Test
+    void shouldThrowIllegalArgumentExceptionWhenBaseIndentIsNegative() {
+        String input = "name|age\nAlice|30\n";
+
+        assertThatThrownBy(() -> formatter.format(input, 4, -2))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("baseIndent must not be negative: -2");
     }
 }

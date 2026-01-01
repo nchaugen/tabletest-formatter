@@ -47,8 +47,8 @@ public class DisplayWidth {
     /**
      * Calculates the display width of a string.
      *
-     * @param text the string to measure
-     * @return the total display width
+     * @param text the string to measure (null is treated as empty string)
+     * @return the total display width, or 0 if text is null
      */
     public static int of(String text) {
         return text == null

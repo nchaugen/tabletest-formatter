@@ -17,6 +17,7 @@ package io.github.nchaugen.tabletest.formatter.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,10 +43,12 @@ public class TableTestExtractor {
     /**
      * Finds all @TableTest annotations in the provided source code.
      *
-     * @param sourceCode the Java or Kotlin source code to search
+     * @param sourceCode the Java or Kotlin source code to search (must not be null)
      * @return list of all @TableTest matches found, with position information
+     * @throws NullPointerException if sourceCode is null
      */
     public static List<TableMatch> findAll(String sourceCode) {
+        Objects.requireNonNull(sourceCode, "sourceCode must not be null");
         List<TableMatch> matches = new ArrayList<>();
         Matcher matcher = TABLE_TEST_PATTERN.matcher(sourceCode);
 
