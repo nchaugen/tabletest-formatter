@@ -409,4 +409,56 @@ class SourceFileFormatterTest {
                 }
                 """);
     }
+
+    @Test
+    void shouldFormatKotlinRawStringWithContentOnSameLine() {
+        String input = """
+                class Test {
+                    @TableTest(\"""name|age
+                    Alice|30
+                    \""")
+                    fun test() {}
+                }
+                """;
+
+        String result = formatter.format(input, 4);
+
+        assertThat(result).isEqualTo("""
+                class Test {
+                    @TableTest(\"""
+                        name  | age
+                        Alice | 30
+                        \""")
+                    fun test() {}
+                }
+                """);
+    }
+
+    @Test
+    void shouldFormatKotlinWithOpeningQuotesAndContentOnSameLine() {
+        String input = """
+                class Test {
+                    @TableTest(
+                        \"""name|age
+                        Alice|30
+                        \"""
+                    )
+                    fun test() {}
+                }
+                """;
+
+        String result = formatter.format(input, 4);
+
+        assertThat(result).isEqualTo("""
+                class Test {
+                    @TableTest(
+                        \"""
+                        name  | age
+                        Alice | 30
+                        \"""
+                    )
+                    fun test() {}
+                }
+                """);
+    }
 }
