@@ -1,5 +1,6 @@
 package io.github.nchaugen.tabletest.formatter.core;
 
+import io.github.nchaugen.tabletest.junit.TableTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -355,5 +356,92 @@ class TableTestExtractorTest {
         List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
 
         assertThat(matches).isEmpty();
+    }
+
+    // ========== Indentation Detection Tests ==========
+
+    @TableTest("""
+        Scenario                       | sourceCode                                  | indent?
+        no indentation (top-level)     | '@TableTest(\"""\\nx|y\\n1|2\\n\""")'       | 0
+        shallow indentation (2 spaces) | '  @TableTest(\"""\\nx|y\\n1|2\\n\""")'    | 2
+        standard indentation (4 spaces)| '    @TableTest(\"""\\nx|y\\n1|2\\n\""")'  | 4
+        deep indentation (8 spaces)    | '        @TableTest(\"""\\nx|y\\n1|2\\n\""")'| 8
+        """)
+    void shouldDetectBaseIndentation(String sourceCode, int indent) {
+        String actualSource = sourceCode.replace("\\n", "\n");
+
+        List<TableMatch> matches = TableTestExtractor.findAll(actualSource);
+
+        assertThat(matches).hasSize(1);
+        assertThat(matches.getFirst().baseIndent()).isEqualTo(indent);
+    }
+
+    @TableTest("""
+        Scenario              | sourceCode                                 | indent?
+        single tab            | '\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'   | 4
+        two tabs              | '\t\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'  | 8
+        tab plus two spaces   | '\t  @TableTest(\"""\\nx|y\\n1|2\\n\""")'  | 6
+        two spaces plus tab   | '  \t@TableTest(\"""\\nx|y\\n1|2\\n\""")'  | 6
+        """)
+    void shouldConvertTabsToSpaces(String sourceCode, int indent) {
+        String actualSource = sourceCode.replace("\\n", "\n");
+
+        List<TableMatch> matches = TableTestExtractor.findAll(actualSource);
+
+        assertThat(matches).hasSize(1);
+        assertThat(matches.getFirst().baseIndent()).isEqualTo(indent);
+    }
+
+    @Test
+    void shouldDetectIndentationWithOpeningQuotesOnSeparateLine() {
+        var sourceCode = """
+                    @TableTest(
+                    \"""
+                    x | y
+                    1 | 2
+                    \""")
+                    void test() {}
+                """;
+
+        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+
+        assertThat(matches).hasSize(1);
+        assertThat(matches.getFirst().baseIndent()).isEqualTo(4);
+    }
+
+    @Test
+    void shouldDetectIndentationInNestedClass() {
+        var sourceCode = """
+                class Outer {
+                    class Inner {
+                        @TableTest(\"""
+                            x | y
+                            1 | 2
+                            \""")
+                        void test() {}
+                    }
+                }
+                """;
+
+        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+
+        assertThat(matches).hasSize(1);
+        assertThat(matches.getFirst().baseIndent()).isEqualTo(8);
+    }
+
+    @Test
+    void shouldIgnoreWhitespaceAroundAnnotationWhenDetectingIndent() {
+        var sourceCode = """
+                    @TableTest   (   \"""
+                        x | y
+                        1 | 2
+                        \"""   )
+                    void test() {}
+                """;
+
+        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+
+        assertThat(matches).hasSize(1);
+        assertThat(matches.getFirst().baseIndent()).isEqualTo(4);
     }
 }

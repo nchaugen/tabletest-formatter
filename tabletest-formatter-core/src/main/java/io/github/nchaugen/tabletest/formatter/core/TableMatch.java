@@ -21,5 +21,6 @@ package io.github.nchaugen.tabletest.formatter.core;
  * @param originalText the raw table text as found in the source
  * @param startIndex   the start position in the source file
  * @param endIndex     the end position in the source file
+ * @param baseIndent   the number of leading spaces before the @TableTest annotation
  */
-public record TableMatch(String originalText, int startIndex, int endIndex) {}
+public record TableMatch(String originalText, int startIndex, int endIndex, int baseIndent) {}

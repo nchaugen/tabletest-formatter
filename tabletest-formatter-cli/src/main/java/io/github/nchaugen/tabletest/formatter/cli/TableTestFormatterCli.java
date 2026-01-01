@@ -64,6 +64,12 @@ public class TableTestFormatterCli implements Callable<Integer> {
             description = "Print detailed output for each file")
     private boolean verbose = false;
 
+    @Option(
+            names = {"--indent-size"},
+            defaultValue = "4",
+            description = "Number of spaces per indent level (default: 4)")
+    private int indentSize = 4;
+
     private final FileDiscovery fileDiscovery;
     private final FileFormatter fileFormatter;
 
@@ -104,7 +110,7 @@ public class TableTestFormatterCli implements Callable<Integer> {
         FormattingStatus status = new FormattingStatus();
 
         for (Path file : files) {
-            FormattingResult result = fileFormatter.format(file);
+            FormattingResult result = fileFormatter.format(file, indentSize);
             status.addResult(result);
 
             if (verbose) {

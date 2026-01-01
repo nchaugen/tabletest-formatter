@@ -31,33 +31,45 @@ public class SourceFileFormatter {
     }
 
     /**
-     * Formats all TableTest tables found in a source file.
+     * Formats all TableTest tables found in a source file without indentation.
      *
      * @param content the source file content
      * @return the formatted content, or original if no changes needed
      */
     public String format(String content) {
+        return format(content, 0);
+    }
+
+    /**
+     * Formats all TableTest tables found in a source file with specified indentation.
+     *
+     * @param content    the source file content
+     * @param indentSize the number of spaces per indent level (0 for no indentation)
+     * @return the formatted content, or original if no changes needed
+     */
+    public String format(String content, int indentSize) {
         List<TableMatch> matches = TableTestExtractor.findAll(content);
 
-        return matches.isEmpty() ? content : formatMatches(content, matches);
+        return matches.isEmpty() ? content : formatMatches(content, matches, indentSize);
     }
 
-    private String formatMatches(String content, List<TableMatch> matches) {
+    private String formatMatches(String content, List<TableMatch> matches, int indentSize) {
         return matches.stream()
                 .sorted(Comparator.comparingInt(TableMatch::startIndex).reversed())
-                .reduce(content, (result, match) -> formatMatch(result, content, match), (s1, s2) -> s1);
+                .reduce(content, (result, match) -> formatMatch(result, content, match, indentSize), (s1, s2) -> s1);
     }
 
-    private String formatMatch(String result, String originalContent, TableMatch match) {
+    private String formatMatch(String result, String originalContent, TableMatch match, int indentSize) {
         String originalTable = match.originalText();
-        String formattedTable = formatter.format(originalTable);
+        String formattedTable = formatter.format(originalTable, indentSize, match.baseIndent());
 
         return formattedTable.equals(originalTable)
                 ? result
-                : replaceTableContent(result, originalContent, match, formattedTable);
+                : replaceTableContent(result, originalContent, match, formattedTable, indentSize);
     }
 
-    private String replaceTableContent(String result, String originalContent, TableMatch match, String formattedTable) {
+    private String replaceTableContent(
+            String result, String originalContent, TableMatch match, String formattedTable, int indentSize) {
         String matchText = originalContent.substring(match.startIndex(), match.endIndex());
         int tableContentStart = matchText.indexOf("\"\"\"") + 3;
         int tableContentEnd = matchText.lastIndexOf("\"\"\"");
@@ -65,6 +77,7 @@ public class SourceFileFormatter {
         int actualStart = match.startIndex() + tableContentStart;
         int actualEnd = match.startIndex() + tableContentEnd;
 
+        // Replace the table content (formatted table includes closing quote indentation)
         return result.substring(0, actualStart) + formattedTable + result.substring(actualEnd);
     }
 }

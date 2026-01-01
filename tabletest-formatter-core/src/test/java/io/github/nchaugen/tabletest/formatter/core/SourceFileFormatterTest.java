@@ -151,4 +151,29 @@ class SourceFileFormatterTest {
                 }
                 """);
     }
+
+    @Test
+    void shouldFormatWithIndentation() {
+        String input = """
+                class Test {
+                    @TableTest(\"""
+                    name|age
+                    Alice|30
+                    \""")
+                    void test() {}
+                }
+                """;
+
+        String result = formatter.format(input, 4);
+
+        assertThat(result).isEqualTo("""
+                class Test {
+                    @TableTest(\"""
+                        name  | age
+                        Alice | 30
+                        \""")
+                    void test() {}
+                }
+                """);
+    }
 }

@@ -36,8 +36,8 @@ import java.util.regex.Pattern;
  */
 public class TableTestExtractor {
 
-    private static final Pattern TABLE_TEST_PATTERN =
-            Pattern.compile("@TableTest\\s*\\([^)]*?\"\"\"(.*?)\"\"\"[^)]*?\\)", Pattern.DOTALL);
+    private static final Pattern TABLE_TEST_PATTERN = Pattern.compile(
+            "^([ \\t]*)@TableTest\\s*\\([^)]*?\"\"\"(.*?)\"\"\"[^)]*?\\)", Pattern.DOTALL | Pattern.MULTILINE);
 
     /**
      * Finds all @TableTest annotations in the provided source code.
@@ -50,12 +50,25 @@ public class TableTestExtractor {
         Matcher matcher = TABLE_TEST_PATTERN.matcher(sourceCode);
 
         while (matcher.find()) {
-            String tableText = matcher.group(1);
-            int startIndex = matcher.start();
+            String leadingWhitespace = matcher.group(1);
+            String tableText = matcher.group(2);
+            // Adjust startIndex to point to @ symbol (skip leading whitespace)
+            int startIndex = matcher.start() + leadingWhitespace.length();
             int endIndex = matcher.end();
-            matches.add(new TableMatch(tableText, startIndex, endIndex));
+            int baseIndent = calculateBaseIndent(leadingWhitespace);
+            matches.add(new TableMatch(tableText, startIndex, endIndex, baseIndent));
         }
 
         return matches;
+    }
+
+    /**
+     * Calculates the indent size from leading whitespace, converting tabs to 4 spaces.
+     *
+     * @param whitespace the leading whitespace string
+     * @return the equivalent number of spaces
+     */
+    private static int calculateBaseIndent(String whitespace) {
+        return whitespace.replaceAll("\t", "    ").length();
     }
 }

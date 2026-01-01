@@ -44,13 +44,25 @@ public class FileFormatter {
      * @throws IOException if an I/O error occurs
      */
     public FormattingResult format(Path file) throws IOException {
+        return format(file, 0);
+    }
+
+    /**
+     * Formats a file with specified indentation and returns the result.
+     *
+     * @param file       the file to format
+     * @param indentSize the number of spaces per indent level (0 for no indentation)
+     * @return formatting result with changed flag and formatted content
+     * @throws IOException if an I/O error occurs
+     */
+    public FormattingResult format(Path file, int indentSize) throws IOException {
         String content = Files.readString(file);
         String fileName = file.getFileName().toString();
 
         if (fileName.endsWith(".table")) {
             return formatStandaloneTableFile(file, content);
         } else if (fileName.endsWith(".java") || fileName.endsWith(".kt")) {
-            return formatSourceFile(file, content);
+            return formatSourceFile(file, content, indentSize);
         } else {
             return new FormattingResult(file, false, content);
         }
@@ -62,8 +74,8 @@ public class FileFormatter {
         return new FormattingResult(file, changed, formatted);
     }
 
-    private FormattingResult formatSourceFile(Path file, String content) {
-        String formatted = sourceFormatter.format(content);
+    private FormattingResult formatSourceFile(Path file, String content, int indentSize) {
+        String formatted = sourceFormatter.format(content, indentSize);
         boolean changed = !formatted.equals(content);
         return new FormattingResult(file, changed, formatted);
     }
