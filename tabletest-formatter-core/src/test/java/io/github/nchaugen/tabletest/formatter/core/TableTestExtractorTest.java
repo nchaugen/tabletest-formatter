@@ -589,4 +589,67 @@ class TableTestExtractorTest {
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("sourceCode must not be null");
     }
+
+    @Test
+    void shouldThrowIllegalArgumentExceptionWhenTabSizeIsZero() {
+        var sourceCode = "@TableTest(\"\"\"\nx|y\n1|2\n\"\"\")";
+
+        assertThatThrownBy(() -> TableTestExtractor.findAll(sourceCode, 0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("tabSize must be at least 1");
+    }
+
+    @Test
+    void shouldThrowIllegalArgumentExceptionWhenTabSizeIsNegative() {
+        var sourceCode = "@TableTest(\"\"\"\nx|y\n1|2\n\"\"\")";
+
+        assertThatThrownBy(() -> TableTestExtractor.findAll(sourceCode, -1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("tabSize must be at least 1");
+    }
+
+    // ========== Configurable Tab Size Tests ==========
+
+    @TableTest("""
+        Scenario           | tabSize | sourceCode                               | expectedIndent?
+        default (4 spaces) | 4       | '\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'  | 4
+        2-space tabs       | 2       | '\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'  | 2
+        8-space tabs       | 8       | '\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'  | 8
+        """)
+    void shouldRespectConfiguredTabSize(int tabSize, String sourceCode, int expectedIndent) {
+        String actualSource = sourceCode.replace("\\n", "\n");
+
+        List<TableMatch> matches = TableTestExtractor.findAll(actualSource, tabSize);
+
+        assertThat(matches).hasSize(1);
+        assertThat(matches.getFirst().baseIndent()).isEqualTo(expectedIndent);
+    }
+
+    @TableTest("""
+        Scenario                | tabSize | sourceCode                                  | expectedIndent?
+        two tabs with 2-space   | 2       | '\t\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'   | 4
+        two tabs with 8-space   | 8       | '\t\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'   | 16
+        mixed with 2-space      | 2       | '\t  @TableTest(\"""\\nx|y\\n1|2\\n\""")'   | 4
+        mixed with 8-space      | 8       | '\t  @TableTest(\"""\\nx|y\\n1|2\\n\""")'   | 10
+        """)
+    void shouldHandleMultipleTabsWithConfiguredSize(int tabSize, String sourceCode, int expectedIndent) {
+        String actualSource = sourceCode.replace("\\n", "\n");
+
+        List<TableMatch> matches = TableTestExtractor.findAll(actualSource, tabSize);
+
+        assertThat(matches).hasSize(1);
+        assertThat(matches.getFirst().baseIndent()).isEqualTo(expectedIndent);
+    }
+
+    @Test
+    void shouldUseDefaultTabSizeWhenNotSpecified() {
+        var sourceCode = "\t@TableTest(\"\"\"\nx|y\n1|2\n\"\"\")";
+
+        List<TableMatch> matchesDefault = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matchesExplicit = TableTestExtractor.findAll(sourceCode, 4);
+
+        assertThat(matchesDefault.getFirst().baseIndent())
+                .isEqualTo(matchesExplicit.getFirst().baseIndent())
+                .isEqualTo(4);
+    }
 }

@@ -37,7 +37,7 @@ public class SourceFileFormatter {
      * @return the formatted content, or original if no changes needed
      */
     public String format(String content) {
-        return format(content, 0);
+        return format(content, 0, 4);
     }
 
     /**
@@ -48,7 +48,19 @@ public class SourceFileFormatter {
      * @return the formatted content, or original if no changes needed
      */
     public String format(String content, int indentSize) {
-        List<TableMatch> matches = TableTestExtractor.findAll(content);
+        return format(content, indentSize, 4);
+    }
+
+    /**
+     * Formats all TableTest tables found in a source file with specified indentation and tab size.
+     *
+     * @param content    the source file content
+     * @param indentSize the number of spaces per indent level (0 for no indentation)
+     * @param tabSize    the number of spaces a tab character should be converted to
+     * @return the formatted content, or original if no changes needed
+     */
+    public String format(String content, int indentSize, int tabSize) {
+        List<TableMatch> matches = TableTestExtractor.findAll(content, tabSize);
 
         return matches.isEmpty() ? content : formatMatches(content, matches, indentSize);
     }

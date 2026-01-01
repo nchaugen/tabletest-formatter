@@ -44,7 +44,7 @@ public class FileFormatter {
      * @throws IOException if an I/O error occurs
      */
     public FormattingResult format(Path file) throws IOException {
-        return format(file, 0);
+        return format(file, 0, 4);
     }
 
     /**
@@ -56,13 +56,26 @@ public class FileFormatter {
      * @throws IOException if an I/O error occurs
      */
     public FormattingResult format(Path file, int indentSize) throws IOException {
+        return format(file, indentSize, 4);
+    }
+
+    /**
+     * Formats a file with specified indentation and tab size and returns the result.
+     *
+     * @param file       the file to format
+     * @param indentSize the number of spaces per indent level (0 for no indentation)
+     * @param tabSize    the number of spaces a tab character should be converted to
+     * @return formatting result with changed flag and formatted content
+     * @throws IOException if an I/O error occurs
+     */
+    public FormattingResult format(Path file, int indentSize, int tabSize) throws IOException {
         String content = Files.readString(file);
         String fileName = file.getFileName().toString();
 
         if (fileName.endsWith(".table")) {
             return formatStandaloneTableFile(file, content);
         } else if (fileName.endsWith(".java") || fileName.endsWith(".kt")) {
-            return formatSourceFile(file, content, indentSize);
+            return formatSourceFile(file, content, indentSize, tabSize);
         } else {
             return new FormattingResult(file, false, content);
         }
@@ -74,8 +87,8 @@ public class FileFormatter {
         return new FormattingResult(file, changed, formatted);
     }
 
-    private FormattingResult formatSourceFile(Path file, String content, int indentSize) {
-        String formatted = sourceFormatter.format(content, indentSize);
+    private FormattingResult formatSourceFile(Path file, String content, int indentSize, int tabSize) {
+        String formatted = sourceFormatter.format(content, indentSize, tabSize);
         boolean changed = !formatted.equals(content);
         return new FormattingResult(file, changed, formatted);
     }

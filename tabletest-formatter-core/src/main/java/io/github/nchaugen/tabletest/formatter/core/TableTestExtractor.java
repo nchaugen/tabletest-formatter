@@ -49,7 +49,7 @@ public class TableTestExtractor {
             "^([ \\t]*)@TableTest\\s*\\([^)]*?\"\"\"(.*?)\"\"\"[^)]*?\\)", Pattern.DOTALL | Pattern.MULTILINE);
 
     /**
-     * Finds all @TableTest annotations in the provided source code.
+     * Finds all @TableTest annotations in the provided source code using default tab size of 4.
      *
      * <p>If no annotations are found or the source contains malformed annotations
      * that don't match the expected pattern, returns an empty list. This method
@@ -60,7 +60,28 @@ public class TableTestExtractor {
      * @throws NullPointerException if sourceCode is null
      */
     public static List<TableMatch> findAll(String sourceCode) {
+        return findAll(sourceCode, 4);
+    }
+
+    /**
+     * Finds all @TableTest annotations in the provided source code with configurable tab size.
+     *
+     * <p>If no annotations are found or the source contains malformed annotations
+     * that don't match the expected pattern, returns an empty list. This method
+     * never throws exceptions due to malformed input—only for programming errors.
+     *
+     * @param sourceCode the Java or Kotlin source code to search (must not be null)
+     * @param tabSize    the number of spaces a tab character should be converted to (must be positive)
+     * @return list of all @TableTest matches found (empty if none found), with position information
+     * @throws NullPointerException     if sourceCode is null
+     * @throws IllegalArgumentException if tabSize is less than 1
+     */
+    public static List<TableMatch> findAll(String sourceCode, int tabSize) {
         Objects.requireNonNull(sourceCode, "sourceCode must not be null");
+        if (tabSize < 1) {
+            throw new IllegalArgumentException("tabSize must be at least 1, got: " + tabSize);
+        }
+
         List<TableMatch> matches = new ArrayList<>();
         Matcher matcher = TABLE_TEST_PATTERN.matcher(sourceCode);
 
@@ -70,7 +91,7 @@ public class TableTestExtractor {
             // Adjust startIndex to point to @ symbol (skip leading whitespace)
             int startIndex = matcher.start() + leadingWhitespace.length();
             int endIndex = matcher.end();
-            int baseIndent = calculateBaseIndent(leadingWhitespace);
+            int baseIndent = calculateBaseIndent(leadingWhitespace, tabSize);
             matches.add(new TableMatch(tableText, startIndex, endIndex, baseIndent));
         }
 
@@ -78,12 +99,14 @@ public class TableTestExtractor {
     }
 
     /**
-     * Calculates the indent size from leading whitespace, converting tabs to 4 spaces.
+     * Calculates the indent size from leading whitespace, converting tabs to spaces.
      *
      * @param whitespace the leading whitespace string
+     * @param tabSize    the number of spaces a tab character should be converted to
      * @return the equivalent number of spaces
      */
-    private static int calculateBaseIndent(String whitespace) {
-        return whitespace.replaceAll("\t", "    ").length();
+    private static int calculateBaseIndent(String whitespace, int tabSize) {
+        String spaces = " ".repeat(tabSize);
+        return whitespace.replaceAll("\t", spaces).length();
     }
 }

@@ -70,6 +70,12 @@ public class TableTestFormatterCli implements Callable<Integer> {
             description = "Number of spaces per indent level (default: 4)")
     private int indentSize = 4;
 
+    @Option(
+            names = {"--tab-size"},
+            defaultValue = "4",
+            description = "Number of spaces a tab character represents (default: 4)")
+    private int tabSize = 4;
+
     private final FileDiscovery fileDiscovery;
     private final FileFormatter fileFormatter;
 
@@ -110,7 +116,7 @@ public class TableTestFormatterCli implements Callable<Integer> {
         FormattingStatus status = new FormattingStatus();
 
         for (Path file : files) {
-            FormattingResult result = fileFormatter.format(file, indentSize);
+            FormattingResult result = fileFormatter.format(file, indentSize, tabSize);
             status.addResult(result);
 
             if (verbose) {
