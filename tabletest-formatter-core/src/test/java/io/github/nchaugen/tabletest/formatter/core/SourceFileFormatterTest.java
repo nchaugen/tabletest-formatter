@@ -176,4 +176,237 @@ class SourceFileFormatterTest {
                 }
                 """);
     }
+
+    @Test
+    void shouldFormatWithIndentationAndExtraWhitespaceAroundAnnotation() {
+        String input = """
+                class Test {
+                    @TableTest(  \"""
+                    name|age
+                    Alice|30
+                    \"""  )
+                    void test() {}
+                }
+                """;
+
+        String result = formatter.format(input, 4);
+
+        assertThat(result).isEqualTo("""
+                class Test {
+                    @TableTest(  \"""
+                        name  | age
+                        Alice | 30
+                        \"""  )
+                    void test() {}
+                }
+                """);
+    }
+
+    @Test
+    void shouldFormatWithIndentationWhenQuotesOnSeparateLine() {
+        String input = """
+                class Test {
+                    @TableTest(
+                        \"""
+                        name|age
+                        Alice|30
+                        \"""
+                    )
+                    void test() {}
+                }
+                """;
+
+        String result = formatter.format(input, 4);
+
+        assertThat(result).isEqualTo("""
+                class Test {
+                    @TableTest(
+                        \"""
+                        name  | age
+                        Alice | 30
+                        \"""
+                    )
+                    void test() {}
+                }
+                """);
+    }
+
+    @Test
+    void shouldFormatTablesInNestedClass() {
+        String input = """
+                class Outer {
+                    class Inner {
+                        @TableTest(\"""
+                        name|age
+                        Alice|30
+                        \""")
+                        void test() {}
+                    }
+                }
+                """;
+
+        String result = formatter.format(input, 4);
+
+        assertThat(result).isEqualTo("""
+                class Outer {
+                    class Inner {
+                        @TableTest(\"""
+                            name  | age
+                            Alice | 30
+                            \""")
+                        void test() {}
+                    }
+                }
+                """);
+    }
+
+    @Test
+    void shouldFormatMultipleTablesWithDifferentIndentationLevels() {
+        String input = """
+                class Test {
+                    @TableTest(\"""
+                    name|age
+                    Alice|30
+                    \""")
+                    void test1() {}
+
+                    class Nested {
+                        @TableTest(\"""
+                        city|country
+                        London|UK
+                        \""")
+                        void test2() {}
+                    }
+                }
+                """;
+
+        String result = formatter.format(input, 4);
+
+        assertThat(result).isEqualTo("""
+                class Test {
+                    @TableTest(\"""
+                        name  | age
+                        Alice | 30
+                        \""")
+                    void test1() {}
+
+                    class Nested {
+                        @TableTest(\"""
+                            city   | country
+                            London | UK
+                            \""")
+                        void test2() {}
+                    }
+                }
+                """);
+    }
+
+    @Test
+    void shouldFormatDeeplyNestedStructure() {
+        String input = """
+                class Level1 {
+                    class Level2 {
+                        class Level3 {
+                            @TableTest(\"""
+                            x|y
+                            1|2
+                            \""")
+                            void test() {}
+                        }
+                    }
+                }
+                """;
+
+        String result = formatter.format(input, 4);
+
+        assertThat(result).isEqualTo("""
+                class Level1 {
+                    class Level2 {
+                        class Level3 {
+                            @TableTest(\"""
+                                x | y
+                                1 | 2
+                                \""")
+                            void test() {}
+                        }
+                    }
+                }
+                """);
+    }
+
+    @Test
+    void shouldFormatWithTwoSpaceIndentation() {
+        String input = """
+                class Test {
+                  @TableTest(\"""
+                  name|age
+                  Alice|30
+                  \""")
+                  void test() {}
+                }
+                """;
+
+        String result = formatter.format(input, 2);
+
+        assertThat(result).isEqualTo("""
+                class Test {
+                  @TableTest(\"""
+                    name  | age
+                    Alice | 30
+                    \""")
+                  void test() {}
+                }
+                """);
+    }
+
+    @Test
+    void shouldFormatWithTabIndentationNormalizedToSpaces() {
+        String input = """
+                class Test {
+                \t@TableTest(\"""
+                \tname|age
+                \tAlice|30
+                \t\""")
+                \tvoid test() {}
+                }
+                """;
+
+        String result = formatter.format(input, 4);
+
+        // Tab characters are normalized to spaces when indentation is applied
+        assertThat(result).isEqualTo("""
+                class Test {
+                \t@TableTest(\"""
+                        name  | age
+                        Alice | 30
+                        \""")
+                \tvoid test() {}
+                }
+                """);
+    }
+
+    @Test
+    void shouldFormatWithMixedSpacesAndTabs() {
+        String input = """
+                class Test {
+                \t@TableTest(\"""
+                    name|age
+                    Alice|30
+                    \""")
+                    void test() {}
+                }
+                """;
+
+        String result = formatter.format(input, 4);
+
+        assertThat(result).isEqualTo("""
+                class Test {
+                \t@TableTest(\"""
+                        name  | age
+                        Alice | 30
+                        \""")
+                    void test() {}
+                }
+                """);
+    }
 }
