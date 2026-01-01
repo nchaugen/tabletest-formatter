@@ -358,6 +358,141 @@ class TableTestExtractorTest {
         assertThat(matches).isEmpty();
     }
 
+    // ========== Annotation Syntax Edge Cases ==========
+
+    @Test
+    void shouldHandleInlineComments() {
+        var sourceCode = """
+                class Test {
+                    @TableTest( // inline comment
+                    \"""
+                        name | age
+                        Alice | 30
+                        \""")
+                    void test1() {}
+                }
+                """;
+
+        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+
+        assertThat(matches).hasSize(1);
+        assertThat(matches.getFirst().originalText()).contains("name | age");
+        assertThat(matches.getFirst().originalText()).contains("Alice | 30");
+    }
+
+    @Test
+    void shouldHandleBlockComments() {
+        var sourceCode = """
+                class Test {
+                    @TableTest(/* comment */ \"""
+                        name | age
+                        Alice | 30
+                        \""")
+                    void test1() {}
+                }
+                """;
+
+        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+
+        assertThat(matches).hasSize(1);
+        assertThat(matches.getFirst().originalText()).contains("name | age");
+        assertThat(matches.getFirst().originalText()).contains("Alice | 30");
+    }
+
+    @Test
+    void shouldHandleEmptyTableContent() {
+        var sourceCode = """
+                class Test {
+                    @TableTest(\"""
+                        \""")
+                    void test1() {}
+                }
+                """;
+
+        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+
+        // Extraction should succeed (parsing may fail, but that's not the extractor's concern)
+        assertThat(matches).hasSize(1);
+        assertThat(matches.getFirst().originalText().stripIndent().strip()).isEmpty();
+    }
+
+    @Test
+    void shouldPreserveEscapeSequences() {
+        var sourceCode = """
+                class Test {
+                    @TableTest(\"""
+                        name | quote
+                        Alice | She said "hello"
+                        Bob | Line1
+                Line2
+                        \""")
+                    void test1() {}
+                }
+                """;
+
+        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+
+        assertThat(matches).hasSize(1);
+        String extractedText = matches.getFirst().originalText();
+        // Text blocks handle escape sequences at compile time, so quotes appear as regular quotes
+        assertThat(extractedText).contains("She said \"hello\"");
+        // Actual newline appears in the text block (not \n escape sequence)
+        assertThat(extractedText).contains("Line1\nLine2");
+    }
+
+    @Test
+    void shouldNotMatchFullyQualifiedAnnotation() {
+        var sourceCode = """
+                class Test {
+                    @io.github.nchaugen.tabletest.junit.TableTest(\"""
+                        name | age
+                        Alice | 30
+                        \""")
+                    void test1() {}
+                }
+                """;
+
+        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+
+        // Known limitation: regex only matches @TableTest, not fully qualified names
+        assertThat(matches).isEmpty();
+    }
+
+    @Test
+    void shouldHandleMixedLineEndings() {
+        // Test with Windows-style CRLF line endings
+        String sourceCodeCrlf = """
+            class Test {\r
+                @TableTest(""\"\r
+                    name | age\r
+                    Alice | 30\r
+                    ""\")\r
+                void test1() {}\r
+            }\r
+            """;
+
+        List<TableMatch> matchesCrlf = TableTestExtractor.findAll(sourceCodeCrlf);
+
+        assertThat(matchesCrlf).hasSize(1);
+        assertThat(matchesCrlf.getFirst().originalText()).contains("name | age");
+
+        // Test with Unix-style LF line endings
+        String sourceCodeLf = """
+            class Test {
+                @TableTest(""\"
+                    name | age
+                    Alice | 30
+                    ""\")
+                void test1() {}
+            }
+            """;
+
+        List<TableMatch> matchesLf = TableTestExtractor.findAll(sourceCodeLf);
+
+        assertThat(matchesLf).hasSize(1);
+        assertThat(matchesLf.getFirst().originalText()).contains("name | age");
+    }
+
     // ========== Indentation Detection Tests ==========
 
     @TableTest("""
