@@ -72,6 +72,17 @@ public class TableTestFormatter {
      *   <li>Any input that throws {@code TableTestParseException} during parsing</li>
      * </ul>
      *
+     * <p><strong>Example usage:</strong>
+     * <pre>
+     * var formatter = new TableTestFormatter();
+     * var input = "name|age\nAlice|30\nBob|25";
+     * var formatted = formatter.format(input);
+     * // Returns:
+     * // "name  | age\n"
+     * // "Alice | 30\n"
+     * // "Bob   | 25\n"
+     * </pre>
+     *
      * @param tableText the raw table text to format (must not be null)
      * @return the formatted table text, or the original input if parsing/formatting fails
      * @throws NullPointerException if tableText is null
@@ -90,6 +101,17 @@ public class TableTestFormatter {
      *
      * <p>When {@code indentSize > 0}, the input is normalized (stripped and trimmed)
      * before formatting, and trailing indentation is added for closing quote alignment.
+     *
+     * <p><strong>Example usage:</strong>
+     * <pre>
+     * var formatter = new TableTestFormatter();
+     * var input = "name|age\nAlice|30";
+     * var formatted = formatter.format(input, 4, 8);
+     * // Returns (with 8 spaces base indent + 4 spaces per level):
+     * //             "            name  | age\n"
+     * //             "            Alice | 30\n"
+     * //             "            "
+     * </pre>
      *
      * @param tableText  the raw table text to format (must not be null)
      * @param indentSize the number of spaces per indent level (must be >= 0, typically 2 or 4)

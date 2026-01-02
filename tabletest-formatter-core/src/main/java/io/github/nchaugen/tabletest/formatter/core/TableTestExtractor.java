@@ -55,6 +55,25 @@ public class TableTestExtractor {
      * that don't match the expected pattern, returns an empty list. This method
      * never throws exceptions due to malformed input—only for programming errors.
      *
+     * <p><strong>Example usage:</strong>
+     * <pre>
+     * var sourceCode = """
+     *     class Test {
+     *         @TableTest("""
+     *             name | age
+     *             Alice | 30
+     *             """)
+     *         void testData(String name, int age) {}
+     *     }
+     *     """;
+     * List&lt;TableMatch&gt; matches = TableTestExtractor.findAll(sourceCode);
+     * // Returns: 1 match with:
+     * //   originalText = "name | age\nAlice | 30\n"
+     * //   startIndex = position of '@'
+     * //   endIndex = position after closing ')'
+     * //   baseIndent = 4 (indentation level)
+     * </pre>
+     *
      * @param sourceCode the Java or Kotlin source code to search (must not be null)
      * @return list of all @TableTest matches found (empty if none found), with position information
      * @throws NullPointerException if sourceCode is null

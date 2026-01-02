@@ -47,6 +47,15 @@ public class DisplayWidth {
     /**
      * Calculates the display width of a string.
      *
+     * <p><strong>Example usage:</strong>
+     * <pre>
+     * DisplayWidth.of("Hello")       // Returns: 5 (regular ASCII)
+     * DisplayWidth.of("你好")         // Returns: 4 (2 CJK characters × 2 width each)
+     * DisplayWidth.of("café")        // Returns: 4 (combining accent has width 0)
+     * DisplayWidth.of("😀")          // Returns: 1 (Unicode 5.0 implementation)
+     * DisplayWidth.of(null)          // Returns: 0 (null handling)
+     * </pre>
+     *
      * @param text the string to measure (null is treated as empty string)
      * @return the total display width, or 0 if text is null
      */
