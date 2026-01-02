@@ -48,6 +48,13 @@ import static java.util.stream.Collectors.joining;
  */
 public class TableTestFormatter {
 
+    /**
+     * Width allocated for spacing between columns (trailing space after cell value).
+     * This accounts for the space character that appears before the pipe separator,
+     * ensuring proper visual separation between columns in the formatted table.
+     */
+    private static final int COLUMN_SEPARATOR_WIDTH = 1;
+
     private final CellFormatter cellFormatter = new CellFormatter();
 
     /**
@@ -252,7 +259,7 @@ public class TableTestFormatter {
     }
 
     private String padCell(String value, int width) {
-        int paddingSpaces = width + 1 - DisplayWidth.of(value);
+        int paddingSpaces = width + COLUMN_SEPARATOR_WIDTH - DisplayWidth.of(value);
         return value + " ".repeat(Math.max(0, paddingSpaces));
     }
 }
