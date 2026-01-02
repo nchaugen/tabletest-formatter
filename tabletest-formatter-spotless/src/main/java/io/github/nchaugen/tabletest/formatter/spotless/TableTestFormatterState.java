@@ -15,6 +15,8 @@
  */
 package io.github.nchaugen.tabletest.formatter.spotless;
 
+import io.github.nchaugen.tabletest.formatter.core.IndentType;
+
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -26,59 +28,59 @@ import java.io.Serializable;
 public final class TableTestFormatterState implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 4L;
 
-    private final int tabSize;
+    private final IndentType indentType;
     private final int indentSize;
 
     /**
-     * Creates a new TableTestFormatterState with default configuration (tab size of 4, indent size of 4).
+     * Creates a new TableTestFormatterState with default configuration (space indentation, indent size of 4).
      */
     public TableTestFormatterState() {
-        this(4, 4);
+        this(IndentType.SPACE, 4);
     }
 
     /**
-     * Creates a new TableTestFormatterState with specified tab size and default indent size of 4.
+     * Creates a new TableTestFormatterState with specified indent size and default space indentation.
      *
-     * @param tabSize the number of spaces a tab character should be converted to (must be positive)
-     * @throws IllegalArgumentException if tabSize is less than 1
+     * @param indentSize the number of indent characters to add (must be non-negative)
+     * @throws IllegalArgumentException if indentSize is negative
      */
-    public TableTestFormatterState(int tabSize) {
-        this(tabSize, 4);
+    public TableTestFormatterState(int indentSize) {
+        this(IndentType.SPACE, indentSize);
     }
 
     /**
-     * Creates a new TableTestFormatterState with specified tab size and indent size.
+     * Creates a new TableTestFormatterState with specified indent type and indent size.
      *
-     * @param tabSize    the number of spaces a tab character should be converted to (must be positive)
-     * @param indentSize the number of spaces per indent level (must be non-negative)
-     * @throws IllegalArgumentException if tabSize is less than 1 or indentSize is negative
+     * @param indentType the type of indentation to use (SPACE or TAB)
+     * @param indentSize the number of indent characters to add (spaces or tabs depending on indent type, must be non-negative)
+     * @throws IllegalArgumentException if indentType is null or indentSize is negative
      */
-    public TableTestFormatterState(int tabSize, int indentSize) {
-        if (tabSize < 1) {
-            throw new IllegalArgumentException("tabSize must be at least 1, got: " + tabSize);
+    public TableTestFormatterState(IndentType indentType, int indentSize) {
+        if (indentType == null) {
+            throw new IllegalArgumentException("indentType must not be null");
         }
         if (indentSize < 0) {
             throw new IllegalArgumentException("indentSize must not be negative, got: " + indentSize);
         }
-        this.tabSize = tabSize;
+        this.indentType = indentType;
         this.indentSize = indentSize;
     }
 
     /**
-     * Gets the configured tab size.
+     * Gets the configured indent type.
      *
-     * @return the number of spaces a tab character should be converted to
+     * @return the type of indentation to preserve (SPACE or TAB)
      */
-    public int tabSize() {
-        return tabSize;
+    public IndentType indentType() {
+        return indentType;
     }
 
     /**
      * Gets the configured indent size.
      *
-     * @return the number of spaces per indent level
+     * @return the number of indent characters to add (spaces or tabs depending on indent type)
      */
     public int indentSize() {
         return indentSize;

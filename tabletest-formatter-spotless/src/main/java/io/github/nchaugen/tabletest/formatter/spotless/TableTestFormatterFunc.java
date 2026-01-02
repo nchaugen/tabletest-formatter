@@ -16,6 +16,7 @@
 package io.github.nchaugen.tabletest.formatter.spotless;
 
 import com.diffplug.spotless.FormatterFunc;
+import io.github.nchaugen.tabletest.formatter.core.IndentType;
 import io.github.nchaugen.tabletest.formatter.core.SourceFileFormatter;
 import io.github.nchaugen.tabletest.formatter.core.TableTestFormatter;
 
@@ -88,8 +89,8 @@ public final class TableTestFormatterFunc implements FormatterFunc.NeedsFile {
 
     private String formatSourceFile(String content) {
         int indentSize = state.indentSize();
-        int tabSize = state.tabSize();
-        String formatted = sourceFormatter.format(content, indentSize, tabSize);
+        IndentType indentType = state.indentType();
+        String formatted = sourceFormatter.format(content, indentSize, indentType);
         return formatted.equals(content) ? null : formatted;
     }
 }

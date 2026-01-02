@@ -145,7 +145,7 @@ class CliIntegrationTest {
         // When: applying formatting
         int exitCode = executeCliApplyMode(tempDir);
 
-        // Then: tabs normalized to spaces in table content
+        // Then: tabs preserved in base indentation, spaces added as indent characters
         assertThat(exitCode).isZero();
         assertThat(actualContent(testFile)).isEqualTo(expectedContent(testFile));
     }

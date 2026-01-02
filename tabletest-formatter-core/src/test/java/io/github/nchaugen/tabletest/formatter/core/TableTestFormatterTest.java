@@ -505,7 +505,7 @@ class TableTestFormatterTest {
             Bob|25
             """;
 
-        var result = formatter.format(input, 0, 0);
+        var result = formatter.format(input, 0, "", IndentType.SPACE);
 
         assertThat(result).isEqualTo("""
             name  | age
@@ -522,7 +522,7 @@ class TableTestFormatterTest {
             Bob|25
             """;
 
-        var result = formatter.format(input, 4, 0);
+        var result = formatter.format(input, 4, "", IndentType.SPACE);
 
         assertThat(result).isEqualTo("""
             name  | age
@@ -538,7 +538,7 @@ class TableTestFormatterTest {
             Alice|30
             """;
 
-        var result = formatter.format(input, 2, 4);
+        var result = formatter.format(input, 2, "    ", IndentType.SPACE);
 
         assertThat(result).isEqualTo("""
             name  | age
@@ -554,7 +554,7 @@ class TableTestFormatterTest {
             Bob|25
             """;
 
-        var result = formatter.format(input, 4, 0);
+        var result = formatter.format(input, 4, "", IndentType.SPACE);
 
         assertThat(result).isEqualTo("""
             name  | age
@@ -567,7 +567,7 @@ class TableTestFormatterTest {
     void shouldReturnEmptyTableUnchangedWithIndentation() {
         var input = "";
 
-        var result = formatter.format(input, 4, 0);
+        var result = formatter.format(input, 4, "", IndentType.SPACE);
 
         assertThat(result).isEmpty();
     }
@@ -578,7 +578,7 @@ class TableTestFormatterTest {
             name|age
             """;
 
-        var result = formatter.format(input, 4, 0);
+        var result = formatter.format(input, 4, "", IndentType.SPACE);
 
         assertThat(result).isEqualTo("""
             name | age
@@ -594,7 +594,7 @@ class TableTestFormatterTest {
             Bob|25
             """;
 
-        var result = formatter.format(input, 2, 0);
+        var result = formatter.format(input, 2, "", IndentType.SPACE);
 
         assertThat(result).isEqualTo("""
             name  | age
@@ -613,7 +613,7 @@ class TableTestFormatterTest {
             Bob|25
             """;
 
-        var result = formatter.format(input, 2, 0);
+        var result = formatter.format(input, 2, "", IndentType.SPACE);
 
         assertThat(result).isEqualTo("""
             name  | age
@@ -634,7 +634,7 @@ class TableTestFormatterTest {
             Bob|25
             """;
 
-        var result = formatter.format(input, 4, 0);
+        var result = formatter.format(input, 4, "", IndentType.SPACE);
 
         assertThat(result).isEqualTo("""
             name  | age
@@ -657,7 +657,7 @@ class TableTestFormatterTest {
 
     @Test
     void shouldThrowNullPointerExceptionWhenTableTextIsNullWithIndentation() {
-        assertThatThrownBy(() -> formatter.format(null, 4, 0))
+        assertThatThrownBy(() -> formatter.format(null, 4, "", IndentType.SPACE))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("tableText must not be null");
     }
@@ -666,17 +666,26 @@ class TableTestFormatterTest {
     void shouldThrowIllegalArgumentExceptionWhenIndentSizeIsNegative() {
         String input = "name|age\nAlice|30\n";
 
-        assertThatThrownBy(() -> formatter.format(input, -1, 0))
+        assertThatThrownBy(() -> formatter.format(input, -1, "", IndentType.SPACE))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("indentSize must not be negative: -1");
     }
 
     @Test
-    void shouldThrowIllegalArgumentExceptionWhenBaseIndentIsNegative() {
+    void shouldThrowNullPointerExceptionWhenBaseIndentStringIsNull() {
         String input = "name|age\nAlice|30\n";
 
-        assertThatThrownBy(() -> formatter.format(input, 4, -2))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("baseIndent must not be negative: -2");
+        assertThatThrownBy(() -> formatter.format(input, 4, null, IndentType.SPACE))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("baseIndentString must not be null");
+    }
+
+    @Test
+    void shouldThrowNullPointerExceptionWhenIndentTypeIsNull() {
+        String input = "name|age\nAlice|30\n";
+
+        assertThatThrownBy(() -> formatter.format(input, 4, "", null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("indentType must not be null");
     }
 }

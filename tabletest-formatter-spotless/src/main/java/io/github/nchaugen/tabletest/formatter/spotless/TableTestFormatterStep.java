@@ -16,6 +16,7 @@
 package io.github.nchaugen.tabletest.formatter.spotless;
 
 import com.diffplug.spotless.FormatterStep;
+import io.github.nchaugen.tabletest.formatter.core.IndentType;
 
 /**
  * Factory for creating Spotless FormatterStep instances for TableTest formatting.
@@ -32,35 +33,35 @@ public final class TableTestFormatterStep {
     }
 
     /**
-     * Creates a new FormatterStep for TableTest formatting with default tab size of 4 and indent size of 4.
+     * Creates a new FormatterStep for TableTest formatting with default space indentation and indent size of 4.
      *
      * @return a configured FormatterStep instance
      */
     public static FormatterStep create() {
-        return create(4, 4);
+        return create(4);
     }
 
     /**
-     * Creates a new FormatterStep for TableTest formatting with specified tab size and default indent size of 4.
+     * Creates a new FormatterStep for TableTest formatting with specified indent size and default space indentation.
      *
-     * @param tabSize the number of spaces a tab character should be converted to
+     * @param indentSize the number of indent characters to add (spaces or tabs depending on indent type)
      * @return a configured FormatterStep instance
-     * @throws IllegalArgumentException if tabSize is less than 1
+     * @throws IllegalArgumentException if indentSize is negative
      */
-    public static FormatterStep create(int tabSize) {
-        return create(tabSize, 4);
+    public static FormatterStep create(int indentSize) {
+        return create(IndentType.SPACE, indentSize);
     }
 
     /**
-     * Creates a new FormatterStep for TableTest formatting with specified tab size and indent size.
+     * Creates a new FormatterStep for TableTest formatting with specified indent type and indent size.
      *
-     * @param tabSize    the number of spaces a tab character should be converted to
-     * @param indentSize the number of spaces per indent level
+     * @param indentType the type of indentation to use (SPACE or TAB)
+     * @param indentSize the number of indent characters to add (spaces or tabs depending on indent type)
      * @return a configured FormatterStep instance
-     * @throws IllegalArgumentException if tabSize is less than 1 or indentSize is negative
+     * @throws IllegalArgumentException if indentType is null or indentSize is negative
      */
-    public static FormatterStep create(int tabSize, int indentSize) {
-        TableTestFormatterState state = new TableTestFormatterState(tabSize, indentSize);
+    public static FormatterStep create(IndentType indentType, int indentSize) {
+        TableTestFormatterState state = new TableTestFormatterState(indentType, indentSize);
         return FormatterStep.createLazy(NAME, () -> state, TableTestFormatterFunc::new);
     }
 }

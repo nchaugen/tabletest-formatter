@@ -37,43 +37,64 @@ public class SourceFileFormatter {
      * @return the formatted content, or original if no changes needed
      */
     public String format(String content) {
-        return format(content, 0, 4);
+        return format(content, 0, IndentType.SPACE);
     }
 
     /**
      * Formats all TableTest tables found in a source file with specified indentation.
      *
      * @param content    the source file content
-     * @param indentSize the number of spaces per indent level (0 for no indentation)
+     * @param indentSize the number of indent characters to add (0 for no indentation)
      * @return the formatted content, or original if no changes needed
      */
     public String format(String content, int indentSize) {
-        return format(content, indentSize, 4);
+        return format(content, indentSize, IndentType.SPACE);
     }
 
     /**
-     * Formats all TableTest tables found in a source file with specified indentation and tab size.
+     * Formats all TableTest tables found in a source file with specified indentation and tab size (legacy API).
+     *
+     * <p>This is a compatibility method. Use {@link #format(String, int, IndentType)} instead.
      *
      * @param content    the source file content
-     * @param indentSize the number of spaces per indent level (0 for no indentation)
-     * @param tabSize    the number of spaces a tab character should be converted to
+     * @param indentSize the number of spaces to add (0 for no indentation)
+     * @param tabSize    the number of spaces a tab character should be converted to (ignored)
+     * @return the formatted content, or original if no changes needed
+     * @deprecated Use {@link #format(String, int, IndentType)} instead
+     */
+    @Deprecated
+    public String format(String content, int indentSize, int tabSize) {
+        // tabSize is ignored - tabs are now preserved in base indentation
+        return format(content, indentSize, IndentType.SPACE);
+    }
+
+    /**
+     * Formats all TableTest tables found in a source file with specified indentation and indent type.
+     *
+     * @param content    the source file content
+     * @param indentSize the number of indent characters to add (spaces or tabs depending on indent type, 0 for no indentation)
+     * @param indentType the type of indentation to use (SPACE or TAB)
      * @return the formatted content, or original if no changes needed
      */
-    public String format(String content, int indentSize, int tabSize) {
-        List<TableMatch> matches = TableTestExtractor.findAll(content, tabSize);
+    public String format(String content, int indentSize, IndentType indentType) {
+        List<TableMatch> matches = TableTestExtractor.findAll(content);
 
-        return matches.isEmpty() ? content : formatMatches(content, matches, indentSize);
+        return matches.isEmpty() ? content : formatMatches(content, matches, indentSize, indentType);
     }
 
-    private String formatMatches(String content, List<TableMatch> matches, int indentSize) {
+    private String formatMatches(String content, List<TableMatch> matches, int indentSize, IndentType indentType) {
         return matches.stream()
                 .sorted(Comparator.comparingInt(TableMatch::startIndex).reversed())
-                .reduce(content, (result, match) -> formatMatch(result, content, match, indentSize), (s1, s2) -> s1);
+                .reduce(
+                        content,
+                        (result, match) -> formatMatch(result, content, match, indentSize, indentType),
+                        (s1, s2) -> s1);
     }
 
-    private String formatMatch(String result, String originalContent, TableMatch match, int indentSize) {
+    private String formatMatch(
+            String result, String originalContent, TableMatch match, int indentSize, IndentType indentType) {
         String originalTable = match.originalText();
-        String formattedTable = formatter.format(originalTable, indentSize, match.baseIndent());
+        String formattedTable = formatter.format(originalTable, indentSize, match.baseIndentString(), indentType);
 
         return formattedTable.equals(originalTable)
                 ? result

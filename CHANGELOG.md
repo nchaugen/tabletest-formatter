@@ -16,3 +16,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Command-line tool** for formatting files and directories with check mode for CI integration
 - **Spotless integration** (Gradle) with configurable indentation and formatting options
 - **Graceful error handling** that never breaks builds when encountering malformed tables
+- **Indentation alignment**: Aligns tables relative to `@TableTest` annotation, preserving source indentation style (tabs/spaces) with configurable extra indentation

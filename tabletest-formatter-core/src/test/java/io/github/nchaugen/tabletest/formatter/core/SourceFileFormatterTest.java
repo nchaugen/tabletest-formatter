@@ -360,7 +360,7 @@ class SourceFileFormatterTest {
     }
 
     @Test
-    void shouldFormatWithTabIndentationNormalizedToSpaces() {
+    void shouldPreserveTabIndentation() {
         String input = """
                 class Test {
                 \t@TableTest(\"""
@@ -371,41 +371,16 @@ class SourceFileFormatterTest {
                 }
                 """;
 
-        String result = formatter.format(input, 4);
+        String result = formatter.format(input, 1);
 
-        // Tab characters are normalized to spaces when indentation is applied
+        // Tab characters in base indentation are preserved, 1 space added as indent character
         assertThat(result).isEqualTo("""
                 class Test {
                 \t@TableTest(\"""
-                        name  | age
-                        Alice | 30
-                        \""")
+                \t name  | age
+                \t Alice | 30
+                \t \""")
                 \tvoid test() {}
-                }
-                """);
-    }
-
-    @Test
-    void shouldFormatWithMixedSpacesAndTabs() {
-        String input = """
-                class Test {
-                \t@TableTest(\"""
-                    name|age
-                    Alice|30
-                    \""")
-                    void test() {}
-                }
-                """;
-
-        String result = formatter.format(input, 4);
-
-        assertThat(result).isEqualTo("""
-                class Test {
-                \t@TableTest(\"""
-                        name  | age
-                        Alice | 30
-                        \""")
-                    void test() {}
                 }
                 """);
     }

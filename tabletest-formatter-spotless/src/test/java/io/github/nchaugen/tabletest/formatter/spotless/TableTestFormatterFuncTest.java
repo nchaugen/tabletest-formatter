@@ -59,23 +59,23 @@ class TableTestFormatterFuncTest {
     }
 
     @Test
-    void shouldStoreConfiguredTabSize() {
+    void shouldStoreConfiguredIndentSize() {
         TableTestFormatterState state2 = new TableTestFormatterState(2);
-        assertThat(state2.tabSize()).isEqualTo(2);
+        assertThat(state2.indentSize()).isEqualTo(2);
 
         TableTestFormatterState state8 = new TableTestFormatterState(8);
-        assertThat(state8.tabSize()).isEqualTo(8);
+        assertThat(state8.indentSize()).isEqualTo(8);
     }
 
     @Test
-    void shouldUseDefaultTabSizeWhenNotSpecified() {
+    void shouldUseDefaultIndentSizeWhenNotSpecified() {
         TableTestFormatterState defaultState = new TableTestFormatterState();
-        assertThat(defaultState.tabSize()).isEqualTo(4);
+        assertThat(defaultState.indentSize()).isEqualTo(4);
     }
 
     @Test
-    void shouldPassTabSizeToFormatter(@TempDir Path tempDir) throws Exception {
-        // Verify that the formatter can be created with custom tab size and formats successfully
+    void shouldPassIndentSizeToFormatter(@TempDir Path tempDir) throws Exception {
+        // Verify that the formatter can be created with custom indent size and formats successfully
         TableTestFormatterState customState = new TableTestFormatterState(2);
         TableTestFormatterFunc customFormatter = new TableTestFormatterFunc(customState);
 
@@ -92,7 +92,7 @@ class TableTestFormatterFuncTest {
 
         String result = customFormatter.apply(input, file);
 
-        // Should format successfully with custom tab size
+        // Should format successfully with custom indent size
         assertThat(result).isNotNull();
         assertThat(result).contains("x | y");
         assertThat(result).contains("1 | 2");

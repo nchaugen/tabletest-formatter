@@ -498,34 +498,34 @@ class TableTestExtractorTest {
 
     @TableTest("""
         Scenario                       | sourceCode                                  | indent?
-        no indentation (top-level)     | '@TableTest(\"""\\nx|y\\n1|2\\n\""")'       | 0
-        shallow indentation (2 spaces) | '  @TableTest(\"""\\nx|y\\n1|2\\n\""")'    | 2
-        standard indentation (4 spaces)| '    @TableTest(\"""\\nx|y\\n1|2\\n\""")'  | 4
-        deep indentation (8 spaces)    | '        @TableTest(\"""\\nx|y\\n1|2\\n\""")'| 8
+        no indentation (top-level)     | '@TableTest(\"""\\nx|y\\n1|2\\n\""")'       | ''
+        shallow indentation (2 spaces) | '  @TableTest(\"""\\nx|y\\n1|2\\n\""")'    | '  '
+        standard indentation (4 spaces)| '    @TableTest(\"""\\nx|y\\n1|2\\n\""")'  | '    '
+        deep indentation (8 spaces)    | '        @TableTest(\"""\\nx|y\\n1|2\\n\""")'| '        '
         """)
-    void shouldDetectBaseIndentation(String sourceCode, int indent) {
+    void shouldDetectBaseIndentation(String sourceCode, String indent) {
         String actualSource = sourceCode.replace("\\n", "\n");
 
         List<TableMatch> matches = TableTestExtractor.findAll(actualSource);
 
         assertThat(matches).hasSize(1);
-        assertThat(matches.getFirst().baseIndent()).isEqualTo(indent);
+        assertThat(matches.getFirst().baseIndentString()).isEqualTo(indent);
     }
 
     @TableTest("""
         Scenario              | sourceCode                                 | indent?
-        single tab            | '\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'   | 4
-        two tabs              | '\t\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'  | 8
-        tab plus two spaces   | '\t  @TableTest(\"""\\nx|y\\n1|2\\n\""")'  | 6
-        two spaces plus tab   | '  \t@TableTest(\"""\\nx|y\\n1|2\\n\""")'  | 6
+        single tab            | '\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'   | '\t'
+        two tabs              | '\t\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'  | '\t\t'
+        tab plus two spaces   | '\t  @TableTest(\"""\\nx|y\\n1|2\\n\""")'  | '\t  '
+        two spaces plus tab   | '  \t@TableTest(\"""\\nx|y\\n1|2\\n\""")'  | '  \t'
         """)
-    void shouldConvertTabsToSpaces(String sourceCode, int indent) {
+    void shouldPreserveTabsAndSpaces(String sourceCode, String indent) {
         String actualSource = sourceCode.replace("\\n", "\n");
 
         List<TableMatch> matches = TableTestExtractor.findAll(actualSource);
 
         assertThat(matches).hasSize(1);
-        assertThat(matches.getFirst().baseIndent()).isEqualTo(indent);
+        assertThat(matches.getFirst().baseIndentString()).isEqualTo(indent);
     }
 
     @Test
@@ -542,7 +542,7 @@ class TableTestExtractorTest {
         List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(1);
-        assertThat(matches.getFirst().baseIndent()).isEqualTo(4);
+        assertThat(matches.getFirst().baseIndentString()).isEqualTo("    ");
     }
 
     @Test
@@ -562,7 +562,7 @@ class TableTestExtractorTest {
         List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(1);
-        assertThat(matches.getFirst().baseIndent()).isEqualTo(8);
+        assertThat(matches.getFirst().baseIndentString()).isEqualTo("        ");
     }
 
     @Test
@@ -578,7 +578,7 @@ class TableTestExtractorTest {
         List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(1);
-        assertThat(matches.getFirst().baseIndent()).isEqualTo(4);
+        assertThat(matches.getFirst().baseIndentString()).isEqualTo("    ");
     }
 
     // ========== Input Validation Tests ==========
@@ -588,68 +588,5 @@ class TableTestExtractorTest {
         assertThatThrownBy(() -> TableTestExtractor.findAll(null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("sourceCode must not be null");
-    }
-
-    @Test
-    void shouldThrowIllegalArgumentExceptionWhenTabSizeIsZero() {
-        var sourceCode = "@TableTest(\"\"\"\nx|y\n1|2\n\"\"\")";
-
-        assertThatThrownBy(() -> TableTestExtractor.findAll(sourceCode, 0))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("tabSize must be at least 1");
-    }
-
-    @Test
-    void shouldThrowIllegalArgumentExceptionWhenTabSizeIsNegative() {
-        var sourceCode = "@TableTest(\"\"\"\nx|y\n1|2\n\"\"\")";
-
-        assertThatThrownBy(() -> TableTestExtractor.findAll(sourceCode, -1))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("tabSize must be at least 1");
-    }
-
-    // ========== Configurable Tab Size Tests ==========
-
-    @TableTest("""
-        Scenario           | tabSize | sourceCode                               | expectedIndent?
-        default (4 spaces) | 4       | '\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'  | 4
-        2-space tabs       | 2       | '\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'  | 2
-        8-space tabs       | 8       | '\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'  | 8
-        """)
-    void shouldRespectConfiguredTabSize(int tabSize, String sourceCode, int expectedIndent) {
-        String actualSource = sourceCode.replace("\\n", "\n");
-
-        List<TableMatch> matches = TableTestExtractor.findAll(actualSource, tabSize);
-
-        assertThat(matches).hasSize(1);
-        assertThat(matches.getFirst().baseIndent()).isEqualTo(expectedIndent);
-    }
-
-    @TableTest("""
-        Scenario                | tabSize | sourceCode                                  | expectedIndent?
-        two tabs with 2-space   | 2       | '\t\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'   | 4
-        two tabs with 8-space   | 8       | '\t\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'   | 16
-        mixed with 2-space      | 2       | '\t  @TableTest(\"""\\nx|y\\n1|2\\n\""")'   | 4
-        mixed with 8-space      | 8       | '\t  @TableTest(\"""\\nx|y\\n1|2\\n\""")'   | 10
-        """)
-    void shouldHandleMultipleTabsWithConfiguredSize(int tabSize, String sourceCode, int expectedIndent) {
-        String actualSource = sourceCode.replace("\\n", "\n");
-
-        List<TableMatch> matches = TableTestExtractor.findAll(actualSource, tabSize);
-
-        assertThat(matches).hasSize(1);
-        assertThat(matches.getFirst().baseIndent()).isEqualTo(expectedIndent);
-    }
-
-    @Test
-    void shouldUseDefaultTabSizeWhenNotSpecified() {
-        var sourceCode = "\t@TableTest(\"\"\"\nx|y\n1|2\n\"\"\")";
-
-        List<TableMatch> matchesDefault = TableTestExtractor.findAll(sourceCode);
-        List<TableMatch> matchesExplicit = TableTestExtractor.findAll(sourceCode, 4);
-
-        assertThat(matchesDefault.getFirst().baseIndent())
-                .isEqualTo(matchesExplicit.getFirst().baseIndent())
-                .isEqualTo(4);
     }
 }

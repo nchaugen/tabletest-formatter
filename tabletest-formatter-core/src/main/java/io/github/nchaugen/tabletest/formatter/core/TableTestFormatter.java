@@ -89,7 +89,37 @@ public class TableTestFormatter {
      */
     public String format(String tableText) {
         Objects.requireNonNull(tableText, "tableText must not be null");
-        return format(tableText, 0, 0);
+        return format(tableText, 0, "", IndentType.SPACE);
+    }
+
+    /**
+     * Formats the given TableTest table text with indentation (legacy API).
+     *
+     * <p>This is a compatibility method that converts the old space-count-based API
+     * to the new string-based indentation API. Use {@link #format(String, int, String, IndentType)}
+     * for full control over indentation.
+     *
+     * @param tableText  the raw table text to format (must not be null)
+     * @param indentSize the number of spaces to add (must be >= 0)
+     * @param baseIndent the base indentation in spaces (must be >= 0)
+     * @return the formatted table text with proper indentation
+     * @throws NullPointerException     if tableText is null
+     * @throws IllegalArgumentException if indentSize or baseIndent is negative
+     * @deprecated Use {@link #format(String, int, String, IndentType)} instead
+     */
+    @Deprecated
+    public String format(String tableText, int indentSize, int baseIndent) {
+        Objects.requireNonNull(tableText, "tableText must not be null");
+        if (indentSize < 0) {
+            throw new IllegalArgumentException("indentSize must not be negative: " + indentSize);
+        }
+        if (baseIndent < 0) {
+            throw new IllegalArgumentException("baseIndent must not be negative: " + baseIndent);
+        }
+
+        // Convert old API to new API: convert space counts to actual space strings
+        String baseIndentString = " ".repeat(baseIndent);
+        return format(tableText, indentSize, baseIndentString, IndentType.SPACE);
     }
 
     /**
@@ -106,27 +136,27 @@ public class TableTestFormatter {
      * <pre>
      * var formatter = new TableTestFormatter();
      * var input = "name|age\nAlice|30";
-     * var formatted = formatter.format(input, 4, 8);
-     * // Returns (with 8 spaces base indent + 4 spaces per level):
+     * var formatted = formatter.format(input, 1, "        ", IndentType.SPACE);
+     * // Returns (with "        " base indent + 1 level of spaces):
      * //             "            name  | age\n"
      * //             "            Alice | 30\n"
      * //             "            "
      * </pre>
      *
-     * @param tableText  the raw table text to format (must not be null)
-     * @param indentSize the number of spaces per indent level (must be >= 0, typically 2 or 4)
-     * @param baseIndent the base indentation level in spaces (must be >= 0)
+     * @param tableText        the raw table text to format (must not be null)
+     * @param indentSize       the number of indent characters to add (must be >= 0)
+     * @param baseIndentString the base indentation string to preserve (must not be null, typically spaces or tabs)
+     * @param indentType       the type of indentation to use (SPACE or TAB, must not be null)
      * @return the formatted table text with proper indentation, or the original input if parsing/formatting fails
-     * @throws NullPointerException if tableText is null
-     * @throws IllegalArgumentException if indentSize or baseIndent is negative
+     * @throws NullPointerException     if tableText, baseIndentString, or indentType is null
+     * @throws IllegalArgumentException if indentSize is negative
      */
-    public String format(String tableText, int indentSize, int baseIndent) {
+    public String format(String tableText, int indentSize, String baseIndentString, IndentType indentType) {
         Objects.requireNonNull(tableText, "tableText must not be null");
+        Objects.requireNonNull(baseIndentString, "baseIndentString must not be null");
+        Objects.requireNonNull(indentType, "indentType must not be null");
         if (indentSize < 0) {
             throw new IllegalArgumentException("indentSize must not be negative: " + indentSize);
-        }
-        if (baseIndent < 0) {
-            throw new IllegalArgumentException("baseIndent must not be negative: " + baseIndent);
         }
 
         try {
@@ -153,7 +183,9 @@ public class TableTestFormatter {
             String withComments = addBackCommentsAndBlankLines(lines, commentOrBlankLines, formatted);
 
             // Apply indentation as final step if requested
-            return indentSize > 0 ? applyIndentation(withComments, indentSize, baseIndent) : withComments;
+            return indentSize > 0
+                    ? applyIndentation(withComments, indentSize, baseIndentString, indentType)
+                    : withComments;
         } catch (Exception e) {
             // Return input unchanged if parsing or formatting fails
             return tableText;
@@ -198,8 +230,8 @@ public class TableTestFormatter {
         return String.join("\n", result);
     }
 
-    private String applyIndentation(String formatted, int indentSize, int baseIndent) {
-        String indent = " ".repeat(baseIndent + indentSize);
+    private String applyIndentation(String formatted, int indentSize, String baseIndentString, IndentType indentType) {
+        String indent = baseIndentString + indentType.repeat(indentSize);
         String[] lines = formatted.split("\n", -1);
 
         // Apply indent to each line and add trailing indent for closing quote alignment

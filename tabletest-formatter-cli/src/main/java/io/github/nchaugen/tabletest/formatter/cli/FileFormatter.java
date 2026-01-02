@@ -15,6 +15,7 @@
  */
 package io.github.nchaugen.tabletest.formatter.cli;
 
+import io.github.nchaugen.tabletest.formatter.core.IndentType;
 import io.github.nchaugen.tabletest.formatter.core.SourceFileFormatter;
 import io.github.nchaugen.tabletest.formatter.core.TableTestFormatter;
 
@@ -44,38 +45,38 @@ public class FileFormatter {
      * @throws IOException if an I/O error occurs
      */
     public FormattingResult format(Path file) throws IOException {
-        return format(file, 0, 4);
+        return format(file, 0, IndentType.SPACE);
     }
 
     /**
      * Formats a file with specified indentation and returns the result.
      *
      * @param file       the file to format
-     * @param indentSize the number of spaces per indent level (0 for no indentation)
+     * @param indentSize the number of indent characters to add (0 for no indentation)
      * @return formatting result with changed flag and formatted content
      * @throws IOException if an I/O error occurs
      */
     public FormattingResult format(Path file, int indentSize) throws IOException {
-        return format(file, indentSize, 4);
+        return format(file, indentSize, IndentType.SPACE);
     }
 
     /**
-     * Formats a file with specified indentation and tab size and returns the result.
+     * Formats a file with specified indentation and indent type and returns the result.
      *
      * @param file       the file to format
-     * @param indentSize the number of spaces per indent level (0 for no indentation)
-     * @param tabSize    the number of spaces a tab character should be converted to
+     * @param indentSize the number of indent characters to add (spaces or tabs depending on indent type, 0 for no indentation)
+     * @param indentType the type of indentation to use (SPACE or TAB)
      * @return formatting result with changed flag and formatted content
      * @throws IOException if an I/O error occurs
      */
-    public FormattingResult format(Path file, int indentSize, int tabSize) throws IOException {
+    public FormattingResult format(Path file, int indentSize, IndentType indentType) throws IOException {
         String content = Files.readString(file);
         String fileName = file.getFileName().toString();
 
         if (fileName.endsWith(".table")) {
             return formatStandaloneTableFile(file, content);
         } else if (fileName.endsWith(".java") || fileName.endsWith(".kt")) {
-            return formatSourceFile(file, content, indentSize, tabSize);
+            return formatSourceFile(file, content, indentSize, indentType);
         } else {
             return new FormattingResult(file, false, content);
         }
@@ -87,8 +88,8 @@ public class FileFormatter {
         return new FormattingResult(file, changed, formatted);
     }
 
-    private FormattingResult formatSourceFile(Path file, String content, int indentSize, int tabSize) {
-        String formatted = sourceFormatter.format(content, indentSize, tabSize);
+    private FormattingResult formatSourceFile(Path file, String content, int indentSize, IndentType indentType) {
+        String formatted = sourceFormatter.format(content, indentSize, indentType);
         boolean changed = !formatted.equals(content);
         return new FormattingResult(file, changed, formatted);
     }

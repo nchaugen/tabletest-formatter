@@ -1,6 +1,7 @@
 package io.github.nchaugen.tabletest.formatter.spotless;
 
 import com.diffplug.spotless.FormatterStep;
+import io.github.nchaugen.tabletest.formatter.core.IndentType;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,7 +18,7 @@ class TableTestFormatterStepTest {
     }
 
     @Test
-    void shouldCreateFormatterStepWithCustomTabSize() {
+    void shouldCreateFormatterStepWithCustomIndentSize() {
         FormatterStep step = TableTestFormatterStep.create(2);
 
         assertThat(step).isNotNull();
@@ -25,24 +26,24 @@ class TableTestFormatterStepTest {
     }
 
     @Test
-    void shouldCreateFormatterStepWithCustomTabSizeAndIndentSize() {
-        FormatterStep step = TableTestFormatterStep.create(2, 4);
+    void shouldCreateFormatterStepWithCustomIndentTypeAndIndentSize() {
+        FormatterStep step = TableTestFormatterStep.create(IndentType.TAB, 4);
 
         assertThat(step).isNotNull();
         assertThat(step.getName()).isEqualTo("tabletest");
     }
 
     @Test
-    void shouldThrowIllegalArgumentExceptionForInvalidTabSize() {
-        assertThatThrownBy(() -> TableTestFormatterStep.create(0))
+    void shouldThrowIllegalArgumentExceptionForNegativeIndentSize() {
+        assertThatThrownBy(() -> TableTestFormatterStep.create(-1))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("tabSize must be at least 1");
+                .hasMessageContaining("indentSize must not be negative");
     }
 
     @Test
-    void shouldThrowIllegalArgumentExceptionForNegativeIndentSize() {
-        assertThatThrownBy(() -> TableTestFormatterStep.create(4, -1))
+    void shouldThrowIllegalArgumentExceptionForNullIndentType() {
+        assertThatThrownBy(() -> TableTestFormatterStep.create(null, 4))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("indentSize must not be negative");
+                .hasMessageContaining("indentType must not be null");
     }
 }

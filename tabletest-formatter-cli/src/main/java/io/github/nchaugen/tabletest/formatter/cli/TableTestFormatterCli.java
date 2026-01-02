@@ -15,6 +15,7 @@
  */
 package io.github.nchaugen.tabletest.formatter.cli;
 
+import io.github.nchaugen.tabletest.formatter.core.IndentType;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -67,14 +68,14 @@ public class TableTestFormatterCli implements Callable<Integer> {
     @Option(
             names = {"--indent-size"},
             defaultValue = "4",
-            description = "Number of spaces per indent level (default: 4)")
+            description = "Number of indent characters to add (spaces or tabs depending on indent type, default: 4)")
     private int indentSize = 4;
 
     @Option(
-            names = {"--tab-size"},
-            defaultValue = "4",
-            description = "Number of spaces a tab character represents (default: 4)")
-    private int tabSize = 4;
+            names = {"--indent-type"},
+            defaultValue = "space",
+            description = "Indentation type: 'space' or 'tab' (default: space)")
+    private String indentType = "space";
 
     private final FileDiscovery fileDiscovery;
     private final FileFormatter fileFormatter;
@@ -114,9 +115,10 @@ public class TableTestFormatterCli implements Callable<Integer> {
 
     private FormattingStatus formatFiles(List<Path> files) throws IOException {
         FormattingStatus status = new FormattingStatus();
+        IndentType type = parseIndentType(indentType);
 
         for (Path file : files) {
-            FormattingResult result = fileFormatter.format(file, indentSize, tabSize);
+            FormattingResult result = fileFormatter.format(file, indentSize, type);
             status.addResult(result);
 
             if (verbose) {
@@ -129,6 +131,15 @@ public class TableTestFormatterCli implements Callable<Integer> {
         }
 
         return status;
+    }
+
+    private IndentType parseIndentType(String type) {
+        return switch (type.toLowerCase()) {
+            case "tab" -> IndentType.TAB;
+            case "space" -> IndentType.SPACE;
+            default ->
+                throw new IllegalArgumentException("Invalid indent type: " + type + ". Must be 'space' or 'tab'");
+        };
     }
 
     private void printFileStatus(FormattingResult result) {

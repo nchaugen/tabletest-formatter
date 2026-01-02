@@ -269,25 +269,28 @@ The table content aligns with the `@TableTest` annotation's indentation level, w
 
 ## Configuration Parameters
 
-Both the CLI and Spotless integration support configurable `tabSize` and `indentSize` parameters:
+Both the CLI and Spotless integration support configurable `indentType` and `indentSize` parameters:
 
 | Parameter | CLI Option | Spotless Method | Default | Description |
 |-----------|------------|-----------------|---------|-------------|
-| **Tab Size** | `--tab-size <N>` | `create(N, ...)` | `4` | Number of spaces a tab character represents when converting tabs to spaces |
-| **Indent Size** | `--indent-size <N>` | `create(..., N)` | `4` | Number of spaces per indent level for table content |
+| **Indent Type** | `--indent-type <type>` | `create(IndentType, ...)` | `space` | Type of indentation: `space` or `tab`. Base indentation from source is preserved, additional indentation uses this type |
+| **Indent Size** | `--indent-size <N>` | `create(..., N)` | `4` | Number of indent characters to add (spaces or tabs depending on indent type) |
 
 **How indentation works:**
 
+The formatter **preserves the base indentation** from your source files (tabs stay tabs, spaces stay spaces) and adds additional indentation for table content using the specified `indentType`.
+
 **CLI**:
-- Both `--tab-size` and `--indent-size` are configurable
-- Tables are indented using `indentSize` spaces per level
-- Useful for standalone `.table` files or when you want additional indentation
+- `--indent-type` specifies whether to use spaces or tabs for additional indentation (default: `space`)
+- `--indent-size` specifies how many indent characters to add (default: `4`)
+- Base indentation from the file is automatically detected and preserved
 
 **Spotless**:
-- Both `tabSize` and `indentSize` are configurable via `create(tabSize, indentSize)`
+- Both `indentType` and `indentSize` are configurable via `create(IndentType, indentSize)`
 - Tables are indented relative to their `@TableTest` annotation position in the source file
-- Additional indentation can be added via `indentSize` parameter (default: `4`)
-- Example: `create(4, 0)` aligns tables with their annotation, `create(4, 4)` adds 4 spaces of extra indentation (default)
+- Base indentation (tabs or spaces) is preserved from the source file
+- Additional indentation is added using the specified `indentType`
+- Example: `create(IndentType.SPACE, 0)` aligns tables with their annotation, `create(IndentType.SPACE, 4)` adds 4 spaces of extra indentation (default)
 
 ## Usage
 
@@ -345,28 +348,34 @@ spotless {
 
 #### Configuration Options
 
-The Spotless integration supports two configuration parameters: **tab size** and **indent size**.
+The Spotless integration supports two configuration parameters: **indent type** and **indent size**.
 
 ```groovy
-// Default configuration (tab size: 4, indent size: 4)
+import io.github.nchaugen.tabletest.formatter.core.IndentType
+
+// Default configuration (space indentation, indent size: 4)
 addStep(TableTestFormatterStep.create())
 
-// Custom tab size only (indent size defaults to 4)
+// Custom indent size only (indent type defaults to space)
 addStep(TableTestFormatterStep.create(2))
 
-// Custom tab size and indent size
-addStep(TableTestFormatterStep.create(4, 0))  // align with annotation, no extra indent
-addStep(TableTestFormatterStep.create(2, 2))  // 2-space tabs, 2-space indent
+// Custom indent type and indent size
+addStep(TableTestFormatterStep.create(IndentType.SPACE, 0))  // align with annotation, no extra indent
+addStep(TableTestFormatterStep.create(IndentType.SPACE, 2))  // space indent, 2-space indent size
+addStep(TableTestFormatterStep.create(IndentType.TAB, 4))    // tab indent, 4-tab indent size
 ```
 
-**Tab size** controls how tab characters in source files are converted to spaces when calculating indentation. If your project uses 2-space tabs instead of 4, configure accordingly.
+**Indent type** controls whether additional indentation uses spaces or tabs:
+- **`IndentType.SPACE`** (default): Additional indentation uses spaces
+- **`IndentType.TAB`**: Additional indentation uses tabs
+- Base indentation from source files is always preserved (tabs stay tabs, spaces stay spaces)
 
 **Indent size** controls additional indentation added to table content beyond the base indentation:
-- **Default (4)**: Adds 4 spaces of indentation to table content
+- **Default (4)**: Adds 4 indent characters to table content
 - **Zero (0)**: Tables align exactly with their `@TableTest` annotation position
-- **Other values**: Adds that many spaces of extra indentation (e.g., `2` adds 2 spaces to each table line)
+- **Other values**: Adds that many indent characters (e.g., `2` adds 2 spaces or 2 tabs depending on indent type)
 
-**Indentation behaviour**: Tables are indented relative to their `@TableTest` annotation position in the source file. The `indentSize` parameter adds additional indentation on top of this base level.
+**Indentation behaviour**: Tables are indented relative to their `@TableTest` annotation position in the source file. Base indentation is automatically detected and preserved. The `indentSize` parameter adds additional indentation on top of this base level using the specified `indentType`.
 
 **Usage:**
 ```bash
@@ -422,8 +431,8 @@ java -jar tabletest-formatter-cli.jar --check <files-or-directories>
 |--------|-------------|---------|
 | `-c, --check` | Check if files need formatting without modifying them | `false` |
 | `-v, --verbose` | Print detailed output for each file | `false` |
-| `--indent-size <N>` | Number of spaces per indent level | `4` |
-| `--tab-size <N>` | Number of spaces a tab character represents | `4` |
+| `--indent-size <N>` | Number of indent characters to add (spaces or tabs) | `4` |
+| `--indent-type <type>` | Type of indentation to use: `space` or `tab` | `space` |
 | `-h, --help` | Show help message | |
 | `--version` | Show version information | |
 
@@ -441,7 +450,7 @@ java -jar tabletest-formatter-cli.jar --check src/
 
 **Format with custom indentation:**
 ```bash
-java -jar tabletest-formatter-cli.jar --indent-size 2 --tab-size 2 src/
+java -jar tabletest-formatter-cli.jar --indent-size 2 --indent-type tab src/
 ```
 
 **Format specific files with verbose output:**

@@ -16,11 +16,32 @@
 package io.github.nchaugen.tabletest.formatter.core;
 
 /**
- * Immutable value object representing a matched @TableTest annotation in source code.
- *
- * @param originalText     the raw table text as found in the source
- * @param startIndex       the start position in the source file
- * @param endIndex         the end position in the source file
- * @param baseIndentString the actual indentation string (spaces or tabs) before the @TableTest annotation
+ * Represents the type of indentation used in source code.
  */
-public record TableMatch(String originalText, int startIndex, int endIndex, String baseIndentString) {}
+public enum IndentType {
+    /**
+     * Indentation using space characters.
+     */
+    SPACE(" "),
+
+    /**
+     * Indentation using tab characters.
+     */
+    TAB("\t");
+
+    private final String character;
+
+    IndentType(String character) {
+        this.character = character;
+    }
+
+    /**
+     * Repeats the indentation character the specified number of times.
+     *
+     * @param count the number of times to repeat the indentation character
+     * @return the indentation string repeated count times
+     */
+    public String repeat(int count) {
+        return character.repeat(count);
+    }
+}
