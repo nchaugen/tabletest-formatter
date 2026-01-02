@@ -19,7 +19,8 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <repository.url>git@github.com:nchaugen/tabletest-formatter.git</repository.url>
+        <repository.url.https>https://github.com/nchaugen/tabletest-formatter.git</repository.url.https>
+        <repository.url.ssh>git@github.com:nchaugen/tabletest-formatter.git</repository.url.ssh>
         <project.scm.id>github</project.scm.id>
         <version.plugin.license>3.0</version.plugin.license>
         <version.plugin.clean>3.2.0</version.plugin.clean>
@@ -74,9 +75,9 @@
     </issueManagement>
 
     <scm>
-        <connection>scm:git:${repository.url}</connection>
-        <developerConnection>scm:git:${repository.url}</developerConnection>
-        <url>${repository.url}</url>
+        <connection>scm:git:${repository.url.https}</connection>
+        <developerConnection>scm:git:${repository.url.ssh}</developerConnection>
+        <url>https://github.com/nchaugen/tabletest-formatter</url>
         <tag>HEAD</tag>
     </scm>
 

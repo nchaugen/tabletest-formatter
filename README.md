@@ -13,6 +13,7 @@ A formatter for [TableTest](https://github.com/nchaugen/tabletest) tables that e
 
 ## Table of Contents
 
+- [Installation](#installation)
 - [Quick Start](#quick-start)
 - [TableTest Format](#tabletest-format)
 - [Formatting Rules](#formatting-rules)
@@ -22,6 +23,61 @@ A formatter for [TableTest](https://github.com/nchaugen/tabletest) tables that e
   - [Command-Line Interface](#command-line-interface)
 - [Contributing](#contributing)
 - [License](#license)
+
+## Installation
+
+### Gradle (Spotless Integration)
+
+Add the formatter dependency to your `build.gradle`:
+
+```groovy
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'io.github.nchaugen.tabletest:tabletest-formatter-spotless:0.1.0'
+    }
+}
+```
+
+See [Spotless Integration](#spotless-integration-gradle) for configuration and usage.
+
+### Command-Line Tool
+
+**Option 1: Download from Maven Central**
+
+Java developers can fetch the CLI JAR using Maven:
+
+```bash
+mvn dependency:get \
+  -Dartifact=io.github.nchaugen.tabletest:tabletest-formatter-cli:0.1.0:jar:shaded \
+  -Dtransitive=false
+```
+
+The JAR will be downloaded to your local Maven repository:
+```
+~/.m2/repository/io/github/nchaugen/tabletest/tabletest-formatter-cli/0.1.0/
+```
+
+**Option 2: Download from GitHub Releases**
+
+Download the latest `tabletest-formatter-cli-<version>.jar` from the [Releases page](https://github.com/nchaugen/tabletest-formatter/releases).
+
+**Option 3: Build from Source**
+
+```bash
+git clone https://github.com/nchaugen/tabletest-formatter.git
+cd tabletest-formatter
+mvn clean install
+```
+
+The executable JAR will be at:
+```
+tabletest-formatter-cli/target/tabletest-formatter-cli-0.1.0.jar
+```
+
+See [Command-Line Interface](#command-line-interface) for usage instructions.
 
 ## Quick Start
 
@@ -35,7 +91,7 @@ import io.github.nchaugen.tabletest.formatter.spotless.TableTestFormatterStep
 buildscript {
     repositories { mavenCentral() }
     dependencies {
-        classpath 'io.github.nchaugen.tabletest:tabletest-formatter-spotless:0.1.0-SNAPSHOT'
+        classpath 'io.github.nchaugen.tabletest:tabletest-formatter-spotless:0.1.0'
     }
 }
 
@@ -61,7 +117,7 @@ mvn clean install
 
 Format your files:
 ```bash
-java -jar tabletest-formatter-cli/target/tabletest-formatter-cli-0.1.0-SNAPSHOT.jar src/
+java -jar tabletest-formatter-cli/target/tabletest-formatter-cli-0.1.0.jar src/
 ```
 
 ---
@@ -113,7 +169,7 @@ This formatter applies consistent formatting with sensible defaults based on est
 1. **Column alignment** - All pipes align vertically based on the widest cell in each column
 2. **Pipe spacing** - Pipes always have space padding: ` | `
 3. **Quote preservation** - User's original quote choices preserved (`'1'` stays `'1'`, `"2"` stays `"2"`)
-4. **Indentation** - Tables inside Java/Kotlin files are indented to match their `@TableTest` annotation position (base indentation is auto-detected from the annotation's leading whitespace)
+4. **Indentation** - Tables inside Java/Kotlin files are indented relative to their `@TableTest` annotation
 5. **Comments and blank lines** - Preserved exactly as-is, including indentation
 6. **Empty cells** - Padded with spaces to maintain column alignment
 
@@ -229,7 +285,7 @@ Both the CLI and Spotless integration support configurable `tabSize` and `indent
 
 **Spotless**:
 - Both `tabSize` and `indentSize` are configurable via `create(tabSize, indentSize)`
-- Base indentation is **auto-detected** from the `@TableTest` annotation's position in the source file
+- Tables are indented relative to their `@TableTest` annotation position in the source file
 - Additional indentation can be added via `indentSize` parameter (default: `4`)
 - Example: `create(4, 0)` aligns tables with their annotation, `create(4, 4)` adds 4 spaces of extra indentation (default)
 
@@ -258,7 +314,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'io.github.nchaugen.tabletest:tabletest-formatter-spotless:0.1.0-SNAPSHOT'
+        classpath 'io.github.nchaugen.tabletest:tabletest-formatter-spotless:0.1.0'
     }
 }
 
@@ -310,7 +366,7 @@ addStep(TableTestFormatterStep.create(2, 2))  // 2-space tabs, 2-space indent
 - **Zero (0)**: Tables align exactly with their `@TableTest` annotation position
 - **Other values**: Adds that many spaces of extra indentation (e.g., `2` adds 2 spaces to each table line)
 
-**Indentation behaviour**: The formatter automatically detects the base indentation from the `@TableTest` annotation's position in your source file. The `indentSize` parameter adds additional indentation on top of this base level.
+**Indentation behaviour**: Tables are indented relative to their `@TableTest` annotation position in the source file. The `indentSize` parameter adds additional indentation on top of this base level.
 
 **Usage:**
 ```bash
@@ -345,7 +401,7 @@ mvn clean install
 
 The executable JAR will be located at:
 ```
-tabletest-formatter-cli/target/tabletest-formatter-cli-0.1.0-SNAPSHOT.jar
+tabletest-formatter-cli/target/tabletest-formatter-cli-0.1.0.jar
 ```
 
 #### Basic Usage
