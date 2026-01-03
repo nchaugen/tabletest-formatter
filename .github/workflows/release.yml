@@ -1,0 +1,61 @@
+name: Release
+
+# This workflow automatically builds and attaches the CLI jar to GitHub releases.
+#
+# Expected workflow:
+#   1. Create release manually on GitHub (title: v<version>, body: changelog entries)
+#   2. Push tag (or create tag on GitHub) → this workflow attaches the jar
+#
+# If you forget to create the release first, this will create a basic release
+# that you can edit afterwards to add the proper title and changelog.
+
+on:
+  push:
+    tags:
+      - 'tabletest-formatter-*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          TAG=${GITHUB_REF#refs/tags/tabletest-formatter-}
+          echo "version=$TAG" >> $GITHUB_OUTPUT
+          echo "Version: $TAG"
+
+      - name: Build CLI JAR
+        run: mvn clean package -pl tabletest-formatter-cli -am -DskipTests
+
+      - name: Verify JAR exists
+        run: |
+          JAR_PATH="tabletest-formatter-cli/target/tabletest-formatter-cli-${{ steps.version.outputs.version }}.jar"
+          if [ ! -f "$JAR_PATH" ]; then
+            echo "Error: JAR not found at $JAR_PATH"
+            exit 1
+          fi
+          ls -lh "$JAR_PATH"
+
+      - name: Attach JAR to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            tabletest-formatter-cli/target/tabletest-formatter-cli-${{ steps.version.outputs.version }}.jar
+          fail_on_unmatched_files: true
+          # Note: Create the release manually first (title: v<version>, body: changelog)
+          # If you forget, this will create a basic release that you can edit afterwards
