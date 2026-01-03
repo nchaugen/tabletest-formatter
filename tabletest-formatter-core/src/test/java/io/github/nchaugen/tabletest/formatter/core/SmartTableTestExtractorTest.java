@@ -609,4 +609,321 @@ class SmartTableTestExtractorTest {
                         matches.getFirst().tableContentEnd()))
                 .contains("real | data");
     }
+
+    // ========== Additional Edge Cases and Robustness Tests ==========
+
+    @Test
+    void shouldCaptureCorrectPositions() {
+        String sourceCode = """
+                @TableTest(\"""
+                    x | y
+                    1 | 2
+                    \""")
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        assertThat(matches).hasSize(1);
+        TableMatch match = matches.getFirst();
+
+        // Verify we can extract the table content from source using the positions
+        String tableContent = sourceCode.substring(match.tableContentStart(), match.tableContentEnd());
+        assertThat(tableContent).contains("x | y");
+        assertThat(tableContent).contains("1 | 2");
+
+        // Verify base indent extraction
+        String baseIndent = sourceCode.substring(match.baseIndentStart(), match.baseIndentEnd());
+        assertThat(baseIndent).isEmpty(); // Top-level annotation has no indent
+    }
+
+    @Test
+    void shouldHandleInvalidAnnotationSyntax() {
+        String sourceCode = """
+                class Test {
+                    @TableTest(
+                        name | age
+                        Alice | 30
+                    )
+                    void test1() {}
+
+                    @TableTest("regular string not text block")
+                    void test2() {}
+                }
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        // Invalid syntax (missing text block quotes) - finds nothing
+        assertThat(matches).isEmpty();
+    }
+
+    @Test
+    void shouldHandleMalformedStringLiterals() {
+        String sourceCode = """
+                class Test {
+                    @TableTest(\"""
+                        name | age
+                        Alice | 30
+                    void test1() {}
+
+                    @TableTest(""
+                        x | y
+                        1 | 2
+                        "")
+                    void test2() {}
+                }
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        // Malformed literals (unclosed text blocks) - finds nothing
+        assertThat(matches).isEmpty();
+    }
+
+    @Test
+    void shouldHandleNonTableTestAnnotations() {
+        String sourceCode = """
+                class Test {
+                    @Test
+                    void test1() {}
+
+                    @ParameterizedTest
+                    @CsvSource(\"""
+                        name, age
+                        Alice, 30
+                        \""")
+                    void test2(String name, int age) {}
+
+                    @MyCustomAnnotation(\"""
+                        a | b
+                        1 | 2
+                        \""")
+                    void test3() {}
+                }
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        // Non-TableTest annotations - finds nothing
+        assertThat(matches).isEmpty();
+    }
+
+    @Test
+    void shouldHandleCorruptedSourceFiles() {
+        String sourceCode = """
+                class Test {
+                    @TableTest(\"""
+                        name | age
+                        Alice | 30
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        // Incomplete/corrupted source (missing closing braces) - finds nothing
+        assertThat(matches).isEmpty();
+    }
+
+    @Test
+    void shouldHandleEmptyTableContent() {
+        String sourceCode = """
+                class Test {
+                    @TableTest(\"""
+                        \""")
+                    void test1() {}
+                }
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        // Extraction should succeed (parsing may fail, but that's not the extractor's concern)
+        assertThat(matches).hasSize(1);
+        String extracted = sourceCode.substring(
+                matches.getFirst().tableContentStart(), matches.getFirst().tableContentEnd());
+        assertThat(extracted.stripIndent().strip()).isEmpty();
+    }
+
+    @Test
+    void shouldPreserveEscapeSequences() {
+        String sourceCode = """
+                class Test {
+                    @TableTest(\"""
+                        name | quote
+                        Alice | She said "hello"
+                        Bob | Line1
+                Line2
+                        \""")
+                    void test1() {}
+                }
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        assertThat(matches).hasSize(1);
+        String extractedText = sourceCode.substring(
+                matches.getFirst().tableContentStart(), matches.getFirst().tableContentEnd());
+        // Text blocks handle escape sequences at compile time, so quotes appear as regular quotes
+        assertThat(extractedText).contains("She said \"hello\"");
+        // Actual newline appears in the text block (not \n escape sequence)
+        assertThat(extractedText).contains("Line1\nLine2");
+    }
+
+    @Test
+    void shouldMatchFullyQualifiedAnnotation() {
+        String sourceCode = """
+                class Test {
+                    @io.github.nchaugen.tabletest.junit.TableTest(\"""
+                        name | age
+                        Alice | 30
+                        \""")
+                    void test1() {}
+                }
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        // Fully qualified annotations are supported - matches on last identifier component
+        assertThat(matches).hasSize(1);
+        assertThat(sourceCode.substring(
+                        matches.getFirst().tableContentStart(),
+                        matches.getFirst().tableContentEnd()))
+                .contains("name | age");
+    }
+
+    @Test
+    void shouldMatchAnyTableTestAnnotationRegardlessOfPackage() {
+        String sourceCode = """
+                class Test {
+                    // Known limitation: matches on simple name "TableTest", not full package
+                    @com.example.different.TableTest(\"""
+                        x | y
+                        1 | 2
+                        \""")
+                    void test1() {}
+                }
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        // Acceptable limitation: any annotation ending with .TableTest will be extracted
+        // This is unlikely to cause issues in practice since @TableTest is relatively unique
+        assertThat(matches).hasSize(1);
+        assertThat(sourceCode.substring(
+                        matches.getFirst().tableContentStart(),
+                        matches.getFirst().tableContentEnd()))
+                .contains("x | y");
+    }
+
+    @Test
+    void shouldHandleMixedLineEndings() {
+        // Test with Windows-style CRLF line endings
+        String sourceCodeCrlf = """
+            class Test {\r
+                @TableTest(""\"\r
+                    name | age\r
+                    Alice | 30\r
+                    ""\")\r
+                void test1() {}\r
+            }\r
+            """;
+
+        List<TableMatch> matchesCrlf = extractor.findAll(sourceCodeCrlf);
+
+        assertThat(matchesCrlf).hasSize(1);
+        assertThat(sourceCodeCrlf.substring(
+                        matchesCrlf.getFirst().tableContentStart(),
+                        matchesCrlf.getFirst().tableContentEnd()))
+                .contains("name | age");
+
+        // Test with Unix-style LF line endings
+        String sourceCodeLf = """
+            class Test {
+                @TableTest(""\"
+                    name | age
+                    Alice | 30
+                    ""\")
+                void test1() {}
+            }
+            """;
+
+        List<TableMatch> matchesLf = extractor.findAll(sourceCodeLf);
+
+        assertThat(matchesLf).hasSize(1);
+        assertThat(sourceCodeLf.substring(
+                        matchesLf.getFirst().tableContentStart(),
+                        matchesLf.getFirst().tableContentEnd()))
+                .contains("name | age");
+    }
+
+    @Test
+    void shouldDetectIndentationWithOpeningQuotesOnSeparateLine() {
+        String sourceCode = """
+                    @TableTest(
+                    \"""
+                    x | y
+                    1 | 2
+                    \""")
+                    void test() {}
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        assertThat(matches).hasSize(1);
+        String extractedIndent = sourceCode.substring(
+                matches.getFirst().baseIndentStart(), matches.getFirst().baseIndentEnd());
+        assertThat(extractedIndent).isEqualTo("    ");
+    }
+
+    @Test
+    void shouldIgnoreWhitespaceAroundAnnotationWhenDetectingIndent() {
+        String sourceCode = """
+                    @TableTest   (   \"""
+                        x | y
+                        1 | 2
+                        \"""   )
+                    void test() {}
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        assertThat(matches).hasSize(1);
+        String extractedIndent = sourceCode.substring(
+                matches.getFirst().baseIndentStart(), matches.getFirst().baseIndentEnd());
+        assertThat(extractedIndent).isEqualTo("    ");
+    }
+
+    @io.github.nchaugen.tabletest.junit.TableTest("""
+        Scenario                       | sourceCode                                  | indent?
+        no indentation (top-level)     | '@TableTest(\"""\\nx|y\\n1|2\\n\""")'       | ''
+        shallow indentation (2 spaces) | '  @TableTest(\"""\\nx|y\\n1|2\\n\""")'    | '  '
+        standard indentation (4 spaces)| '    @TableTest(\"""\\nx|y\\n1|2\\n\""")'  | '    '
+        deep indentation (8 spaces)    | '        @TableTest(\"""\\nx|y\\n1|2\\n\""")'| '        '
+        """)
+    void shouldDetectBaseIndentationVariations(String sourceCode, String indent) {
+        String actualSource = sourceCode.replace("\\n", "\n");
+
+        List<TableMatch> matches = extractor.findAll(actualSource);
+
+        assertThat(matches).hasSize(1);
+        String extractedIndent = actualSource.substring(
+                matches.getFirst().baseIndentStart(), matches.getFirst().baseIndentEnd());
+        assertThat(extractedIndent).isEqualTo(indent);
+    }
+
+    @io.github.nchaugen.tabletest.junit.TableTest("""
+        Scenario              | sourceCode                                 | indent?
+        single tab            | '\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'   | '\t'
+        two tabs              | '\t\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'  | '\t\t'
+        tab plus two spaces   | '\t  @TableTest(\"""\\nx|y\\n1|2\\n\""")'  | '\t  '
+        two spaces plus tab   | '  \t@TableTest(\"""\\nx|y\\n1|2\\n\""")'  | '  \t'
+        """)
+    void shouldPreserveTabsAndSpacesInIndentation(String sourceCode, String indent) {
+        String actualSource = sourceCode.replace("\\n", "\n");
+
+        List<TableMatch> matches = extractor.findAll(actualSource);
+
+        assertThat(matches).hasSize(1);
+        String extractedIndent = actualSource.substring(
+                matches.getFirst().baseIndentStart(), matches.getFirst().baseIndentEnd());
+        assertThat(extractedIndent).isEqualTo(indent);
+    }
 }

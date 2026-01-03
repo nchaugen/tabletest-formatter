@@ -29,7 +29,7 @@ public class SourceFileFormatter {
 
     public SourceFileFormatter() {
         this.formatter = new TableTestFormatter();
-        this.extractor = new RegexTableTestExtractor();
+        this.extractor = new SmartTableTestExtractor();
     }
 
     /**

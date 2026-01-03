@@ -102,8 +102,8 @@ public class SmartTableTestExtractor implements TableTestExtractor {
                         braceDepth--;
                     }
 
-                    // Look for @TableTest at class scope
-                    if (c == '@' && matches(sourceCode, i, "@TableTest")) {
+                    // Look for @TableTest (or @fully.qualified.TableTest) at class scope
+                    if (c == '@' && isTableTestAnnotation(sourceCode, i)) {
                         // Found @TableTest annotation - extract base indentation (only leading whitespace)
                         baseIndentStart = findLineStart(sourceCode, i);
                         // Find end of leading whitespace (stop at first non-whitespace character)
@@ -114,7 +114,6 @@ public class SmartTableTestExtractor implements TableTestExtractor {
                         baseIndentEnd = j;
                         // Switch to looking for text block (will skip comments/strings naturally)
                         state = State.LOOKING_FOR_TEXT_BLOCK;
-                        i += "@TableTest".length() - 1; // Move past @TableTest (will increment at end of loop)
                     }
                     break;
 
@@ -246,5 +245,44 @@ public class SmartTableTestExtractor implements TableTestExtractor {
             i--;
         }
         return i + 1; // Position after newline (or 0 if at start)
+    }
+
+    /**
+     * Checks if the character sequence starting at pos is a TableTest annotation.
+     * Matches both @TableTest and @fully.qualified.TableTest by checking if the
+     * last identifier component (after the last dot) is "TableTest".
+     *
+     * @param source the source code
+     * @param pos position of the '@' character
+     * @return true if this is a TableTest annotation
+     */
+    private boolean isTableTestAnnotation(String source, int pos) {
+        if (pos >= source.length() || source.charAt(pos) != '@') {
+            return false;
+        }
+
+        // Read the full annotation name (could be qualified like io.github.nchaugen.tabletest.junit.TableTest)
+        int i = pos + 1;
+        int lastDotPos = -1;
+
+        // Read identifier with dots until we hit non-identifier character
+        while (i < source.length()) {
+            char c = source.charAt(i);
+            if (Character.isJavaIdentifierPart(c)) {
+                i++;
+            } else if (c == '.') {
+                lastDotPos = i;
+                i++;
+            } else {
+                // End of annotation name
+                break;
+            }
+        }
+
+        // Extract the last component (after the last dot, or entire name if no dot)
+        int lastComponentStart = lastDotPos == -1 ? pos + 1 : lastDotPos + 1;
+        String lastComponent = source.substring(lastComponentStart, i);
+
+        return lastComponent.equals("TableTest");
     }
 }
