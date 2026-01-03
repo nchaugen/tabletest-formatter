@@ -4,7 +4,7 @@
 
     <groupId>io.github.nchaugen.tabletest</groupId>
     <artifactId>tabletest-formatter</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <inceptionYear>2025</inceptionYear>
@@ -78,7 +78,7 @@
         <connection>scm:git:${repository.url.https}</connection>
         <developerConnection>scm:git:${repository.url.ssh}</developerConnection>
         <url>https://github.com/nchaugen/tabletest-formatter</url>
-        <tag>tabletest-formatter-0.1.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
