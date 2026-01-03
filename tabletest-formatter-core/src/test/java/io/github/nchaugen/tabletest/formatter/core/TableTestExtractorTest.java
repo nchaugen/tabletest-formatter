@@ -537,11 +537,11 @@ class TableTestExtractorTest {
     // ========== Indentation Detection Tests ==========
 
     @TableTest("""
-        Scenario                       | sourceCode                                  | indent?
-        no indentation (top-level)     | '@TableTest(\"""\\nx|y\\n1|2\\n\""")'       | ''
-        shallow indentation (2 spaces) | '  @TableTest(\"""\\nx|y\\n1|2\\n\""")'    | '  '
-        standard indentation (4 spaces)| '    @TableTest(\"""\\nx|y\\n1|2\\n\""")'  | '    '
-        deep indentation (8 spaces)    | '        @TableTest(\"""\\nx|y\\n1|2\\n\""")'| '        '
+        Scenario                        | sourceCode                                    | indent?
+        no indentation (top-level)      | '@TableTest(\"""\\nx|y\\n1|2\\n\""")'         | ''
+        shallow indentation (2 spaces)  | '  @TableTest(\"""\\nx|y\\n1|2\\n\""")'       | '  '
+        standard indentation (4 spaces) | '    @TableTest(\"""\\nx|y\\n1|2\\n\""")'     | '    '
+        deep indentation (8 spaces)     | '        @TableTest(\"""\\nx|y\\n1|2\\n\""")' | '        '
         """)
     void shouldDetectBaseIndentation(String sourceCode, String indent) {
         String actualSource = sourceCode.replace("\\n", "\n");
@@ -555,11 +555,11 @@ class TableTestExtractorTest {
     }
 
     @TableTest("""
-        Scenario              | sourceCode                                 | indent?
-        single tab            | '\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'   | '\t'
-        two tabs              | '\t\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'  | '\t\t'
-        tab plus two spaces   | '\t  @TableTest(\"""\\nx|y\\n1|2\\n\""")'  | '\t  '
-        two spaces plus tab   | '  \t@TableTest(\"""\\nx|y\\n1|2\\n\""")'  | '  \t'
+        Scenario            | sourceCode                                | indent?
+        single tab          | '\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'   | '\t'
+        two tabs            | '\t\t@TableTest(\"""\\nx|y\\n1|2\\n\""")' | '\t\t'
+        tab plus two spaces | '\t  @TableTest(\"""\\nx|y\\n1|2\\n\""")' | '\t  '
+        two spaces plus tab | '  \t@TableTest(\"""\\nx|y\\n1|2\\n\""")' | '  \t'
         """)
     void shouldPreserveTabsAndSpaces(String sourceCode, String indent) {
         String actualSource = sourceCode.replace("\\n", "\n");

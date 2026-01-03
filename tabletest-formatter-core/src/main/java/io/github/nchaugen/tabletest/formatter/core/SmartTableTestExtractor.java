@@ -190,8 +190,8 @@ public class SmartTableTestExtractor implements TableTestExtractor {
                     break;
 
                 case TEXT_BLOCK:
-                    // Check for closing """
-                    if (c == '"' && next == '"' && nextNext == '"') {
+                    // Check for closing """ (not escaped)
+                    if (c == '"' && next == '"' && nextNext == '"' && !isEscaped(sourceCode, i)) {
                         // Found end of text block
                         if (tableContentStart != -1) {
                             // We were extracting - record the match
@@ -284,5 +284,31 @@ public class SmartTableTestExtractor implements TableTestExtractor {
         String lastComponent = source.substring(lastComponentStart, i);
 
         return lastComponent.equals("TableTest");
+    }
+
+    /**
+     * Checks if the character at the given position is escaped by a backslash.
+     * A character is escaped if it's preceded by an odd number of backslashes.
+     * (Even number means the backslashes themselves are escaped.)
+     *
+     * @param source the source code
+     * @param pos position to check
+     * @return true if the character at pos is escaped
+     */
+    private boolean isEscaped(String source, int pos) {
+        if (pos == 0) {
+            return false;
+        }
+
+        // Count consecutive backslashes before this position
+        int backslashCount = 0;
+        int i = pos - 1;
+        while (i >= 0 && source.charAt(i) == '\\') {
+            backslashCount++;
+            i--;
+        }
+
+        // Odd number of backslashes means the character is escaped
+        return backslashCount % 2 == 1;
     }
 }

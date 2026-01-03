@@ -892,11 +892,11 @@ class SmartTableTestExtractorTest {
     }
 
     @io.github.nchaugen.tabletest.junit.TableTest("""
-        Scenario                       | sourceCode                                  | indent?
-        no indentation (top-level)     | '@TableTest(\"""\\nx|y\\n1|2\\n\""")'       | ''
-        shallow indentation (2 spaces) | '  @TableTest(\"""\\nx|y\\n1|2\\n\""")'    | '  '
-        standard indentation (4 spaces)| '    @TableTest(\"""\\nx|y\\n1|2\\n\""")'  | '    '
-        deep indentation (8 spaces)    | '        @TableTest(\"""\\nx|y\\n1|2\\n\""")'| '        '
+        Scenario                        | sourceCode                                    | indent?
+        no indentation (top-level)      | '@TableTest(\"""\\nx|y\\n1|2\\n\""")'         | ''
+        shallow indentation (2 spaces)  | '  @TableTest(\"""\\nx|y\\n1|2\\n\""")'       | '  '
+        standard indentation (4 spaces) | '    @TableTest(\"""\\nx|y\\n1|2\\n\""")'     | '    '
+        deep indentation (8 spaces)     | '        @TableTest(\"""\\nx|y\\n1|2\\n\""")' | '        '
         """)
     void shouldDetectBaseIndentationVariations(String sourceCode, String indent) {
         String actualSource = sourceCode.replace("\\n", "\n");
@@ -910,11 +910,11 @@ class SmartTableTestExtractorTest {
     }
 
     @io.github.nchaugen.tabletest.junit.TableTest("""
-        Scenario              | sourceCode                                 | indent?
-        single tab            | '\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'   | '\t'
-        two tabs              | '\t\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'  | '\t\t'
-        tab plus two spaces   | '\t  @TableTest(\"""\\nx|y\\n1|2\\n\""")'  | '\t  '
-        two spaces plus tab   | '  \t@TableTest(\"""\\nx|y\\n1|2\\n\""")'  | '  \t'
+        Scenario            | sourceCode                                | indent?
+        single tab          | '\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'   | '\t'
+        two tabs            | '\t\t@TableTest(\"""\\nx|y\\n1|2\\n\""")' | '\t\t'
+        tab plus two spaces | '\t  @TableTest(\"""\\nx|y\\n1|2\\n\""")' | '\t  '
+        two spaces plus tab | '  \t@TableTest(\"""\\nx|y\\n1|2\\n\""")' | '  \t'
         """)
     void shouldPreserveTabsAndSpacesInIndentation(String sourceCode, String indent) {
         String actualSource = sourceCode.replace("\\n", "\n");
@@ -925,5 +925,89 @@ class SmartTableTestExtractorTest {
         String extractedIndent = actualSource.substring(
                 matches.getFirst().baseIndentStart(), matches.getFirst().baseIndentEnd());
         assertThat(extractedIndent).isEqualTo(indent);
+    }
+
+    // ========== Escaped Quotes Tests ==========
+
+    @Test
+    void shouldIgnoreTableTestWithEscapedQuotesInTextBlock() {
+        // Regression test for dogfooding bug: @TableTest(\""" ... \""") inside a text block
+        // should be treated as content, not as a real annotation
+        String sourceCode = """
+                class Test {
+                    void testMethod() {
+                        var fixture = \"""
+                            class Example {
+                                @TableTest(\\\"""
+                                    name | age
+                                    Alice | 30
+                                    \\\""")
+                                void exampleTest() {}
+                            }
+                            \""";
+                    }
+                }
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        // Should NOT find any matches - the @TableTest is inside a text block (fixture)
+        assertThat(matches).isEmpty();
+    }
+
+    @Test
+    void shouldIgnoreEmptyTableTestWithEscapedQuotesInTextBlock() {
+        // Specific case from TableTestExtractorTest.shouldHandleEmptyTableContent
+        String sourceCode = """
+                class Test {
+                    void testMethod() {
+                        var fixture = \"""
+                            class Example {
+                                @TableTest(\\\"""
+                                    \\\""")
+                                void exampleTest() {}
+                            }
+                            \""";
+                    }
+                }
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        // Should NOT find any matches - the @TableTest is inside a text block (fixture)
+        assertThat(matches).isEmpty();
+    }
+
+    @Test
+    void shouldDistinguishBetweenEscapedAndRealTableTest() {
+        // Test with both: @TableTest inside text block (escaped) AND real @TableTest
+        String sourceCode = """
+                class Test {
+                    void testMethod() {
+                        var fixture = \"""
+                            @TableTest(\\\"""
+                                fake | data
+                                1 | 2
+                                \\\""")
+                            \""";
+                    }
+
+                    @TableTest(\"""
+                        real | data
+                        3 | 4
+                        \""")
+                    void actualTest(int real, int data) {}
+                }
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        // Should find exactly 1 match (the real annotation, not the one in the text block)
+        assertThat(matches).hasSize(1);
+        String extracted = sourceCode.substring(
+                matches.getFirst().tableContentStart(), matches.getFirst().tableContentEnd());
+        String normalized = extracted.stripIndent().strip();
+        assertThat(normalized).contains("real | data");
+        assertThat(normalized).doesNotContain("fake | data");
     }
 }

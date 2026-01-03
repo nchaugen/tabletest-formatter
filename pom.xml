@@ -154,6 +154,37 @@
                 </executions>
             </plugin>
 
+            <!-- Dogfooding: format our own @TableTest tables -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>dogfood-format-tabletests</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-jar</argument>
+                                <argument>${project.basedir}/tabletest-formatter-cli/target/tabletest-formatter-cli-${project.version}.jar</argument>
+                                <argument>${project.basedir}/tabletest-formatter-core/src/test/java</argument>
+                                <argument>${project.basedir}/tabletest-formatter-cli/src/test/java</argument>
+                                <argument>${project.basedir}/tabletest-formatter-spotless/src/test/java</argument>
+                            </arguments>
+                            <successCodes>
+                                <successCode>0</successCode>
+                                <successCode>1</successCode>
+                            </successCodes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- Release changed modules -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
