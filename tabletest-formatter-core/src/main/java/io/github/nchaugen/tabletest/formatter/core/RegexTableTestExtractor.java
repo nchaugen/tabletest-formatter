@@ -51,8 +51,9 @@ public class RegexTableTestExtractor implements TableTestExtractor {
     /**
      * Finds all @TableTest annotations in the provided source code.
      *
-     * <p>Preserves the actual indentation characters (spaces and tabs) as-is
-     * without any conversion. The indentation string is stored in {@link TableMatch#baseIndentString()}.
+     * <p>Returns byte-range offsets for table content and base indentation,
+     * preserving the actual indentation characters (spaces and tabs) as-is
+     * without any conversion.
      *
      * <p>If no annotations are found or the source contains malformed annotations
      * that don't match the expected pattern, returns an empty list. This method
@@ -71,15 +72,13 @@ public class RegexTableTestExtractor implements TableTestExtractor {
      *     """;
      * TableTestExtractor extractor = new RegexTableTestExtractor();
      * List&lt;TableMatch&gt; matches = extractor.findAll(sourceCode);
-     * // Returns: 1 match with:
-     * //   originalText = "name | age\nAlice | 30\n"
-     * //   startIndex = position of '@'
-     * //   endIndex = position after closing ')'
-     * //   baseIndentString = "    " (4 spaces)
+     * // Returns: 1 match with byte offsets:
+     * //   tableContentStart/End = offsets of "name | age\nAlice | 30\n"
+     * //   baseIndentStart/End = offsets of "    " (4 spaces before @TableTest)
      * </pre>
      *
      * @param sourceCode the Java or Kotlin source code to search (must not be null)
-     * @return list of all @TableTest matches found (empty if none found), with position information
+     * @return list of all @TableTest matches found (empty if none found), with byte-range offsets
      * @throws NullPointerException if sourceCode is null
      */
     @Override
@@ -91,11 +90,13 @@ public class RegexTableTestExtractor implements TableTestExtractor {
 
         while (matcher.find()) {
             String leadingWhitespace = matcher.group(1);
-            String tableText = matcher.group(2);
-            // Adjust startIndex to point to @ symbol (skip leading whitespace)
-            int startIndex = matcher.start() + leadingWhitespace.length();
-            int endIndex = matcher.end();
-            matches.add(new TableMatch(tableText, startIndex, endIndex, leadingWhitespace));
+            // Calculate byte-range fields
+            int baseIndentStart = matcher.start();
+            int baseIndentEnd = matcher.start() + leadingWhitespace.length();
+            int tableContentStart = matcher.start(2);
+            int tableContentEnd = matcher.end(2);
+
+            matches.add(new TableMatch(tableContentStart, tableContentEnd, baseIndentStart, baseIndentEnd));
         }
 
         return matches;

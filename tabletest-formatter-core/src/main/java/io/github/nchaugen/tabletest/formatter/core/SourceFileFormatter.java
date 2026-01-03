@@ -54,23 +54,6 @@ public class SourceFileFormatter {
     }
 
     /**
-     * Formats all TableTest tables found in a source file with specified indentation and tab size (legacy API).
-     *
-     * <p>This is a compatibility method. Use {@link #format(String, int, IndentType)} instead.
-     *
-     * @param content    the source file content
-     * @param indentSize the number of spaces to add (0 for no indentation)
-     * @param tabSize    the number of spaces a tab character should be converted to (ignored)
-     * @return the formatted content, or original if no changes needed
-     * @deprecated Use {@link #format(String, int, IndentType)} instead
-     */
-    @Deprecated
-    public String format(String content, int indentSize, int tabSize) {
-        // tabSize is ignored - tabs are now preserved in base indentation
-        return format(content, indentSize, IndentType.SPACE);
-    }
-
-    /**
      * Formats all TableTest tables found in a source file with specified indentation and indent type.
      *
      * @param content    the source file content
@@ -86,7 +69,7 @@ public class SourceFileFormatter {
 
     private String formatMatches(String content, List<TableMatch> matches, int indentSize, IndentType indentType) {
         return matches.stream()
-                .sorted(Comparator.comparingInt(TableMatch::startIndex).reversed())
+                .sorted(Comparator.comparingInt(TableMatch::tableContentStart).reversed())
                 .reduce(
                         content,
                         (result, match) -> formatMatch(result, content, match, indentSize, indentType),
@@ -95,27 +78,21 @@ public class SourceFileFormatter {
 
     private String formatMatch(
             String result, String originalContent, TableMatch match, int indentSize, IndentType indentType) {
-        String originalTable = match.originalText();
-        String formattedTable = formatter.format(originalTable, indentSize, match.baseIndentString(), indentType);
+        // Extract text using byte ranges from new API
+        String originalTable = originalContent.substring(match.tableContentStart(), match.tableContentEnd());
+        String baseIndentString = originalContent.substring(match.baseIndentStart(), match.baseIndentEnd());
+        String formattedTable = formatter.format(originalTable, indentSize, baseIndentString, indentType);
 
         return formattedTable.equals(originalTable)
                 ? result
-                : replaceTableContent(result, originalContent, match, formattedTable, indentSize);
+                : replaceTableContent(result, match, formattedTable, indentSize);
     }
 
-    private String replaceTableContent(
-            String result, String originalContent, TableMatch match, String formattedTable, int indentSize) {
-        String matchText = originalContent.substring(match.startIndex(), match.endIndex());
-        int tableContentStart = matchText.indexOf("\"\"\"") + 3;
-        int tableContentEnd = matchText.lastIndexOf("\"\"\"");
-
-        int actualStart = match.startIndex() + tableContentStart;
-        int actualEnd = match.startIndex() + tableContentEnd;
-
+    private String replaceTableContent(String result, TableMatch match, String formattedTable, int indentSize) {
         // When using indentation, add leading newline for text block formatting
         String replacement = indentSize > 0 ? "\n" + formattedTable : formattedTable;
 
-        // Replace the table content (formatted table includes closing quote indentation)
-        return result.substring(0, actualStart) + replacement + result.substring(actualEnd);
+        // Replace the table content using byte ranges (formatted table includes closing quote indentation)
+        return result.substring(0, match.tableContentStart()) + replacement + result.substring(match.tableContentEnd());
     }
 }

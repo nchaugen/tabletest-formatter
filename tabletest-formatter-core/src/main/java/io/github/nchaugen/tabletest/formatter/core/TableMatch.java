@@ -18,9 +18,9 @@ package io.github.nchaugen.tabletest.formatter.core;
 /**
  * Immutable value object representing a matched @TableTest annotation in source code.
  *
- * @param originalText     the raw table text as found in the source
- * @param startIndex       the start position in the source file
- * @param endIndex         the end position in the source file
- * @param baseIndentString the actual indentation string (spaces or tabs) before the @TableTest annotation
+ * @param tableContentStart byte offset where table content starts
+ * @param tableContentEnd   byte offset where table content ends
+ * @param baseIndentStart   byte offset where base indentation starts
+ * @param baseIndentEnd     byte offset where base indentation ends
  */
-public record TableMatch(String originalText, int startIndex, int endIndex, String baseIndentString) {}
+public record TableMatch(int tableContentStart, int tableContentEnd, int baseIndentStart, int baseIndentEnd) {}
