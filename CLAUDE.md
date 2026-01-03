@@ -24,59 +24,40 @@ A tool to format TableTest tables (CLI and Spotless integration) with consistent
 
 **Issue Tracking**: Beads (`bd` command) - see Implementation Workflow section below
 
+## TableTestExtractor Implementation
+
+**Design Decision: State Machine Parser**
+
+The project uses a custom state machine parser (`TableTestExtractor`) to extract `@TableTest` annotations from source code. This approach was chosen after evaluating several alternatives:
+
+**Rejected alternatives:**
+- **Regex** - Cannot distinguish real annotations from ones in string literals or comments
+- **JavaParser** - Java-only solution, would need separate approach for Kotlin
+- **Tree-sitter** - Platform-specific native libraries, complex multi-platform build requirements
+
+**State machine advantages:**
+- Correctly distinguishes real annotations from string literals and comments (solves "dogfooding" problem)
+- Handles both Java and Kotlin with single implementation
+- Supports fully qualified annotation names (`@io.github.nchaugen.tabletest.junit.TableTest`)
+- No external parser dependencies or platform-specific native libraries
+- Simple, maintainable implementation (~300 lines)
+
+**How it works:**
+- Tracks parsing state (CODE, LINE_COMMENT, BLOCK_COMMENT, STRING, TEXT_BLOCK, CHAR_LITERAL, LOOKING_FOR_TEXT_BLOCK)
+- Transitions between states based on characters encountered
+- Only extracts `@TableTest` annotations found in CODE state
+- Properly handles escaped quotes and nested structures
+
+See closed beads issues for detailed investigation notes: `tabletest-formatter-swo` (tree-sitter), `tabletest-formatter-3b9` (JavaParser).
+
 ## Key Files
 
 - `pom.xml` - Root POM with plugin configurations and versions
-- `git-hooks/` - Custom git hooks (pre-commit, pre-push, commit-msg)
-- `scripts/install-git-hooks.sh` - Installs custom hooks (run before `bd init`)
-- `NEW_PROJECT.md` - Project setup template (in .gitignore, reference only)
-- `.java-version` - jenv configuration (Java 21)
 - `README.md` - User-facing documentation
-- `CONTRIBUTING.md` - Contributor setup and guidelines
+- `CONTRIBUTING.md` - Contributor setup and guidelines (including git hooks setup)
 - `CLAUDE.md` - This file (AI/developer implementation notes)
 
-## Git Hooks Strategy
-
-**For setup instructions:** See [CONTRIBUTING.md](CONTRIBUTING.md)
-
-**Architectural decisions:**
-
-**Why custom hooks + Beads chaining:**
-- Need both: project-specific checks (Spotless, tests) AND beads sync
-- Beads provides chaining mechanism via `.git/hooks/pre-commit` wrapper
-- Our hooks: `.git/hooks/pre-commit.old`, `.git/hooks/pre-push`, `.git/hooks/commit-msg`
-
-**Installation order matters:**
-1. Install custom hooks first (`bash scripts/install-git-hooks.sh`)
-2. Then run `bd init` (select "merge") - creates chaining wrapper
-
-**Recent optimization (2025-12-30):**
-- Pre-commit: auto-restages files modified by build (copyright headers)
-- Pre-push: simplified to only check force-push (faster, trusts pre-commit)
-
-**Rejected alternatives:**
-- Inline hooks in install script → harder to maintain
-- Complex detection of beads installation → unnecessary complexity
-- `bd hooks install` → uses different pattern (thin shims) that doesn't call custom hooks
-
-## Implementation Reference
-
-### IntelliJ IDEA Plugin
-
-A working reference implementation exists: `~/IdeaProjects/tabletest-intellij`
-
-**Key insights:**
-- Uses IntelliJ's PSI-based formatting (FormattingModelBuilder with SpacingBuilder)
-- Column alignment via Alignment objects created for each pipe position
-- Comprehensive test data in `src/test/testData/` showing before/after formatting
-- Handles Unicode, emojis, nested collections, and all edge cases
-
-**Critical difference:** Our standalone formatter cannot use IntelliJ's PSI infrastructure. We must:
-- Use tabletest-parser library directly (`TableParser.parse()` → `Table` object)
-- Implement formatting logic without PSI (text manipulation based on parsed structure)
-- Handle raw cell text extraction and reconstruction
-
-### Implementation Workflow
+## Implementation Workflow
 
 Use `bd ready` to find available work. Issues are organized with dependencies to enforce logical ordering.
 
