@@ -20,6 +20,7 @@ A formatter for [TableTest](https://github.com/nchaugen/tabletest) tables that e
 - [Configuration Parameters](#configuration-parameters)
 - [Usage](#usage)
   - [Spotless Integration (Gradle)](#spotless-integration-gradle)
+  - [Maven Integration (exec-maven-plugin)](#maven-integration-exec-maven-plugin)
   - [Command-Line Interface](#command-line-interface)
 - [Contributing](#contributing)
 - [License](#license)
@@ -303,7 +304,7 @@ The tabletest-formatter-spotless module integrates with [Spotless](https://githu
 - Kotlin files (`.kt`) with `@TableTest` annotations
 - Standalone `.table` files
 
-**Note:** Maven integration requires contributing the formatter to the Spotless project itself, as the Spotless Maven plugin doesn't support programmatic custom steps. Gradle projects can use the formatter today via `addStep()`.
+**Note:** Official Spotless Maven integration requires contributing the formatter to the Spotless project itself, as the Spotless Maven plugin doesn't support programmatic custom steps. Maven projects can use [exec-maven-plugin](#maven-integration-exec-maven-plugin) to run the CLI tool during builds. Gradle projects can use the formatter today via `addStep()`.
 
 #### Gradle Configuration
 
@@ -395,6 +396,138 @@ Add to your CI pipeline to enforce formatting:
 - name: Check TableTest formatting
   run: ./gradlew spotlessCheck
 ```
+
+### Maven Integration (exec-maven-plugin)
+
+Maven projects can use the CLI tool via [exec-maven-plugin](https://www.mojohaus.org/exec-maven-plugin/) to automatically format tables during the build. This provides build-integrated formatting until official Spotless Maven support is available.
+
+#### Setup
+
+First, ensure the CLI JAR is available. Add the formatter as a build dependency:
+
+```xml
+<build>
+    <plugins>
+        <!-- Build the formatter CLI first -->
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>3.3.0</version>
+            <executions>
+                <execution>
+                    <id>copy-formatter-cli</id>
+                    <phase>generate-resources</phase>
+                    <goals>
+                        <goal>copy</goal>
+                    </goals>
+                    <configuration>
+                        <artifactItems>
+                            <artifactItem>
+                                <groupId>io.github.nchaugen.tabletest</groupId>
+                                <artifactId>tabletest-formatter-cli</artifactId>
+                                <version>0.1.0</version>
+                                <classifier>shaded</classifier>
+                                <type>jar</type>
+                                <outputDirectory>${project.build.directory}/formatter</outputDirectory>
+                            </artifactItem>
+                        </artifactItems>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+
+        <!-- Format @TableTest tables automatically -->
+        <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>3.5.0</version>
+            <executions>
+                <execution>
+                    <id>format-tabletest-tables</id>
+                    <phase>process-test-classes</phase>
+                    <goals>
+                        <goal>exec</goal>
+                    </goals>
+                    <configuration>
+                        <executable>java</executable>
+                        <arguments>
+                            <argument>-jar</argument>
+                            <argument>${project.build.directory}/formatter/tabletest-formatter-cli-0.1.0-shaded.jar</argument>
+                            <argument>${project.basedir}/src/test/java</argument>
+                        </arguments>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+```
+
+#### Configuration Options
+
+**Build phase**: Choose when formatting runs:
+- `process-test-classes` - After test compilation (recommended for apply mode)
+- `verify` - During verification phase
+- `validate` - Early in the build (good for check mode in CI)
+
+**Format multiple directories**: Add multiple paths as separate arguments:
+```xml
+<arguments>
+    <argument>-jar</argument>
+    <argument>${project.build.directory}/formatter/tabletest-formatter-cli-0.1.0-shaded.jar</argument>
+    <argument>${project.basedir}/src/test/java</argument>
+    <argument>${project.basedir}/src/main/java</argument>
+    <argument>${project.basedir}/src/test/resources</argument>
+</arguments>
+```
+
+**Custom indentation**: Add configuration arguments:
+```xml
+<arguments>
+    <argument>-jar</argument>
+    <argument>${project.build.directory}/formatter/tabletest-formatter-cli-0.1.0-shaded.jar</argument>
+    <argument>--indent-size</argument>
+    <argument>2</argument>
+    <argument>--indent-type</argument>
+    <argument>tab</argument>
+    <argument>${project.basedir}/src/test/java</argument>
+</arguments>
+```
+
+**Check mode** (fail build if formatting needed): Add `--check` argument:
+```xml
+<arguments>
+    <argument>-jar</argument>
+    <argument>${project.build.directory}/formatter/tabletest-formatter-cli-0.1.0-shaded.jar</argument>
+    <argument>--check</argument>
+    <argument>${project.basedir}/src/test/java</argument>
+</arguments>
+```
+
+#### CI Integration
+
+For CI pipelines, use check mode in a separate execution that runs during validation:
+
+```xml
+<execution>
+    <id>check-tabletest-formatting</id>
+    <phase>validate</phase>
+    <goals>
+        <goal>exec</goal>
+    </goals>
+    <configuration>
+        <executable>java</executable>
+        <arguments>
+            <argument>-jar</argument>
+            <argument>${project.build.directory}/formatter/tabletest-formatter-cli-0.1.0-shaded.jar</argument>
+            <argument>--check</argument>
+            <argument>${project.basedir}/src/test/java</argument>
+        </arguments>
+    </configuration>
+</execution>
+```
+
+This will fail the build if any files need formatting, helping enforce consistent formatting in your CI pipeline.
 
 ### Command-Line Interface
 
