@@ -7,10 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.0] - 2026-01-02
-
+## [0.1.0] - 2026-01-03
 ### Added
-
 - **TableTest table formatting** for Java and Kotlin files (with `@TableTest` annotations), and standalone `.table` files
 - **Column alignment** with proper spacing, Unicode/emoji width handling, and collection literal formatting
 - **Command-line tool** for formatting files and directories with check mode for CI integration
