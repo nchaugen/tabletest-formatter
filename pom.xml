@@ -22,7 +22,7 @@
         <repository.url.https>https://github.com/nchaugen/tabletest-formatter.git</repository.url.https>
         <repository.url.ssh>git@github.com:nchaugen/tabletest-formatter.git</repository.url.ssh>
         <project.scm.id>github</project.scm.id>
-        <version.plugin.license>3.0</version.plugin.license>
+        <version.plugin.license>5.0.0</version.plugin.license>
         <version.plugin.clean>3.2.0</version.plugin.clean>
         <version.plugin.resources>3.2.0</version.plugin.resources>
         <version.plugin.compiler>3.14.1</version.plugin.compiler>
@@ -39,7 +39,7 @@
         <version.plugin.reports>3.0.0</version.plugin.reports>
         <version.plugin.staging>1.7.0</version.plugin.staging>
         <version.plugin.gpg>3.2.7</version.plugin.gpg>
-        <version.plugin.publishing>0.7.0</version.plugin.publishing>
+        <version.plugin.publishing>0.9.0</version.plugin.publishing>
         <version.plugin.release>3.1.1</version.plugin.release>
         <version.plugin.spotless>3.1.0</version.plugin.spotless>
         <version.plugin.versions>2.18.0</version.plugin.versions>
@@ -158,7 +158,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>3.6.3</version>
                 <inherited>false</inherited>
                 <executions>
                     <execution>

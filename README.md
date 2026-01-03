@@ -440,7 +440,7 @@ First, ensure the CLI JAR is available. Add the formatter as a build dependency:
         <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <version>3.5.0</version>
+            <version>3.6.3</version>
             <executions>
                 <execution>
                     <id>format-tabletest-tables</id>

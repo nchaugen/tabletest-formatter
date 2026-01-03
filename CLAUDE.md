@@ -65,10 +65,13 @@ Use `bd ready` to find available work. Issues are organized with dependencies to
 
 **Plugin versions**: Keep up to date using `mvn versions:display-plugin-updates`
 
-Current versions (as of 2025-12-27):
+Current versions (as of 2026-01-03):
 - maven-compiler-plugin: 3.14.1
 - maven-surefire-plugin: 3.5.4
 - maven-javadoc-plugin: 3.12.0
+- license-maven-plugin: 5.0.0
+- exec-maven-plugin: 3.6.3
+- central-publishing-maven-plugin: 0.9.0
 - picocli: 4.7.7
 - versions-maven-plugin: 2.18.0
 
