@@ -78,21 +78,18 @@ public class SourceFileFormatter {
 
     private String formatMatch(
             String result, String originalContent, TableMatch match, int indentSize, IndentType indentType) {
-        // Extract text using byte ranges from new API
         String originalTable = originalContent.substring(match.tableContentStart(), match.tableContentEnd());
         String baseIndentString = originalContent.substring(match.baseIndentStart(), match.baseIndentEnd());
         String formattedTable = formatter.format(originalTable, indentSize, baseIndentString, indentType);
 
-        return formattedTable.equals(originalTable)
-                ? result
-                : replaceTableContent(result, match, formattedTable, indentSize);
+        return formattedTable.equals(originalTable) ? result : replaceTableContent(result, match, formattedTable);
     }
 
-    private String replaceTableContent(String result, TableMatch match, String formattedTable, int indentSize) {
-        // When using indentation, add leading newline for text block formatting
-        String replacement = indentSize > 0 ? "\n" + formattedTable : formattedTable;
+    private String replaceTableContent(String result, TableMatch match, String formattedTable) {
+        // Ensure at least one newline after opening quotes (""") for @TableTest annotations.
+        // Preserves multiple newlines if present. Improves readability (Kotlin) and syntax correctness (Java).
+        String replacement = formattedTable.startsWith("\n") ? formattedTable : "\n" + formattedTable;
 
-        // Replace the table content using byte ranges (formatted table includes closing quote indentation)
         return result.substring(0, match.tableContentStart()) + replacement + result.substring(match.tableContentEnd());
     }
 }

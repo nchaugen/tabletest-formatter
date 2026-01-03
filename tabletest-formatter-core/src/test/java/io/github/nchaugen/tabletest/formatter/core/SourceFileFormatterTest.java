@@ -436,4 +436,71 @@ class SourceFileFormatterTest {
                 }
                 """);
     }
+
+    @Test
+    void shouldPreserveNewlineWhenAlreadyPresentWithZeroIndentation() {
+        String input = """
+                @TableTest(\"""
+                name|age
+                Alice|30
+                \""")
+                void test() {}
+                """;
+
+        String result = formatter.format(input, 0);
+
+        // The newline should be preserved (not removed)
+        assertThat(result).isEqualTo("""
+                @TableTest(\"""
+                name  | age
+                Alice | 30
+                \""")
+                void test() {}
+                """);
+    }
+
+    @Test
+    void shouldAddNewlineAfterOpeningQuotesEvenWithZeroIndentationKotlin() {
+        String input = """
+                @TableTest(\"""name|age
+                Alice|30
+                \""")
+                fun test() {}
+                """;
+
+        String result = formatter.format(input, 0);
+
+        // Should add newline for readability (Kotlin) even with indentSize=0
+        assertThat(result).isEqualTo("""
+                @TableTest(\"""
+                name  | age
+                Alice | 30
+                \""")
+                fun test() {}
+                """);
+    }
+
+    @Test
+    void shouldPreserveMultipleNewlinesAfterOpeningQuotes() {
+        String input = """
+                @TableTest(\"""
+
+                name|age
+                Alice|30
+                \""")
+                void test() {}
+                """;
+
+        String result = formatter.format(input, 0);
+
+        // Multiple newlines should be preserved
+        assertThat(result).isEqualTo("""
+                @TableTest(\"""
+
+                name  | age
+                Alice | 30
+                \""")
+                void test() {}
+                """);
+    }
 }
