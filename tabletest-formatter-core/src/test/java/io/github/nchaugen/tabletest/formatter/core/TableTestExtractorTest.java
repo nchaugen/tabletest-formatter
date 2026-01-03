@@ -10,6 +10,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class TableTestExtractorTest {
 
+    private final TableTestExtractor extractor = new RegexTableTestExtractor();
+
     @Test
     void shouldExtractSingleTableFromJavaFile() {
         var sourceCode = """
@@ -29,7 +31,7 @@ class TableTestExtractorTest {
                 }
                 """;
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(1);
         TableMatch match = matches.getFirst();
@@ -63,7 +65,7 @@ class TableTestExtractorTest {
                 }
                 """;
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(2);
         assertThat(matches.get(0).originalText()).contains("x | result");
@@ -81,7 +83,7 @@ class TableTestExtractorTest {
                 }
                 """;
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).isEmpty();
     }
@@ -102,7 +104,7 @@ class TableTestExtractorTest {
                 }
                 """;
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(1);
         assertThat(matches.getFirst().originalText()).contains("a | b | sum");
@@ -132,7 +134,7 @@ class TableTestExtractorTest {
                 }
                 """;
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         // Note: Current regex implementation cannot distinguish comments from actual code
         // This test documents the known limitation - it will find 3 matches instead of 1
@@ -151,7 +153,7 @@ class TableTestExtractorTest {
                     \""")
                 """;
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(1);
         TableMatch match = matches.getFirst();
@@ -181,7 +183,7 @@ class TableTestExtractorTest {
                 }
                 """;
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(2);
     }
@@ -198,7 +200,7 @@ class TableTestExtractorTest {
                 }
                 """;
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(1);
         assertThat(matches.getFirst().originalText()).contains("x | y");
@@ -216,7 +218,7 @@ class TableTestExtractorTest {
                 }
                 """;
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(1);
         assertThat(matches.getFirst().originalText()).contains("x | y");
@@ -246,7 +248,7 @@ class TableTestExtractorTest {
                 }
                 """;
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(3);
         assertThat(matches.get(0).originalText()).contains("a | b");
@@ -269,7 +271,7 @@ class TableTestExtractorTest {
                 }
                 """;
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         // Invalid syntax (missing text block quotes) - finds nothing
         assertThat(matches).isEmpty();
@@ -292,7 +294,7 @@ class TableTestExtractorTest {
                 }
                 """;
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         // Malformed literals (unclosed text blocks) - finds nothing
         assertThat(matches).isEmpty();
@@ -320,7 +322,7 @@ class TableTestExtractorTest {
                 }
                 """;
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         // Non-TableTest annotations - finds nothing
         assertThat(matches).isEmpty();
@@ -335,7 +337,7 @@ class TableTestExtractorTest {
                         Alice | 30
                 """;
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         // Incomplete/corrupted source (missing closing braces) - finds nothing
         assertThat(matches).isEmpty();
@@ -345,7 +347,7 @@ class TableTestExtractorTest {
     void shouldHandleEmptySourceFile() {
         var sourceCode = "";
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).isEmpty();
     }
@@ -354,7 +356,7 @@ class TableTestExtractorTest {
     void shouldHandleSourceWithOnlyWhitespace() {
         var sourceCode = "   \n\n   \t\t  \n  ";
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).isEmpty();
     }
@@ -374,7 +376,7 @@ class TableTestExtractorTest {
                 }
                 """;
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(1);
         assertThat(matches.getFirst().originalText()).contains("name | age");
@@ -393,7 +395,7 @@ class TableTestExtractorTest {
                 }
                 """;
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(1);
         assertThat(matches.getFirst().originalText()).contains("name | age");
@@ -410,7 +412,7 @@ class TableTestExtractorTest {
                 }
                 """;
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         // Extraction should succeed (parsing may fail, but that's not the extractor's concern)
         assertThat(matches).hasSize(1);
@@ -431,7 +433,7 @@ class TableTestExtractorTest {
                 }
                 """;
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(1);
         String extractedText = matches.getFirst().originalText();
@@ -453,7 +455,7 @@ class TableTestExtractorTest {
                 }
                 """;
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         // Known limitation: regex only matches @TableTest, not fully qualified names
         assertThat(matches).isEmpty();
@@ -472,7 +474,7 @@ class TableTestExtractorTest {
             }\r
             """;
 
-        List<TableMatch> matchesCrlf = TableTestExtractor.findAll(sourceCodeCrlf);
+        List<TableMatch> matchesCrlf = extractor.findAll(sourceCodeCrlf);
 
         assertThat(matchesCrlf).hasSize(1);
         assertThat(matchesCrlf.getFirst().originalText()).contains("name | age");
@@ -488,7 +490,7 @@ class TableTestExtractorTest {
             }
             """;
 
-        List<TableMatch> matchesLf = TableTestExtractor.findAll(sourceCodeLf);
+        List<TableMatch> matchesLf = extractor.findAll(sourceCodeLf);
 
         assertThat(matchesLf).hasSize(1);
         assertThat(matchesLf.getFirst().originalText()).contains("name | age");
@@ -506,7 +508,7 @@ class TableTestExtractorTest {
     void shouldDetectBaseIndentation(String sourceCode, String indent) {
         String actualSource = sourceCode.replace("\\n", "\n");
 
-        List<TableMatch> matches = TableTestExtractor.findAll(actualSource);
+        List<TableMatch> matches = extractor.findAll(actualSource);
 
         assertThat(matches).hasSize(1);
         assertThat(matches.getFirst().baseIndentString()).isEqualTo(indent);
@@ -522,7 +524,7 @@ class TableTestExtractorTest {
     void shouldPreserveTabsAndSpaces(String sourceCode, String indent) {
         String actualSource = sourceCode.replace("\\n", "\n");
 
-        List<TableMatch> matches = TableTestExtractor.findAll(actualSource);
+        List<TableMatch> matches = extractor.findAll(actualSource);
 
         assertThat(matches).hasSize(1);
         assertThat(matches.getFirst().baseIndentString()).isEqualTo(indent);
@@ -539,7 +541,7 @@ class TableTestExtractorTest {
                     void test() {}
                 """;
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(1);
         assertThat(matches.getFirst().baseIndentString()).isEqualTo("    ");
@@ -559,7 +561,7 @@ class TableTestExtractorTest {
                 }
                 """;
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(1);
         assertThat(matches.getFirst().baseIndentString()).isEqualTo("        ");
@@ -575,7 +577,7 @@ class TableTestExtractorTest {
                     void test() {}
                 """;
 
-        List<TableMatch> matches = TableTestExtractor.findAll(sourceCode);
+        List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(1);
         assertThat(matches.getFirst().baseIndentString()).isEqualTo("    ");
@@ -585,7 +587,7 @@ class TableTestExtractorTest {
 
     @Test
     void shouldThrowNullPointerExceptionWhenSourceCodeIsNull() {
-        assertThatThrownBy(() -> TableTestExtractor.findAll(null))
+        assertThatThrownBy(() -> extractor.findAll(null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("sourceCode must not be null");
     }

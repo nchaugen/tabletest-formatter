@@ -25,9 +25,11 @@ import java.util.List;
 public class SourceFileFormatter {
 
     private final TableTestFormatter formatter;
+    private final TableTestExtractor extractor;
 
     public SourceFileFormatter() {
         this.formatter = new TableTestFormatter();
+        this.extractor = new RegexTableTestExtractor();
     }
 
     /**
@@ -77,7 +79,7 @@ public class SourceFileFormatter {
      * @return the formatted content, or original if no changes needed
      */
     public String format(String content, int indentSize, IndentType indentType) {
-        List<TableMatch> matches = TableTestExtractor.findAll(content);
+        List<TableMatch> matches = extractor.findAll(content);
 
         return matches.isEmpty() ? content : formatMatches(content, matches, indentSize, indentType);
     }
