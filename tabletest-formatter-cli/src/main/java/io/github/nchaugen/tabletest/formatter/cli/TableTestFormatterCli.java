@@ -15,9 +15,9 @@
  */
 package io.github.nchaugen.tabletest.formatter.cli;
 
-import io.github.nchaugen.tabletest.formatter.core.ConfigProvider;
-import io.github.nchaugen.tabletest.formatter.core.IndentType;
-import io.github.nchaugen.tabletest.formatter.core.StaticConfigProvider;
+import io.github.nchaugen.tabletest.formatter.config.ConfigProvider;
+import io.github.nchaugen.tabletest.formatter.config.IndentType;
+import io.github.nchaugen.tabletest.formatter.config.StaticConfigProvider;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;

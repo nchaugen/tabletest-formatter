@@ -15,7 +15,7 @@
  */
 package io.github.nchaugen.tabletest.formatter.spotless;
 
-import io.github.nchaugen.tabletest.formatter.core.IndentType;
+import io.github.nchaugen.tabletest.formatter.config.IndentType;
 
 import java.io.Serial;
 import java.io.Serializable;

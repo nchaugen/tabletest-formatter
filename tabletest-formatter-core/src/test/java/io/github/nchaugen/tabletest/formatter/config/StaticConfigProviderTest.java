@@ -1,4 +1,4 @@
-package io.github.nchaugen.tabletest.formatter.core;
+package io.github.nchaugen.tabletest.formatter.config;
 
 import org.junit.jupiter.api.Test;
 

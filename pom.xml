@@ -90,6 +90,7 @@
 
     <modules>
         <module>tabletest-formatter-core</module>
+        <module>tabletest-formatter-config</module>
         <module>tabletest-formatter-cli</module>
         <module>tabletest-formatter-spotless</module>
     </modules>

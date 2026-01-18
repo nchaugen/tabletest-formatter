@@ -16,9 +16,9 @@
 package io.github.nchaugen.tabletest.formatter.spotless;
 
 import com.diffplug.spotless.FormatterFunc;
-import io.github.nchaugen.tabletest.formatter.core.ConfigProvider;
+import io.github.nchaugen.tabletest.formatter.config.ConfigProvider;
+import io.github.nchaugen.tabletest.formatter.config.StaticConfigProvider;
 import io.github.nchaugen.tabletest.formatter.core.SourceFileFormatter;
-import io.github.nchaugen.tabletest.formatter.core.StaticConfigProvider;
 import io.github.nchaugen.tabletest.formatter.core.TableTestFormatter;
 
 import java.io.File;

@@ -15,6 +15,7 @@
  */
 package io.github.nchaugen.tabletest.formatter.core;
 
+import io.github.nchaugen.tabletest.formatter.config.ConfigProvider;
 import io.github.nchaugen.tabletest.parser.Table;
 import io.github.nchaugen.tabletest.parser.TableParser;
 

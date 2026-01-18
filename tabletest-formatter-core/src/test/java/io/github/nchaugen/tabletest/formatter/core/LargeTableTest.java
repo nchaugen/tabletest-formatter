@@ -1,5 +1,6 @@
 package io.github.nchaugen.tabletest.formatter.core;
 
+import io.github.nchaugen.tabletest.formatter.config.StaticConfigProvider;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
@@ -145,7 +146,12 @@ class LargeTableTest {
     @Test
     void shouldHandleTableWithMixedCellWidths() {
         // Test a table where cell widths vary significantly
-        String input = "short|medium|very_long_column_name\n" + "a|bb|ccc\n" + "dddd|e|ff\n" + "ggggggg|hh|i\n";
+        String input = """
+            short|medium|very_long_column_name
+            a|bb|ccc
+            dddd|e|ff
+            ggggggg|hh|i
+            """;
 
         Objects.requireNonNull(input, "tableText must not be null");
         String result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);

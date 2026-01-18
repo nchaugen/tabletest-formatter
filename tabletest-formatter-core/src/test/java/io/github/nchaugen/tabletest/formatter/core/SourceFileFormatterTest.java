@@ -1,5 +1,7 @@
 package io.github.nchaugen.tabletest.formatter.core;
 
+import io.github.nchaugen.tabletest.formatter.config.IndentType;
+import io.github.nchaugen.tabletest.formatter.config.StaticConfigProvider;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

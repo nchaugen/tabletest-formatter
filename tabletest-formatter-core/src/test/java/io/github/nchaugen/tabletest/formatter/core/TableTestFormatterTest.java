@@ -1,5 +1,7 @@
 package io.github.nchaugen.tabletest.formatter.core;
 
+import io.github.nchaugen.tabletest.formatter.config.IndentType;
+import io.github.nchaugen.tabletest.formatter.config.StaticConfigProvider;
 import io.github.nchaugen.tabletest.junit.TableTest;
 import org.junit.jupiter.api.Test;
 
@@ -682,27 +684,10 @@ class TableTestFormatterTest {
     @Test
     void shouldThrowNullPointerExceptionWhenTableTextIsNull() {
         assertThatThrownBy(() -> {
-                    Objects.requireNonNull((String) null, "tableText must not be null");
                     formatter.format(null, "", StaticConfigProvider.NO_INDENT);
                 })
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("tableText must not be null");
-    }
-
-    @Test
-    void shouldThrowNullPointerExceptionWhenTableTextIsNullWithIndentation() {
-        assertThatThrownBy(() -> formatter.format(null, "", new StaticConfigProvider(IndentType.SPACE, 4)))
-                .isInstanceOf(NullPointerException.class)
-                .hasMessageContaining("tableText must not be null");
-    }
-
-    @Test
-    void shouldThrowIllegalArgumentExceptionWhenIndentSizeIsNegative() {
-        String input = "name|age\nAlice|30\n";
-
-        assertThatThrownBy(() -> formatter.format(input, "", new StaticConfigProvider(IndentType.SPACE, -1)))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("indentSize must not be negative: -1");
     }
 
     @Test
@@ -715,11 +700,11 @@ class TableTestFormatterTest {
     }
 
     @Test
-    void shouldThrowNullPointerExceptionWhenIndentTypeIsNull() {
+    void shouldThrowNullPointerExceptionWhenConfigIsNull() {
         String input = "name|age\nAlice|30\n";
 
-        assertThatThrownBy(() -> formatter.format(input, "", new StaticConfigProvider(null, 4)))
+        assertThatThrownBy(() -> formatter.format(input, "", null))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessageContaining("indentType must not be null");
+                .hasMessageContaining("config must not be null");
     }
 }

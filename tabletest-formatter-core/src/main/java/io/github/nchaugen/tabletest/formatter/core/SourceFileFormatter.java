@@ -15,6 +15,8 @@
  */
 package io.github.nchaugen.tabletest.formatter.core;
 
+import io.github.nchaugen.tabletest.formatter.config.ConfigProvider;
+
 import java.util.Comparator;
 import java.util.List;
 

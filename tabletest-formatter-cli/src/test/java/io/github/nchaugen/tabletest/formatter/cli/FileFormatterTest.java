@@ -1,7 +1,7 @@
 package io.github.nchaugen.tabletest.formatter.cli;
 
-import io.github.nchaugen.tabletest.formatter.core.IndentType;
-import io.github.nchaugen.tabletest.formatter.core.StaticConfigProvider;
+import io.github.nchaugen.tabletest.formatter.config.IndentType;
+import io.github.nchaugen.tabletest.formatter.config.StaticConfigProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 

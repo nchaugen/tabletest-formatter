@@ -16,7 +16,7 @@
 package io.github.nchaugen.tabletest.formatter.spotless;
 
 import com.diffplug.spotless.FormatterStep;
-import io.github.nchaugen.tabletest.formatter.core.IndentType;
+import io.github.nchaugen.tabletest.formatter.config.IndentType;
 
 /**
  * Factory for creating Spotless FormatterStep instances for TableTest formatting.
