@@ -58,85 +58,21 @@ public class TableTestFormatter {
     private final CellFormatter cellFormatter = new CellFormatter();
 
     /**
-     * Formats the given TableTest table text without indentation.
+     * Formats the given TableTest table text with indentation using the provided configuration.
      *
      * <p><strong>Graceful Degradation:</strong> If the input cannot be parsed
      * (malformed table structure, mismatched columns, invalid syntax), the original
      * input is returned unchanged. This ensures formatting never breaks a build.
      *
-     * <p><strong>Examples of inputs returned unchanged:</strong>
-     * <ul>
-     *   <li>Empty strings or whitespace-only input</li>
-     *   <li>Tables with mismatched column counts between rows</li>
-     *   <li>Invalid quote escaping that the parser cannot handle</li>
-     *   <li>Any input that throws {@code TableTestParseException} during parsing</li>
-     * </ul>
-     *
-     * <p><strong>Example usage:</strong>
-     * <pre>
-     * var formatter = new TableTestFormatter();
-     * var input = "name|age\nAlice|30\nBob|25";
-     * var formatted = formatter.format(input);
-     * // Returns:
-     * // "name  | age\n"
-     * // "Alice | 30\n"
-     * // "Bob   | 25\n"
-     * </pre>
-     *
-     * @param tableText the raw table text to format (must not be null)
-     * @return the formatted table text, or the original input if parsing/formatting fails
-     * @throws NullPointerException if tableText is null
-     */
-    public String format(String tableText) {
-        Objects.requireNonNull(tableText, "tableText must not be null");
-        return format(tableText, 0, "", IndentType.SPACE);
-    }
-
-    /**
-     * Formats the given TableTest table text with indentation (legacy API).
-     *
-     * <p>This is a compatibility method that converts the old space-count-based API
-     * to the new string-based indentation API. Use {@link #format(String, int, String, IndentType)}
-     * for full control over indentation.
-     *
-     * @param tableText  the raw table text to format (must not be null)
-     * @param indentSize the number of spaces to add (must be >= 0)
-     * @param baseIndent the base indentation in spaces (must be >= 0)
-     * @return the formatted table text with proper indentation
-     * @throws NullPointerException     if tableText is null
-     * @throws IllegalArgumentException if indentSize or baseIndent is negative
-     * @deprecated Use {@link #format(String, int, String, IndentType)} instead
-     */
-    @Deprecated
-    public String format(String tableText, int indentSize, int baseIndent) {
-        Objects.requireNonNull(tableText, "tableText must not be null");
-        if (indentSize < 0) {
-            throw new IllegalArgumentException("indentSize must not be negative: " + indentSize);
-        }
-        if (baseIndent < 0) {
-            throw new IllegalArgumentException("baseIndent must not be negative: " + baseIndent);
-        }
-
-        // Convert old API to new API: convert space counts to actual space strings
-        String baseIndentString = " ".repeat(baseIndent);
-        return format(tableText, indentSize, baseIndentString, IndentType.SPACE);
-    }
-
-    /**
-     * Formats the given TableTest table text with indentation.
-     *
-     * <p><strong>Graceful Degradation:</strong> If the input cannot be parsed
-     * (malformed table structure, mismatched columns, invalid syntax), the original
-     * input is returned unchanged. This ensures formatting never breaks a build.
-     *
-     * <p>When {@code indentSize > 0}, the input is normalized (stripped and trimmed)
+     * <p>When {@code config.indentSize() > 0}, the input is normalized (stripped and trimmed)
      * before formatting, and trailing indentation is added for closing quote alignment.
      *
      * <p><strong>Example usage:</strong>
      * <pre>
      * var formatter = new TableTestFormatter();
+     * var config = new StaticConfigProvider(IndentType.SPACE, 1);
      * var input = "name|age\nAlice|30";
-     * var formatted = formatter.format(input, 1, "        ", IndentType.SPACE);
+     * var formatted = formatter.format(input, "        ", config);
      * // Returns (with "        " base indent + 1 level of spaces):
      * //             "            name  | age\n"
      * //             "            Alice | 30\n"
@@ -144,27 +80,22 @@ public class TableTestFormatter {
      * </pre>
      *
      * @param tableText        the raw table text to format (must not be null)
-     * @param indentSize       the number of indent characters to add (must be >= 0)
      * @param baseIndentString the base indentation string to preserve (must not be null, typically spaces or tabs)
-     * @param indentType       the type of indentation to use (SPACE or TAB, must not be null)
+     * @param config           the formatting configuration (must not be null)
      * @return the formatted table text with proper indentation, or the original input if parsing/formatting fails
-     * @throws NullPointerException     if tableText, baseIndentString, or indentType is null
-     * @throws IllegalArgumentException if indentSize is negative
+     * @throws NullPointerException if tableText, baseIndentString, or config is null
      */
-    public String format(String tableText, int indentSize, String baseIndentString, IndentType indentType) {
+    public String format(String tableText, String baseIndentString, ConfigProvider config) {
         Objects.requireNonNull(tableText, "tableText must not be null");
         Objects.requireNonNull(baseIndentString, "baseIndentString must not be null");
-        Objects.requireNonNull(indentType, "indentType must not be null");
-        if (indentSize < 0) {
-            throw new IllegalArgumentException("indentSize must not be negative: " + indentSize);
-        }
+        Objects.requireNonNull(config, "config must not be null");
 
         try {
             // Strip and normalize whitespace structure when using indentation
-            String input = indentSize > 0 ? tableText.strip() : tableText;
+            String input = config.indentSize() > 0 ? tableText.strip() : tableText;
 
             // Trim lines when indentation will be applied to normalize spacing
-            String[] lines = indentSize > 0
+            String[] lines = config.indentSize() > 0
                     ? Arrays.stream(input.split("\n", -1)).map(String::trim).toArray(String[]::new)
                     : input.split("\n", -1);
 
@@ -183,9 +114,7 @@ public class TableTestFormatter {
             String withComments = addBackCommentsAndBlankLines(lines, commentOrBlankLines, formatted);
 
             // Apply indentation as final step if requested
-            return indentSize > 0
-                    ? applyIndentation(withComments, indentSize, baseIndentString, indentType)
-                    : withComments;
+            return config.indentSize() > 0 ? applyIndentation(withComments, config, baseIndentString) : withComments;
         } catch (Exception e) {
             // Return input unchanged if parsing or formatting fails
             return tableText;
@@ -230,8 +159,8 @@ public class TableTestFormatter {
         return String.join("\n", result);
     }
 
-    private String applyIndentation(String formatted, int indentSize, String baseIndentString, IndentType indentType) {
-        String indent = baseIndentString + indentType.repeat(indentSize);
+    private String applyIndentation(String formatted, ConfigProvider config, String baseIndentString) {
+        String indent = baseIndentString + config.indentType().repeat(config.indentSize());
         String[] lines = formatted.split("\n", -1);
 
         // Apply indent to each line and add trailing indent for closing quote alignment

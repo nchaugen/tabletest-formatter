@@ -1,5 +1,7 @@
 package io.github.nchaugen.tabletest.formatter.cli;
 
+import io.github.nchaugen.tabletest.formatter.core.IndentType;
+import io.github.nchaugen.tabletest.formatter.core.StaticConfigProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -22,7 +24,7 @@ class FileFormatterTest {
                 """;
         Files.writeString(tableFile, unformatted);
 
-        FormattingResult result = formatter.format(tableFile);
+        FormattingResult result = formatter.format(tableFile, StaticConfigProvider.NO_INDENT);
 
         assertThat(result.changed()).isTrue();
         assertThat(result.file()).isEqualTo(tableFile);
@@ -44,7 +46,7 @@ class FileFormatterTest {
                 """;
         Files.writeString(javaFile, unformatted);
 
-        FormattingResult result = formatter.format(javaFile);
+        FormattingResult result = formatter.format(javaFile, StaticConfigProvider.DEFAULT);
 
         assertThat(result.changed()).isTrue();
         assertThat(result.file()).isEqualTo(javaFile);
@@ -66,7 +68,7 @@ class FileFormatterTest {
                 """;
         Files.writeString(kotlinFile, unformatted);
 
-        FormattingResult result = formatter.format(kotlinFile);
+        FormattingResult result = formatter.format(kotlinFile, StaticConfigProvider.DEFAULT);
 
         assertThat(result.changed()).isTrue();
         assertThat(result.file()).isEqualTo(kotlinFile);
@@ -83,7 +85,7 @@ class FileFormatterTest {
                 """;
         Files.writeString(tableFile, alreadyFormatted);
 
-        FormattingResult result = formatter.format(tableFile);
+        FormattingResult result = formatter.format(tableFile, StaticConfigProvider.NO_INDENT);
 
         assertThat(result.changed()).isFalse();
         assertThat(result.formattedContent()).isEqualTo(alreadyFormatted);
@@ -101,7 +103,7 @@ class FileFormatterTest {
                 """;
         Files.writeString(javaFile, noTables);
 
-        FormattingResult result = formatter.format(javaFile);
+        FormattingResult result = formatter.format(javaFile, StaticConfigProvider.DEFAULT);
 
         assertThat(result.changed()).isFalse();
         assertThat(result.formattedContent()).isEqualTo(noTables);
@@ -116,7 +118,7 @@ class FileFormatterTest {
                 """;
         Files.writeString(textFile, content);
 
-        FormattingResult result = formatter.format(textFile);
+        FormattingResult result = formatter.format(textFile, StaticConfigProvider.NO_INDENT);
 
         assertThat(result.changed()).isFalse();
         assertThat(result.file()).isEqualTo(textFile);
@@ -137,7 +139,7 @@ class FileFormatterTest {
                 """;
         Files.writeString(javaFile, unformatted);
 
-        FormattingResult result = formatter.format(javaFile, 2);
+        FormattingResult result = formatter.format(javaFile, new StaticConfigProvider(IndentType.SPACE, 2));
 
         assertThat(result.changed()).isTrue();
         assertThat(result.file()).isEqualTo(javaFile);

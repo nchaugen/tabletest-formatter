@@ -20,7 +20,7 @@ class SourceFileFormatterTest {
                 }
                 """;
 
-        String result = formatter.format(input);
+        String result = formatter.format(input, StaticConfigProvider.NO_INDENT);
 
         assertThat(result).isEqualTo("""
                 public class Test {
@@ -51,7 +51,7 @@ class SourceFileFormatterTest {
                 }
                 """;
 
-        String result = formatter.format(input);
+        String result = formatter.format(input, StaticConfigProvider.NO_INDENT);
 
         assertThat(result).isEqualTo("""
                 public class Test {
@@ -80,7 +80,7 @@ class SourceFileFormatterTest {
                 }
                 """;
 
-        String result = formatter.format(input);
+        String result = formatter.format(input, StaticConfigProvider.NO_INDENT);
 
         assertThat(result).isEqualTo(input);
     }
@@ -97,7 +97,7 @@ class SourceFileFormatterTest {
                 }
                 """;
 
-        String result = formatter.format(input);
+        String result = formatter.format(input, StaticConfigProvider.NO_INDENT);
 
         assertThat(result).isEqualTo(input);
     }
@@ -114,7 +114,7 @@ class SourceFileFormatterTest {
                 }
                 """;
 
-        String result = formatter.format(input);
+        String result = formatter.format(input, StaticConfigProvider.NO_INDENT);
 
         assertThat(result).isEqualTo("""
                 class Test {
@@ -139,7 +139,7 @@ class SourceFileFormatterTest {
                 }
                 """;
 
-        String result = formatter.format(input);
+        String result = formatter.format(input, StaticConfigProvider.NO_INDENT);
 
         assertThat(result).isEqualTo("""
                 class Test {
@@ -164,7 +164,7 @@ class SourceFileFormatterTest {
                 }
                 """;
 
-        String result = formatter.format(input, 4);
+        String result = formatter.format(input, StaticConfigProvider.DEFAULT);
 
         assertThat(result).isEqualTo("""
                 class Test {
@@ -189,7 +189,7 @@ class SourceFileFormatterTest {
                 }
                 """;
 
-        String result = formatter.format(input, 4);
+        String result = formatter.format(input, StaticConfigProvider.DEFAULT);
 
         assertThat(result).isEqualTo("""
                 class Test {
@@ -216,7 +216,7 @@ class SourceFileFormatterTest {
                 }
                 """;
 
-        String result = formatter.format(input, 4);
+        String result = formatter.format(input, StaticConfigProvider.DEFAULT);
 
         assertThat(result).isEqualTo("""
                 class Test {
@@ -245,7 +245,7 @@ class SourceFileFormatterTest {
                 }
                 """;
 
-        String result = formatter.format(input, 4);
+        String result = formatter.format(input, StaticConfigProvider.DEFAULT);
 
         assertThat(result).isEqualTo("""
                 class Outer {
@@ -280,7 +280,7 @@ class SourceFileFormatterTest {
                 }
                 """;
 
-        String result = formatter.format(input, 4);
+        String result = formatter.format(input, StaticConfigProvider.DEFAULT);
 
         assertThat(result).isEqualTo("""
                 class Test {
@@ -317,7 +317,7 @@ class SourceFileFormatterTest {
                 }
                 """;
 
-        String result = formatter.format(input, 4);
+        String result = formatter.format(input, StaticConfigProvider.DEFAULT);
 
         assertThat(result).isEqualTo("""
                 class Level1 {
@@ -346,7 +346,7 @@ class SourceFileFormatterTest {
                 }
                 """;
 
-        String result = formatter.format(input, 2);
+        String result = formatter.format(input, new StaticConfigProvider(IndentType.SPACE, 2));
 
         assertThat(result).isEqualTo("""
                 class Test {
@@ -371,7 +371,7 @@ class SourceFileFormatterTest {
                 }
                 """;
 
-        String result = formatter.format(input, 1);
+        String result = formatter.format(input, new StaticConfigProvider(IndentType.SPACE, 1));
 
         // Tab characters in base indentation are preserved, 1 space added as indent character
         assertThat(result).isEqualTo("""
@@ -396,7 +396,7 @@ class SourceFileFormatterTest {
                 }
                 """;
 
-        String result = formatter.format(input, 4);
+        String result = formatter.format(input, StaticConfigProvider.DEFAULT);
 
         assertThat(result).isEqualTo("""
                 class Test {
@@ -422,7 +422,7 @@ class SourceFileFormatterTest {
                 }
                 """;
 
-        String result = formatter.format(input, 4);
+        String result = formatter.format(input, StaticConfigProvider.DEFAULT);
 
         assertThat(result).isEqualTo("""
                 class Test {
@@ -447,7 +447,7 @@ class SourceFileFormatterTest {
                 void test() {}
                 """;
 
-        String result = formatter.format(input, 0);
+        String result = formatter.format(input, StaticConfigProvider.NO_INDENT);
 
         // The newline should be preserved (not removed)
         assertThat(result).isEqualTo("""
@@ -468,7 +468,7 @@ class SourceFileFormatterTest {
                 fun test() {}
                 """;
 
-        String result = formatter.format(input, 0);
+        String result = formatter.format(input, StaticConfigProvider.NO_INDENT);
 
         // Should add newline for readability (Kotlin) even with indentSize=0
         assertThat(result).isEqualTo("""
@@ -491,7 +491,7 @@ class SourceFileFormatterTest {
                 void test() {}
                 """;
 
-        String result = formatter.format(input, 0);
+        String result = formatter.format(input, StaticConfigProvider.NO_INDENT);
 
         // Multiple newlines should be preserved
         assertThat(result).isEqualTo("""

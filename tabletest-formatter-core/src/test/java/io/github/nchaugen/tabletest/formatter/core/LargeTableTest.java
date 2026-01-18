@@ -2,6 +2,7 @@ package io.github.nchaugen.tabletest.formatter.core;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -24,7 +25,8 @@ class LargeTableTest {
         String input = header + rows + "\n";
 
         long startTime = System.currentTimeMillis();
-        String result = formatter.format(input);
+        Objects.requireNonNull(input, "tableText must not be null");
+        String result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
         long duration = System.currentTimeMillis() - startTime;
 
         // Verify formatting completed successfully
@@ -49,7 +51,8 @@ class LargeTableTest {
         String input = header + "\n" + row1 + "\n" + row2 + "\n";
 
         long startTime = System.currentTimeMillis();
-        String result = formatter.format(input);
+        Objects.requireNonNull(input, "tableText must not be null");
+        String result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
         long duration = System.currentTimeMillis() - startTime;
 
         // Verify formatting completed successfully
@@ -81,7 +84,8 @@ class LargeTableTest {
                 + "Item3|" + longText3 + "\n";
 
         long startTime = System.currentTimeMillis();
-        String result = formatter.format(input);
+        Objects.requireNonNull(input, "tableText must not be null");
+        String result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
         long duration = System.currentTimeMillis() - startTime;
 
         // Verify formatting completed successfully
@@ -118,7 +122,8 @@ class LargeTableTest {
         String input = header + "\n" + rows + "\n";
 
         long startTime = System.currentTimeMillis();
-        String result = formatter.format(input);
+        Objects.requireNonNull(input, "tableText must not be null");
+        String result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
         long duration = System.currentTimeMillis() - startTime;
 
         // Verify formatting completed successfully
@@ -142,7 +147,8 @@ class LargeTableTest {
         // Test a table where cell widths vary significantly
         String input = "short|medium|very_long_column_name\n" + "a|bb|ccc\n" + "dddd|e|ff\n" + "ggggggg|hh|i\n";
 
-        String result = formatter.format(input);
+        Objects.requireNonNull(input, "tableText must not be null");
+        String result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
 
         // Verify formatting is correct
         assertThat(result).isEqualTo("""

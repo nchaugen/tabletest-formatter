@@ -16,11 +16,13 @@
 package io.github.nchaugen.tabletest.formatter.spotless;
 
 import com.diffplug.spotless.FormatterFunc;
-import io.github.nchaugen.tabletest.formatter.core.IndentType;
+import io.github.nchaugen.tabletest.formatter.core.ConfigProvider;
 import io.github.nchaugen.tabletest.formatter.core.SourceFileFormatter;
+import io.github.nchaugen.tabletest.formatter.core.StaticConfigProvider;
 import io.github.nchaugen.tabletest.formatter.core.TableTestFormatter;
 
 import java.io.File;
+import java.util.Objects;
 
 /**
  * Spotless formatter function for TableTest tables.
@@ -83,14 +85,14 @@ public final class TableTestFormatterFunc implements FormatterFunc.NeedsFile {
     }
 
     private String formatStandaloneTableFile(String content) {
-        String formatted = tableFormatter.format(content);
+        Objects.requireNonNull(content, "tableText must not be null");
+        String formatted = tableFormatter.format(content, "", StaticConfigProvider.NO_INDENT);
         return formatted.equals(content) ? null : formatted;
     }
 
     private String formatSourceFile(String content) {
-        int indentSize = state.indentSize();
-        IndentType indentType = state.indentType();
-        String formatted = sourceFormatter.format(content, indentSize, indentType);
+        ConfigProvider config = new StaticConfigProvider(state.indentType(), state.indentSize());
+        String formatted = sourceFormatter.format(content, config);
         return formatted.equals(content) ? null : formatted;
     }
 }

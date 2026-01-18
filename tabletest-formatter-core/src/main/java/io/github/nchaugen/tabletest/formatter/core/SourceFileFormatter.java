@@ -33,54 +33,28 @@ public class SourceFileFormatter {
     }
 
     /**
-     * Formats all TableTest tables found in a source file without indentation.
+     * Formats all TableTest tables found in a source file using the provided configuration.
      *
      * @param content the source file content
+     * @param config  the formatting configuration
      * @return the formatted content, or original if no changes needed
      */
-    public String format(String content) {
-        return format(content, 0, IndentType.SPACE);
-    }
-
-    /**
-     * Formats all TableTest tables found in a source file with specified indentation.
-     *
-     * @param content    the source file content
-     * @param indentSize the number of indent characters to add (0 for no indentation)
-     * @return the formatted content, or original if no changes needed
-     */
-    public String format(String content, int indentSize) {
-        return format(content, indentSize, IndentType.SPACE);
-    }
-
-    /**
-     * Formats all TableTest tables found in a source file with specified indentation and indent type.
-     *
-     * @param content    the source file content
-     * @param indentSize the number of indent characters to add (spaces or tabs depending on indent type, 0 for no indentation)
-     * @param indentType the type of indentation to use (SPACE or TAB)
-     * @return the formatted content, or original if no changes needed
-     */
-    public String format(String content, int indentSize, IndentType indentType) {
+    public String format(String content, ConfigProvider config) {
         List<TableMatch> matches = extractor.findAll(content);
 
-        return matches.isEmpty() ? content : formatMatches(content, matches, indentSize, indentType);
+        return matches.isEmpty() ? content : formatMatches(content, matches, config);
     }
 
-    private String formatMatches(String content, List<TableMatch> matches, int indentSize, IndentType indentType) {
+    private String formatMatches(String content, List<TableMatch> matches, ConfigProvider config) {
         return matches.stream()
                 .sorted(Comparator.comparingInt(TableMatch::tableContentStart).reversed())
-                .reduce(
-                        content,
-                        (result, match) -> formatMatch(result, content, match, indentSize, indentType),
-                        (s1, s2) -> s1);
+                .reduce(content, (result, match) -> formatMatch(result, content, match, config), (s1, s2) -> s1);
     }
 
-    private String formatMatch(
-            String result, String originalContent, TableMatch match, int indentSize, IndentType indentType) {
+    private String formatMatch(String result, String originalContent, TableMatch match, ConfigProvider config) {
         String originalTable = originalContent.substring(match.tableContentStart(), match.tableContentEnd());
         String baseIndentString = originalContent.substring(match.baseIndentStart(), match.baseIndentEnd());
-        String formattedTable = formatter.format(originalTable, indentSize, baseIndentString, indentType);
+        String formattedTable = formatter.format(originalTable, baseIndentString, config);
 
         return formattedTable.equals(originalTable) ? result : replaceTableContent(result, match, formattedTable);
     }

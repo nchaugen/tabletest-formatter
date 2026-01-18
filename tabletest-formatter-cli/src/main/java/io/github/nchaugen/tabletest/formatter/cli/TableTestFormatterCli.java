@@ -15,7 +15,9 @@
  */
 package io.github.nchaugen.tabletest.formatter.cli;
 
+import io.github.nchaugen.tabletest.formatter.core.ConfigProvider;
 import io.github.nchaugen.tabletest.formatter.core.IndentType;
+import io.github.nchaugen.tabletest.formatter.core.StaticConfigProvider;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -116,9 +118,10 @@ public class TableTestFormatterCli implements Callable<Integer> {
     private FormattingStatus formatFiles(List<Path> files) throws IOException {
         FormattingStatus status = new FormattingStatus();
         IndentType type = parseIndentType(indentType);
+        ConfigProvider config = new StaticConfigProvider(type, indentSize);
 
         for (Path file : files) {
-            FormattingResult result = fileFormatter.format(file, indentSize, type);
+            FormattingResult result = fileFormatter.format(file, config);
             status.addResult(result);
 
             if (verbose) {

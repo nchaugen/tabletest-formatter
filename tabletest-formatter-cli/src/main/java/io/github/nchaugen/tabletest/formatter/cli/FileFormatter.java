@@ -15,13 +15,15 @@
  */
 package io.github.nchaugen.tabletest.formatter.cli;
 
-import io.github.nchaugen.tabletest.formatter.core.IndentType;
+import io.github.nchaugen.tabletest.formatter.core.ConfigProvider;
 import io.github.nchaugen.tabletest.formatter.core.SourceFileFormatter;
+import io.github.nchaugen.tabletest.formatter.core.StaticConfigProvider;
 import io.github.nchaugen.tabletest.formatter.core.TableTestFormatter;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
 /**
  * Formats individual files containing TableTest tables.
@@ -38,58 +40,35 @@ public class FileFormatter {
     }
 
     /**
-     * Formats a file and returns the result.
+     * Formats a file using the provided configuration and returns the result.
      *
-     * @param file the file to format
+     * @param file   the file to format
+     * @param config the formatting configuration
      * @return formatting result with changed flag and formatted content
      * @throws IOException if an I/O error occurs
      */
-    public FormattingResult format(Path file) throws IOException {
-        return format(file, 0, IndentType.SPACE);
-    }
-
-    /**
-     * Formats a file with specified indentation and returns the result.
-     *
-     * @param file       the file to format
-     * @param indentSize the number of indent characters to add (0 for no indentation)
-     * @return formatting result with changed flag and formatted content
-     * @throws IOException if an I/O error occurs
-     */
-    public FormattingResult format(Path file, int indentSize) throws IOException {
-        return format(file, indentSize, IndentType.SPACE);
-    }
-
-    /**
-     * Formats a file with specified indentation and indent type and returns the result.
-     *
-     * @param file       the file to format
-     * @param indentSize the number of indent characters to add (spaces or tabs depending on indent type, 0 for no indentation)
-     * @param indentType the type of indentation to use (SPACE or TAB)
-     * @return formatting result with changed flag and formatted content
-     * @throws IOException if an I/O error occurs
-     */
-    public FormattingResult format(Path file, int indentSize, IndentType indentType) throws IOException {
+    public FormattingResult format(Path file, ConfigProvider config) throws IOException {
         String content = Files.readString(file);
         String fileName = file.getFileName().toString();
 
         if (fileName.endsWith(".table")) {
             return formatStandaloneTableFile(file, content);
         } else if (fileName.endsWith(".java") || fileName.endsWith(".kt")) {
-            return formatSourceFile(file, content, indentSize, indentType);
+            return formatSourceFile(file, content, config);
         } else {
             return new FormattingResult(file, false, content);
         }
     }
 
     private FormattingResult formatStandaloneTableFile(Path file, String content) {
-        String formatted = tableFormatter.format(content);
+        Objects.requireNonNull(content, "tableText must not be null");
+        String formatted = tableFormatter.format(content, "", StaticConfigProvider.NO_INDENT);
         boolean changed = !formatted.equals(content);
         return new FormattingResult(file, changed, formatted);
     }
 
-    private FormattingResult formatSourceFile(Path file, String content, int indentSize, IndentType indentType) {
-        String formatted = sourceFormatter.format(content, indentSize, indentType);
+    private FormattingResult formatSourceFile(Path file, String content, ConfigProvider config) {
+        String formatted = sourceFormatter.format(content, config);
         boolean changed = !formatted.equals(content);
         return new FormattingResult(file, changed, formatted);
     }
