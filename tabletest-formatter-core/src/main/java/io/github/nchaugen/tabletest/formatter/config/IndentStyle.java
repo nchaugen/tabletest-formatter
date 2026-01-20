@@ -18,7 +18,7 @@ package io.github.nchaugen.tabletest.formatter.config;
 /**
  * Represents the type of indentation used in source code.
  */
-public enum IndentType {
+public enum IndentStyle {
     /**
      * Indentation using space characters.
      */
@@ -31,7 +31,7 @@ public enum IndentType {
 
     private final String character;
 
-    IndentType(String character) {
+    IndentStyle(String character) {
         this.character = character;
     }
 

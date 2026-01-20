@@ -1,7 +1,5 @@
 package io.github.nchaugen.tabletest.formatter.cli;
 
-import io.github.nchaugen.tabletest.formatter.config.IndentType;
-import io.github.nchaugen.tabletest.formatter.config.StaticConfigProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -24,7 +22,7 @@ class FileFormatterTest {
                 """;
         Files.writeString(tableFile, unformatted);
 
-        FormattingResult result = formatter.format(tableFile, StaticConfigProvider.NO_INDENT);
+        FormattingResult result = formatter.format(tableFile);
 
         assertThat(result.changed()).isTrue();
         assertThat(result.file()).isEqualTo(tableFile);
@@ -46,7 +44,7 @@ class FileFormatterTest {
                 """;
         Files.writeString(javaFile, unformatted);
 
-        FormattingResult result = formatter.format(javaFile, StaticConfigProvider.DEFAULT);
+        FormattingResult result = formatter.format(javaFile);
 
         assertThat(result.changed()).isTrue();
         assertThat(result.file()).isEqualTo(javaFile);
@@ -68,7 +66,7 @@ class FileFormatterTest {
                 """;
         Files.writeString(kotlinFile, unformatted);
 
-        FormattingResult result = formatter.format(kotlinFile, StaticConfigProvider.DEFAULT);
+        FormattingResult result = formatter.format(kotlinFile);
 
         assertThat(result.changed()).isTrue();
         assertThat(result.file()).isEqualTo(kotlinFile);
@@ -85,7 +83,7 @@ class FileFormatterTest {
                 """;
         Files.writeString(tableFile, alreadyFormatted);
 
-        FormattingResult result = formatter.format(tableFile, StaticConfigProvider.NO_INDENT);
+        FormattingResult result = formatter.format(tableFile);
 
         assertThat(result.changed()).isFalse();
         assertThat(result.formattedContent()).isEqualTo(alreadyFormatted);
@@ -103,7 +101,7 @@ class FileFormatterTest {
                 """;
         Files.writeString(javaFile, noTables);
 
-        FormattingResult result = formatter.format(javaFile, StaticConfigProvider.DEFAULT);
+        FormattingResult result = formatter.format(javaFile);
 
         assertThat(result.changed()).isFalse();
         assertThat(result.formattedContent()).isEqualTo(noTables);
@@ -118,7 +116,7 @@ class FileFormatterTest {
                 """;
         Files.writeString(textFile, content);
 
-        FormattingResult result = formatter.format(textFile, StaticConfigProvider.NO_INDENT);
+        FormattingResult result = formatter.format(textFile);
 
         assertThat(result.changed()).isFalse();
         assertThat(result.file()).isEqualTo(textFile);
@@ -126,7 +124,15 @@ class FileFormatterTest {
     }
 
     @Test
-    void shouldApplyIndentationToSourceFiles(@TempDir Path tempDir) throws IOException {
+    void shouldApplyIndentationFromEditorConfig(@TempDir Path tempDir) throws IOException {
+        // Create .editorconfig with indent_size=2
+        Path editorConfig = tempDir.resolve(".editorconfig");
+        Files.writeString(editorConfig, """
+                        [*.java]
+                        indent_style = space
+                        indent_size = 2
+                        """);
+
         Path javaFile = tempDir.resolve("Test.java");
         String unformatted = """
                 class Test {
@@ -139,18 +145,18 @@ class FileFormatterTest {
                 """;
         Files.writeString(javaFile, unformatted);
 
-        FormattingResult result = formatter.format(javaFile, new StaticConfigProvider(IndentType.SPACE, 2));
+        FormattingResult result = formatter.format(javaFile);
 
         assertThat(result.changed()).isTrue();
         assertThat(result.file()).isEqualTo(javaFile);
         assertThat(result.formattedContent()).isEqualTo("""
-                class Test {
-                    @TableTest(\"""
-                      name  | age
-                      Alice | 30
-                      \""")
-                    void test() {}
-                }
-                """);
+                                class Test {
+                                    @TableTest(\"""
+                                      name  | age
+                                      Alice | 30
+                                      \""")
+                                    void test() {}
+                                }
+                                """);
     }
 }

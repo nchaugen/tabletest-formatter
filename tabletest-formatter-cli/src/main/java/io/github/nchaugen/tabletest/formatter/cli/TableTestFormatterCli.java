@@ -15,9 +15,6 @@
  */
 package io.github.nchaugen.tabletest.formatter.cli;
 
-import io.github.nchaugen.tabletest.formatter.config.ConfigProvider;
-import io.github.nchaugen.tabletest.formatter.config.IndentType;
-import io.github.nchaugen.tabletest.formatter.config.StaticConfigProvider;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -32,15 +29,27 @@ import java.util.concurrent.Callable;
 
 /**
  * Command-line interface for formatting TableTest tables.
- * <p>
- * Formats TableTest tables in:
+ *
+ * <p>Formats TableTest tables in:
  * <ul>
  *   <li>Standalone .table files</li>
  *   <li>Java files with @TableTest annotations</li>
  *   <li>Kotlin files with @TableTest annotations</li>
  * </ul>
- * <p>
- * Exit codes:
+ *
+ * <p><strong>Configuration:</strong> Reads formatting settings from .editorconfig files.
+ * Place a .editorconfig file in your project root or source directories:
+ * <pre>
+ * [*.java]
+ * indent_style = space
+ * indent_size = 4
+ *
+ * [*.table]
+ * indent_style = space
+ * indent_size = 0
+ * </pre>
+ *
+ * <p>Exit codes:
  * <ul>
  *   <li>0: Success (check: no changes needed, apply: formatting succeeded)</li>
  *   <li>1: Failure (check: changes needed OR errors, apply: errors)</li>
@@ -66,18 +75,6 @@ public class TableTestFormatterCli implements Callable<Integer> {
             names = {"-v", "--verbose"},
             description = "Print detailed output for each file")
     private boolean verbose = false;
-
-    @Option(
-            names = {"--indent-size"},
-            defaultValue = "4",
-            description = "Number of indent characters to add (spaces or tabs depending on indent type, default: 4)")
-    private int indentSize = 4;
-
-    @Option(
-            names = {"--indent-type"},
-            defaultValue = "space",
-            description = "Indentation type: 'space' or 'tab' (default: space)")
-    private String indentType = "space";
 
     private final FileDiscovery fileDiscovery;
     private final FileFormatter fileFormatter;
@@ -117,11 +114,9 @@ public class TableTestFormatterCli implements Callable<Integer> {
 
     private FormattingStatus formatFiles(List<Path> files) throws IOException {
         FormattingStatus status = new FormattingStatus();
-        IndentType type = parseIndentType(indentType);
-        ConfigProvider config = new StaticConfigProvider(type, indentSize);
 
         for (Path file : files) {
-            FormattingResult result = fileFormatter.format(file, config);
+            FormattingResult result = fileFormatter.format(file);
             status.addResult(result);
 
             if (verbose) {
@@ -134,15 +129,6 @@ public class TableTestFormatterCli implements Callable<Integer> {
         }
 
         return status;
-    }
-
-    private IndentType parseIndentType(String type) {
-        return switch (type.toLowerCase()) {
-            case "tab" -> IndentType.TAB;
-            case "space" -> IndentType.SPACE;
-            default ->
-                throw new IllegalArgumentException("Invalid indent type: " + type + ". Must be 'space' or 'tab'");
-        };
     }
 
     private void printFileStatus(FormattingResult result) {

@@ -1,6 +1,6 @@
 package io.github.nchaugen.tabletest.formatter.core;
 
-import io.github.nchaugen.tabletest.formatter.config.StaticConfigProvider;
+import io.github.nchaugen.tabletest.formatter.config.Config;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
@@ -27,7 +27,7 @@ class LargeTableTest {
 
         long startTime = System.currentTimeMillis();
         Objects.requireNonNull(input, "tableText must not be null");
-        String result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        String result = formatter.format(input, "", Config.NO_INDENT);
         long duration = System.currentTimeMillis() - startTime;
 
         // Verify formatting completed successfully
@@ -53,7 +53,7 @@ class LargeTableTest {
 
         long startTime = System.currentTimeMillis();
         Objects.requireNonNull(input, "tableText must not be null");
-        String result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        String result = formatter.format(input, "", Config.NO_INDENT);
         long duration = System.currentTimeMillis() - startTime;
 
         // Verify formatting completed successfully
@@ -86,7 +86,7 @@ class LargeTableTest {
 
         long startTime = System.currentTimeMillis();
         Objects.requireNonNull(input, "tableText must not be null");
-        String result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        String result = formatter.format(input, "", Config.NO_INDENT);
         long duration = System.currentTimeMillis() - startTime;
 
         // Verify formatting completed successfully
@@ -124,7 +124,7 @@ class LargeTableTest {
 
         long startTime = System.currentTimeMillis();
         Objects.requireNonNull(input, "tableText must not be null");
-        String result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        String result = formatter.format(input, "", Config.NO_INDENT);
         long duration = System.currentTimeMillis() - startTime;
 
         // Verify formatting completed successfully
@@ -154,7 +154,7 @@ class LargeTableTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        String result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        String result = formatter.format(input, "", Config.NO_INDENT);
 
         // Verify formatting is correct
         assertThat(result).isEqualTo("""

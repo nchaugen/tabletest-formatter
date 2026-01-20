@@ -16,13 +16,28 @@
 package io.github.nchaugen.tabletest.formatter.spotless;
 
 import com.diffplug.spotless.FormatterStep;
-import io.github.nchaugen.tabletest.formatter.config.IndentType;
 
 /**
  * Factory for creating Spotless FormatterStep instances for TableTest formatting.
- * <p>
- * This class provides a static factory method to create a FormatterStep that formats
- * TableTest tables in standalone .table files and @TableTest annotations in Java/Kotlin files.
+ *
+ * <p>This formatter reads configuration from .editorconfig files rather than accepting
+ * parameters. Place a .editorconfig file in your project root or source directories:
+ *
+ * <pre>
+ * [*.java]
+ * indent_style = space
+ * indent_size = 4
+ *
+ * [*.kt]
+ * indent_style = space
+ * indent_size = 4
+ *
+ * [*.table]
+ * indent_style = space
+ * indent_size = 0
+ * </pre>
+ *
+ * <p>See <a href="https://editorconfig.org">editorconfig.org</a> for specification.
  */
 public final class TableTestFormatterStep {
 
@@ -33,35 +48,16 @@ public final class TableTestFormatterStep {
     }
 
     /**
-     * Creates a new FormatterStep for TableTest formatting with default space indentation and indent size of 4.
+     * Creates a new FormatterStep for TableTest formatting.
+     *
+     * <p>Formatting settings are read from .editorconfig files. If no .editorconfig
+     * is found, defaults to 4 spaces for Java/Kotlin files and no indentation for
+     * .table files.
      *
      * @return a configured FormatterStep instance
      */
     public static FormatterStep create() {
-        return create(4);
-    }
-
-    /**
-     * Creates a new FormatterStep for TableTest formatting with specified indent size and default space indentation.
-     *
-     * @param indentSize the number of indent characters to add (spaces or tabs depending on indent type)
-     * @return a configured FormatterStep instance
-     * @throws IllegalArgumentException if indentSize is negative
-     */
-    public static FormatterStep create(int indentSize) {
-        return create(IndentType.SPACE, indentSize);
-    }
-
-    /**
-     * Creates a new FormatterStep for TableTest formatting with specified indent type and indent size.
-     *
-     * @param indentType the type of indentation to use (SPACE or TAB)
-     * @param indentSize the number of indent characters to add (spaces or tabs depending on indent type)
-     * @return a configured FormatterStep instance
-     * @throws IllegalArgumentException if indentType is null or indentSize is negative
-     */
-    public static FormatterStep create(IndentType indentType, int indentSize) {
-        TableTestFormatterState state = new TableTestFormatterState(indentType, indentSize);
-        return FormatterStep.createLazy(NAME, () -> state, TableTestFormatterFunc::new);
+        // Use empty string as state (config comes from .editorconfig files)
+        return FormatterStep.create(NAME, "", state -> new TableTestFormatterFunc());
     }
 }

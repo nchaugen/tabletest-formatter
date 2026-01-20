@@ -1,0 +1,3 @@
+# Stop EditorConfig search at this directory for tests
+# This prevents tests from finding the project root .editorconfig
+root = true

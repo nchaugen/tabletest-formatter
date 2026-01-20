@@ -16,8 +16,8 @@
 package io.github.nchaugen.tabletest.formatter.spotless;
 
 import com.diffplug.spotless.FormatterFunc;
-import io.github.nchaugen.tabletest.formatter.config.ConfigProvider;
-import io.github.nchaugen.tabletest.formatter.config.StaticConfigProvider;
+import io.github.nchaugen.tabletest.formatter.config.Config;
+import io.github.nchaugen.tabletest.formatter.config.EditorConfigProvider;
 import io.github.nchaugen.tabletest.formatter.core.SourceFileFormatter;
 import io.github.nchaugen.tabletest.formatter.core.TableTestFormatter;
 
@@ -26,13 +26,16 @@ import java.util.Objects;
 
 /**
  * Spotless formatter function for TableTest tables.
- * <p>
- * Handles formatting of:
+ *
+ * <p>Handles formatting of:
  * <ul>
  *   <li>Standalone .table files - formats entire file content</li>
  *   <li>Java/Kotlin files - extracts and formats @TableTest annotations</li>
  *   <li>Other files - returns unchanged</li>
  * </ul>
+ *
+ * <p><strong>Configuration:</strong> Reads formatting settings from .editorconfig files.
+ * Searches for .editorconfig in the file's directory and parent directories.
  *
  * <h2>Error Handling</h2>
  * <p>Inherits graceful degradation from {@link TableTestFormatter}:
@@ -40,25 +43,25 @@ import java.util.Objects;
  *   <li>Malformed tables return original input unchanged</li>
  *   <li>Parse failures never break the build</li>
  *   <li>Files with no @TableTest annotations are unchanged</li>
+ *   <li>Missing .editorconfig files fall back to defaults</li>
  * </ul>
  *
  * <p>The {@code applyWithFile} method declares {@code throws Exception} per
  * Spotless API contract, but in practice only propagates exceptions for
- * programming errors (null inputs, configuration issues), not formatting failures.
+ * programming errors (null inputs), not formatting failures.
  */
 public final class TableTestFormatterFunc implements FormatterFunc.NeedsFile {
 
-    private final TableTestFormatterState state;
+    // Shared across all instances for EditorConfig caching
+    private static final EditorConfigProvider CONFIG_PROVIDER = new EditorConfigProvider();
+
     private final TableTestFormatter tableFormatter;
     private final SourceFileFormatter sourceFormatter;
 
     /**
-     * Creates a new formatter function with the given state.
-     *
-     * @param state the formatter configuration state
+     * Creates a new formatter function.
      */
-    public TableTestFormatterFunc(TableTestFormatterState state) {
-        this.state = state;
+    public TableTestFormatterFunc() {
         this.tableFormatter = new TableTestFormatter();
         this.sourceFormatter = new SourceFileFormatter();
     }
@@ -76,22 +79,26 @@ public final class TableTestFormatterFunc implements FormatterFunc.NeedsFile {
         String fileName = file.getName();
 
         if (fileName.endsWith(".table")) {
-            return formatStandaloneTableFile(rawUnix);
+            return formatStandaloneTableFile(rawUnix, file);
         } else if (fileName.endsWith(".java") || fileName.endsWith(".kt")) {
-            return formatSourceFile(rawUnix);
+            return formatSourceFile(rawUnix, file);
         } else {
             return rawUnix;
         }
     }
 
-    private String formatStandaloneTableFile(String content) {
-        Objects.requireNonNull(content, "tableText must not be null");
-        String formatted = tableFormatter.format(content, "", StaticConfigProvider.NO_INDENT);
+    private String formatStandaloneTableFile(String content, File file) {
+        Objects.requireNonNull(content, "content must not be null");
+
+        Config config = CONFIG_PROVIDER.lookupConfig(file.toPath(), Config.NO_INDENT);
+
+        String formatted = tableFormatter.format(content, "", config);
         return formatted.equals(content) ? null : formatted;
     }
 
-    private String formatSourceFile(String content) {
-        ConfigProvider config = new StaticConfigProvider(state.indentType(), state.indentSize());
+    private String formatSourceFile(String content, File file) {
+        Config config = CONFIG_PROVIDER.lookupConfig(file.toPath(), Config.SPACES_4);
+
         String formatted = sourceFormatter.format(content, config);
         return formatted.equals(content) ? null : formatted;
     }

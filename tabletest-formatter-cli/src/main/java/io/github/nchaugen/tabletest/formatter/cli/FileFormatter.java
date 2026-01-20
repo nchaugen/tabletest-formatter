@@ -15,8 +15,8 @@
  */
 package io.github.nchaugen.tabletest.formatter.cli;
 
-import io.github.nchaugen.tabletest.formatter.config.ConfigProvider;
-import io.github.nchaugen.tabletest.formatter.config.StaticConfigProvider;
+import io.github.nchaugen.tabletest.formatter.config.Config;
+import io.github.nchaugen.tabletest.formatter.config.EditorConfigProvider;
 import io.github.nchaugen.tabletest.formatter.core.SourceFileFormatter;
 import io.github.nchaugen.tabletest.formatter.core.TableTestFormatter;
 
@@ -27,47 +27,59 @@ import java.util.Objects;
 
 /**
  * Formats individual files containing TableTest tables.
- * Handles both standalone .table files and source files (.java, .kt) with @TableTest annotations.
+ *
+ * <p>Handles both standalone .table files and source files (.java, .kt) with @TableTest annotations.
+ *
+ * <p><strong>Configuration:</strong> Reads formatting settings from .editorconfig files.
+ * Searches for .editorconfig in the file's directory and parent directories. If no
+ * .editorconfig is found, uses sensible defaults (4 spaces for source files, no indentation
+ * for .table files).
  */
 public class FileFormatter {
 
+    private final EditorConfigProvider configProvider;
     private final TableTestFormatter tableFormatter;
     private final SourceFileFormatter sourceFormatter;
 
     public FileFormatter() {
+        this.configProvider = new EditorConfigProvider();
         this.tableFormatter = new TableTestFormatter();
         this.sourceFormatter = new SourceFileFormatter();
     }
 
     /**
-     * Formats a file using the provided configuration and returns the result.
+     * Formats a file using configuration from .editorconfig files.
      *
-     * @param file   the file to format
-     * @param config the formatting configuration
+     * @param file the file to format
      * @return formatting result with changed flag and formatted content
      * @throws IOException if an I/O error occurs
      */
-    public FormattingResult format(Path file, ConfigProvider config) throws IOException {
+    public FormattingResult format(Path file) throws IOException {
         String content = Files.readString(file);
         String fileName = file.getFileName().toString();
 
         if (fileName.endsWith(".table")) {
             return formatStandaloneTableFile(file, content);
         } else if (fileName.endsWith(".java") || fileName.endsWith(".kt")) {
-            return formatSourceFile(file, content, config);
+            return formatSourceFile(file, content);
         } else {
             return new FormattingResult(file, false, content);
         }
     }
 
     private FormattingResult formatStandaloneTableFile(Path file, String content) {
-        Objects.requireNonNull(content, "tableText must not be null");
-        String formatted = tableFormatter.format(content, "", StaticConfigProvider.NO_INDENT);
+        Objects.requireNonNull(content, "content must not be null");
+
+        Config config = configProvider.lookupConfig(file, Config.NO_INDENT);
+
+        String formatted = tableFormatter.format(content, "", config);
         boolean changed = !formatted.equals(content);
         return new FormattingResult(file, changed, formatted);
     }
 
-    private FormattingResult formatSourceFile(Path file, String content, ConfigProvider config) {
+    private FormattingResult formatSourceFile(Path file, String content) {
+        Config config = configProvider.lookupConfig(file, Config.SPACES_4);
+
         String formatted = sourceFormatter.format(content, config);
         boolean changed = !formatted.equals(content);
         return new FormattingResult(file, changed, formatted);

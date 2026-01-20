@@ -50,6 +50,53 @@ The project uses a custom state machine parser (`TableTestExtractor`) to extract
 
 See closed beads issues for detailed investigation notes: `tabletest-formatter-swo` (tree-sitter), `tabletest-formatter-3b9` (JavaParser).
 
+## EditorConfig Architecture
+
+**Design Decision: Configuration from Files**
+
+The formatter reads configuration from `.editorconfig` files rather than accepting configuration parameters. This design provides:
+
+**Benefits:**
+- Single source of truth for formatting rules across all tools (CLI, Spotless, IntelliJ plugin)
+- Zero-maintenance Spotless integration - new formatting options don't require Spotless API changes
+- Standard IDE behaviour - IDEs already support EditorConfig
+- Decouples formatting behaviour from tool integration
+
+**Implementation:**
+
+**Module structure:**
+- `tabletest-formatter-config` - EditorConfig support (`EditorConfigProvider`)
+- `tabletest-formatter-core` - Core formatting logic with `Config` record
+- `tabletest-formatter-cli` - CLI tool that reads `.editorconfig`
+- `tabletest-formatter-spotless` - Spotless integration that reads `.editorconfig`
+
+**EditorConfigProvider:**
+- Uses `org.ec4j:ec4j-core:1.2.0` for parsing `.editorconfig` files
+- Searches up directory tree from file being formatted
+- Caches parsed configurations (permanent cache for performance)
+- Graceful fallback to defaults on errors
+- Returns `Config` records with resolved `indent_style` and `indent_size`
+
+**Config record:**
+- Simple immutable data: `Config(IndentStyle indentStyle, int indentSize)`
+- No longer an interface - simplified from original `ConfigProvider` abstraction
+- Constants: `Config.SPACES_4` (default), `Config.NO_INDENT` (for `.table` files)
+
+**Integration pattern:**
+1. Tool receives file path to format
+2. `EditorConfigProvider.lookupConfig(Path, Config defaults)` finds applicable config
+3. Formatter formats using resolved `Config`
+
+**Supported properties:**
+- `indent_style` → `IndentStyle.SPACE` or `IndentStyle.TAB`
+- `indent_size` → integer (0 for no indent, N for N characters)
+
+**Future extensions:**
+- Custom `tabletest_*` properties can be added without changing tool integrations
+- Examples: `tabletest_map_colon_spacing`, `tabletest_list_bracket_spacing`
+
+See beads issue `tabletest-formatter-9wg` for full EditorConfig implementation history.
+
 ## Key Files
 
 - `pom.xml` - Root POM with plugin configurations and versions

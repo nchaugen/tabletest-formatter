@@ -1,7 +1,7 @@
 package io.github.nchaugen.tabletest.formatter.core;
 
-import io.github.nchaugen.tabletest.formatter.config.IndentType;
-import io.github.nchaugen.tabletest.formatter.config.StaticConfigProvider;
+import io.github.nchaugen.tabletest.formatter.config.Config;
+import io.github.nchaugen.tabletest.formatter.config.IndentStyle;
 import io.github.nchaugen.tabletest.junit.TableTest;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +23,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             name  | age
@@ -40,7 +40,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             a    | bb | ccc
@@ -56,7 +56,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             a | b | c
@@ -72,7 +72,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             col1 | col2 | col3  | col4
@@ -89,7 +89,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             name  | age
@@ -131,7 +131,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             name   | greeting
@@ -149,7 +149,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             language | text
@@ -179,7 +179,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             col  | emoji
@@ -206,7 +206,7 @@ class TableTestFormatterTest {
         var tableInput = "value\n" + input;
 
         Objects.requireNonNull(tableInput, "tableText must not be null");
-        var result = formatter.format(tableInput, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(tableInput, "", Config.NO_INDENT);
 
         var lines = result.split("\n");
         assertThat(lines[1]).isEqualTo(formatted);
@@ -222,7 +222,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             name  | age
@@ -242,7 +242,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             name  | age
@@ -264,7 +264,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             name  | age
@@ -284,7 +284,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             col
@@ -300,7 +300,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             col
@@ -316,7 +316,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             col1     | col2     | col3
@@ -332,7 +332,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             short | long
@@ -348,7 +348,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             col1  | col2
@@ -364,7 +364,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             col
@@ -381,7 +381,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo(input);
     }
@@ -395,7 +395,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo(input);
     }
@@ -409,7 +409,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             name
@@ -423,7 +423,7 @@ class TableTestFormatterTest {
         var input = "";
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo(input);
     }
@@ -433,7 +433,7 @@ class TableTestFormatterTest {
         var input = "   \n  \n   ";
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo(input);
     }
@@ -445,7 +445,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             name | age
@@ -460,7 +460,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             name | value
@@ -476,7 +476,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             name | value
@@ -492,7 +492,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         // Parser cannot handle escaped quotes, returns unchanged
         assertThat(result).isEqualTo(input);
@@ -506,7 +506,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             name | value
@@ -522,7 +522,7 @@ class TableTestFormatterTest {
             """;
 
         Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", StaticConfigProvider.NO_INDENT);
+        var result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             name | message
@@ -538,7 +538,7 @@ class TableTestFormatterTest {
             Bob|25
             """;
 
-        var result = formatter.format(input, "", new StaticConfigProvider(IndentType.SPACE, 0));
+        var result = formatter.format(input, "", new Config(IndentStyle.SPACE, 0));
 
         assertThat(result).isEqualTo("""
             name  | age
@@ -555,7 +555,7 @@ class TableTestFormatterTest {
             Bob|25
             """;
 
-        var result = formatter.format(input, "", new StaticConfigProvider(IndentType.SPACE, 4));
+        var result = formatter.format(input, "", new Config(IndentStyle.SPACE, 4));
 
         assertThat(result).isEqualTo("""
             name  | age
@@ -571,7 +571,7 @@ class TableTestFormatterTest {
             Alice|30
             """;
 
-        var result = formatter.format(input, "    ", new StaticConfigProvider(IndentType.SPACE, 2));
+        var result = formatter.format(input, "    ", new Config(IndentStyle.SPACE, 2));
 
         assertThat(result).isEqualTo("""
             name  | age
@@ -587,7 +587,7 @@ class TableTestFormatterTest {
             Bob|25
             """;
 
-        var result = formatter.format(input, "", new StaticConfigProvider(IndentType.SPACE, 4));
+        var result = formatter.format(input, "", new Config(IndentStyle.SPACE, 4));
 
         assertThat(result).isEqualTo("""
             name  | age
@@ -600,7 +600,7 @@ class TableTestFormatterTest {
     void shouldReturnEmptyTableUnchangedWithIndentation() {
         var input = "";
 
-        var result = formatter.format(input, "", new StaticConfigProvider(IndentType.SPACE, 4));
+        var result = formatter.format(input, "", new Config(IndentStyle.SPACE, 4));
 
         assertThat(result).isEmpty();
     }
@@ -611,7 +611,7 @@ class TableTestFormatterTest {
             name|age
             """;
 
-        var result = formatter.format(input, "", new StaticConfigProvider(IndentType.SPACE, 4));
+        var result = formatter.format(input, "", new Config(IndentStyle.SPACE, 4));
 
         assertThat(result).isEqualTo("""
             name | age
@@ -627,7 +627,7 @@ class TableTestFormatterTest {
             Bob|25
             """;
 
-        var result = formatter.format(input, "", new StaticConfigProvider(IndentType.SPACE, 2));
+        var result = formatter.format(input, "", new Config(IndentStyle.SPACE, 2));
 
         assertThat(result).isEqualTo("""
             name  | age
@@ -646,7 +646,7 @@ class TableTestFormatterTest {
             Bob|25
             """;
 
-        var result = formatter.format(input, "", new StaticConfigProvider(IndentType.SPACE, 2));
+        var result = formatter.format(input, "", new Config(IndentStyle.SPACE, 2));
 
         assertThat(result).isEqualTo("""
             name  | age
@@ -667,7 +667,7 @@ class TableTestFormatterTest {
             Bob|25
             """;
 
-        var result = formatter.format(input, "", new StaticConfigProvider(IndentType.SPACE, 4));
+        var result = formatter.format(input, "", new Config(IndentStyle.SPACE, 4));
 
         assertThat(result).isEqualTo("""
             name  | age
@@ -684,7 +684,7 @@ class TableTestFormatterTest {
     @Test
     void shouldThrowNullPointerExceptionWhenTableTextIsNull() {
         assertThatThrownBy(() -> {
-                    formatter.format(null, "", StaticConfigProvider.NO_INDENT);
+                    formatter.format(null, "", Config.NO_INDENT);
                 })
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("tableText must not be null");
@@ -694,7 +694,7 @@ class TableTestFormatterTest {
     void shouldThrowNullPointerExceptionWhenBaseIndentStringIsNull() {
         String input = "name|age\nAlice|30\n";
 
-        assertThatThrownBy(() -> formatter.format(input, null, new StaticConfigProvider(IndentType.SPACE, 4)))
+        assertThatThrownBy(() -> formatter.format(input, null, new Config(IndentStyle.SPACE, 4)))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("baseIndentString must not be null");
     }

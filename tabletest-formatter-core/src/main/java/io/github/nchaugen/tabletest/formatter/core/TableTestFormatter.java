@@ -15,7 +15,7 @@
  */
 package io.github.nchaugen.tabletest.formatter.core;
 
-import io.github.nchaugen.tabletest.formatter.config.ConfigProvider;
+import io.github.nchaugen.tabletest.formatter.config.Config;
 import io.github.nchaugen.tabletest.parser.Table;
 import io.github.nchaugen.tabletest.parser.TableParser;
 
@@ -71,7 +71,7 @@ public class TableTestFormatter {
      * <p><strong>Example usage:</strong>
      * <pre>
      * var formatter = new TableTestFormatter();
-     * var config = new StaticConfigProvider(IndentType.SPACE, 1);
+     * var config = new Config(IndentStyle.SPACE, 1);
      * var input = "name|age\nAlice|30";
      * var formatted = formatter.format(input, "        ", config);
      * // Returns (with "        " base indent + 1 level of spaces):
@@ -86,7 +86,7 @@ public class TableTestFormatter {
      * @return the formatted table text with proper indentation, or the original input if parsing/formatting fails
      * @throws NullPointerException if tableText, baseIndentString, or config is null
      */
-    public String format(String tableText, String baseIndentString, ConfigProvider config) {
+    public String format(String tableText, String baseIndentString, Config config) {
         Objects.requireNonNull(tableText, "tableText must not be null");
         Objects.requireNonNull(baseIndentString, "baseIndentString must not be null");
         Objects.requireNonNull(config, "config must not be null");
@@ -160,8 +160,8 @@ public class TableTestFormatter {
         return String.join("\n", result);
     }
 
-    private String applyIndentation(String formatted, ConfigProvider config, String baseIndentString) {
-        String indent = baseIndentString + config.indentType().repeat(config.indentSize());
+    private String applyIndentation(String formatted, Config config, String baseIndentString) {
+        String indent = baseIndentString + config.indentStyle().repeat(config.indentSize());
         String[] lines = formatted.split("\n", -1);
 
         // Apply indent to each line and add trailing indent for closing quote alignment

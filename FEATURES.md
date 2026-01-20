@@ -137,7 +137,7 @@ Positions the table appropriately within its context:
 **Java and Kotlin files:**
 - Tables are indented relative to their `@TableTest` annotation position
 - Base indentation from source files is preserved (tabs stay tabs, spaces stay spaces)
-- Additional indentation is added using the configured `indentType` (default: 4 spaces)
+- Additional indentation is added using the configured `indentStyle` (default: 4 spaces)
 - Configurable via `indentSize` parameter (0 = align with annotation, N = add N indent characters)
 
 **Before:**
@@ -209,52 +209,64 @@ The formatter follows a **fail-safe policy** to ensure it never breaks your buil
 
 ## Configuration Options
 
-All integration methods support two configuration parameters:
+TableTest Formatter reads configuration from `.editorconfig` files following the [EditorConfig specification](https://editorconfig.org).
 
-| Parameter       | Default | Values         | Description                                    |
-|-----------------|---------|----------------|------------------------------------------------|
-| **Indent Type** | `space` | `space`, `tab` | Type of indentation for additional indent      |
-| **Indent Size** | `4`     | `0`-`N`        | Number of indent characters to add beyond base |
+**Supported EditorConfig properties:**
 
-**Indent Type:**
-- `space` - Additional indentation uses spaces
-- `tab` - Additional indentation uses tabs
+| Property        | Values         | Default | Description                                    |
+|-----------------|----------------|---------|------------------------------------------------|
+| `indent_style`  | `space`, `tab` | `space` | Type of indentation for additional indent      |
+| `indent_size`   | `0`-`N`        | `4`     | Number of indent characters to add beyond base |
+
+**How it works:**
+- Place `.editorconfig` in your project root or source directories
+- The formatter searches up the directory tree to find applicable configuration
+- If no `.editorconfig` is found, defaults to 4 spaces
 - Base indentation from source files is always preserved
 
-**Indent Size:**
-- `0` - Tables align exactly with their `@TableTest` annotation
-- `N` - Adds N indent characters (spaces or tabs) beyond the base level
+**Indent behavior:**
+- `indent_style = space` - Additional indentation uses spaces
+- `indent_style = tab` - Additional indentation uses tabs
+- `indent_size = 0` - Tables align exactly with their `@TableTest` annotation
+- `indent_size = N` - Adds N indent characters beyond the base level
 
-### Configuration by Integration Method
+### Example Configuration
 
-**Spotless (Gradle):**
-```groovy
-import io.github.nchaugen.tabletest.formatter.core.IndentType
+**Basic example:**
+```ini
+# .editorconfig in project root
 
-addStep(TableTestFormatterStep.create())                          // defaults: space, 4
-addStep(TableTestFormatterStep.create(2))                         // space, 2
-addStep(TableTestFormatterStep.create(IndentType.SPACE, 0))       // space, 0
-addStep(TableTestFormatterStep.create(IndentType.TAB, 4))         // tab, 4
+[*.java]
+indent_style = space
+indent_size = 4
+
+[*.kt]
+indent_style = space
+indent_size = 4
+
+[*.table]
+indent_style = space
+indent_size = 0
 ```
 
-**CLI:**
-```bash
-java -jar tabletest-formatter-cli.jar src/                        # defaults: space, 4
-java -jar tabletest-formatter-cli.jar --indent-size 2 src/        # space, 2
-java -jar tabletest-formatter-cli.jar --indent-type tab src/      # tab, 4
-```
+**Advanced example with directory-specific settings:**
+```ini
+# .editorconfig in project root
 
-**Maven (exec-maven-plugin):**
-```xml
-<arguments>
-    <argument>-jar</argument>
-    <argument>${project.build.directory}/formatter/tabletest-formatter-cli-0.1.0-shaded.jar</argument>
-    <argument>--indent-size</argument>
-    <argument>2</argument>
-    <argument>--indent-type</argument>
-    <argument>tab</argument>
-    <argument>${project.basedir}/src/test/java</argument>
-</arguments>
+# Default for Java files
+[*.java]
+indent_style = space
+indent_size = 4
+
+# Tighter indentation for tests
+[src/test/java/**/*.java]
+indent_style = space
+indent_size = 2
+
+# No indentation for standalone table files
+[*.table]
+indent_style = space
+indent_size = 0
 ```
 
 ## Feature Summary

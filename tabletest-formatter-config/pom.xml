@@ -14,11 +14,18 @@
     <description>Configuration providers for TableTest formatter (EditorConfig support, etc.).</description>
 
     <dependencies>
-        <!-- Formatter Core (for ConfigProvider interface) -->
+        <!-- Formatter Core (for Config record) -->
         <dependency>
             <groupId>io.github.nchaugen.tabletest</groupId>
             <artifactId>tabletest-formatter-core</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <!-- EditorConfig parser -->
+        <dependency>
+            <groupId>org.ec4j.core</groupId>
+            <artifactId>ec4j-core</artifactId>
+            <version>1.2.0</version>
         </dependency>
 
         <!-- JUnit 6 for testing -->

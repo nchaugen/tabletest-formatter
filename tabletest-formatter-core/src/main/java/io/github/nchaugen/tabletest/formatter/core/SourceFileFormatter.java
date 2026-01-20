@@ -15,7 +15,7 @@
  */
 package io.github.nchaugen.tabletest.formatter.core;
 
-import io.github.nchaugen.tabletest.formatter.config.ConfigProvider;
+import io.github.nchaugen.tabletest.formatter.config.Config;
 
 import java.util.Comparator;
 import java.util.List;
@@ -41,19 +41,19 @@ public class SourceFileFormatter {
      * @param config  the formatting configuration
      * @return the formatted content, or original if no changes needed
      */
-    public String format(String content, ConfigProvider config) {
+    public String format(String content, Config config) {
         List<TableMatch> matches = extractor.findAll(content);
 
         return matches.isEmpty() ? content : formatMatches(content, matches, config);
     }
 
-    private String formatMatches(String content, List<TableMatch> matches, ConfigProvider config) {
+    private String formatMatches(String content, List<TableMatch> matches, Config config) {
         return matches.stream()
                 .sorted(Comparator.comparingInt(TableMatch::tableContentStart).reversed())
                 .reduce(content, (result, match) -> formatMatch(result, content, match, config), (s1, s2) -> s1);
     }
 
-    private String formatMatch(String result, String originalContent, TableMatch match, ConfigProvider config) {
+    private String formatMatch(String result, String originalContent, TableMatch match, Config config) {
         String originalTable = originalContent.substring(match.tableContentStart(), match.tableContentEnd());
         String baseIndentString = originalContent.substring(match.baseIndentStart(), match.baseIndentEnd());
         String formattedTable = formatter.format(originalTable, baseIndentString, config);

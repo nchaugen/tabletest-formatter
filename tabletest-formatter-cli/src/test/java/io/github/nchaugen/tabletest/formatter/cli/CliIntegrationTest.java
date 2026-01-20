@@ -206,25 +206,6 @@ class CliIntegrationTest {
         assertThat(actualContent(testFile)).isEqualTo(expectedContent(testFile));
     }
 
-    @Test
-    void shouldRespectIndentSizeOverride(@TempDir Path tempDir) throws IOException, URISyntaxException {
-        // Given: unformatted file
-        Path testFile = tempDir.resolve("SimpleTest.java");
-        copyUnformattedFile(testFile);
-
-        // When: formatting with indent-size=2
-        int exitCode = new CommandLine(new TableTestFormatterCli()).execute("--indent-size=2", testFile.toString());
-
-        // Then: file is formatted with 2-space indentation
-        assertThat(exitCode).isZero();
-        String content = actualContent(testFile);
-
-        // Verify indentation is 2 spaces (baseIndent=4 + indentSize=2 = 6 total)
-        assertThat(content).contains("      name  | age | city"); // 6 spaces
-        assertThat(content).contains("      Alice | 30  | New York");
-        assertThat(content).contains("      \"\"\""); // Closing quote also at 6 spaces
-    }
-
     private int executeCliApplyMode(Path path) {
         return new CommandLine(new TableTestFormatterCli()).execute(path.toString());
     }
