@@ -19,11 +19,11 @@ class DisplayWidthTest {
         Japanese hiragana with kanji | こんにちは世界     | 14
         Korean short greeting        | 안녕               | 4
         Korean greeting              | 안녕하세요         | 10
-        Emoji grinning face          | 😀                  | 1
-        Emoji waving hand            | 👋                  | 1
-        Emoji coffee                 | ☕                  | 1
-        Mixed ASCII and emoji        | Hello 👋 World      | 13
-        Mixed text with emoji        | Café ☕ tastes good | 18
+        Emoji grinning face          | 😀                  | 2
+        Emoji waving hand            | 👋                  | 2
+        Emoji coffee                 | ☕                  | 2
+        Mixed ASCII and emoji        | Hello 👋 World      | 14
+        Mixed text with emoji        | Café ☕ tastes good | 19
         Scandinavian æ               | æ                  | 1
         Scandinavian ø repeated      | øøø                | 3
         Scandinavian å repeated      | ååå                | 3

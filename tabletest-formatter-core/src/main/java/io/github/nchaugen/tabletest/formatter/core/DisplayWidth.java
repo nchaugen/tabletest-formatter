@@ -52,7 +52,7 @@ public class DisplayWidth {
      * DisplayWidth.of("Hello")       // Returns: 5 (regular ASCII)
      * DisplayWidth.of("你好")         // Returns: 4 (2 CJK characters × 2 width each)
      * DisplayWidth.of("café")        // Returns: 4 (combining accent has width 0)
-     * DisplayWidth.of("😀")          // Returns: 1 (Unicode 5.0 implementation)
+     * DisplayWidth.of("😀")          // Returns: 2 (emoji characters are width 2)
      * DisplayWidth.of(null)          // Returns: 0 (null handling)
      * </pre>
      *
@@ -118,7 +118,8 @@ public class DisplayWidth {
                 || isCjkCompatibilityForm(codePoint)
                 || isFullwidthForm(codePoint)
                 || isFullwidthSymbol(codePoint)
-                || isCjkExtension(codePoint);
+                || isCjkExtension(codePoint)
+                || isEmoji(codePoint);
     }
 
     private static boolean isHangulJamo(int codePoint) {
@@ -159,6 +160,29 @@ public class DisplayWidth {
 
     private static boolean isCjkExtension(int codePoint) {
         return (codePoint >= 0x20000 && codePoint <= 0x2fffd) || (codePoint >= 0x30000 && codePoint <= 0x3fffd);
+    }
+
+    /**
+     * Checks if a codepoint is an emoji character.
+     * Modern emojis are typically rendered as width 2 in terminals.
+     *
+     * @param codePoint the Unicode codepoint
+     * @return true if the codepoint is in an emoji range
+     */
+    private static boolean isEmoji(int codePoint) {
+        return (codePoint >= 0x2600 && codePoint <= 0x26FF) // Miscellaneous Symbols (includes ☕)
+                || (codePoint >= 0x2700 && codePoint <= 0x27BF) // Dingbats
+                || (codePoint >= 0x1F000 && codePoint <= 0x1F02F) // Mahjong Tiles
+                || (codePoint >= 0x1F0A0 && codePoint <= 0x1F0FF) // Playing Cards
+                || (codePoint >= 0x1F300 && codePoint <= 0x1F5FF) // Miscellaneous Symbols and Pictographs
+                || (codePoint >= 0x1F600 && codePoint <= 0x1F64F) // Emoticons (includes 😀)
+                || (codePoint >= 0x1F680 && codePoint <= 0x1F6FF) // Transport and Map Symbols
+                || (codePoint >= 0x1F700 && codePoint <= 0x1F77F) // Alchemical Symbols
+                || (codePoint >= 0x1F780 && codePoint <= 0x1F7FF) // Geometric Shapes Extended
+                || (codePoint >= 0x1F800 && codePoint <= 0x1F8FF) // Supplemental Arrows-C
+                || (codePoint >= 0x1F900 && codePoint <= 0x1F9FF) // Supplemental Symbols and Pictographs (includes 👋)
+                || (codePoint >= 0x1FA00 && codePoint <= 0x1FA6F) // Chess Symbols
+                || (codePoint >= 0x1FA70 && codePoint <= 0x1FAFF); // Symbols and Pictographs Extended-A
     }
 
     /**
