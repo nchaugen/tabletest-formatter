@@ -22,8 +22,6 @@ A tool to format TableTest tables (CLI and Spotless integration) with consistent
 
 **Spotless Integration**: Implements `FormatterStep` for programmatic integration (Gradle via `addStep()`)
 
-**Issue Tracking**: Beads (`bd` command) - see Implementation Workflow section below
-
 ## TableTestExtractor Implementation
 
 **Design Decision: State Machine Parser**
@@ -48,7 +46,7 @@ The project uses a custom state machine parser (`TableTestExtractor`) to extract
 - Only extracts `@TableTest` annotations found in CODE state
 - Properly handles escaped quotes and nested structures
 
-See closed beads issues for detailed investigation notes: `tabletest-formatter-swo` (tree-sitter), `tabletest-formatter-3b9` (JavaParser).
+Alternative approaches (Regex, JavaParser, Tree-sitter) were evaluated and rejected during initial design.
 
 ## EditorConfig Architecture
 
@@ -95,7 +93,7 @@ The formatter reads configuration from `.editorconfig` files rather than accepti
 - Custom `tabletest_*` properties can be added without changing tool integrations
 - Examples: `tabletest_map_colon_spacing`, `tabletest_list_bracket_spacing`
 
-See beads issue `tabletest-formatter-9wg` for full EditorConfig implementation history.
+EditorConfig support was added to enable tool-agnostic configuration.
 
 ## Key Files
 
@@ -104,9 +102,9 @@ See beads issue `tabletest-formatter-9wg` for full EditorConfig implementation h
 - `CONTRIBUTING.md` - Contributor setup and guidelines (including git hooks setup)
 - `CLAUDE.md` - This file (AI/developer implementation notes)
 
-## Implementation Workflow
+## Ideas and Future Work
 
-Use `bd ready` to find available work. Issues are organized with dependencies to enforce logical ordering.
+See `.planning/ideas/` for potential enhancements and future work items.
 
 ## Dependency Management
 
@@ -130,7 +128,6 @@ Current versions (as of 2026-01-03):
 - tabletest-parser API: `TableParser.parse(String)` → `Table` with `headers()`, `row(int)`, etc.
 - Spotless: https://github.com/diffplug/spotless
 - Spotless FormatterStep docs: Check contributing guide in Spotless repo
-- Beads: Issue tracking tool (bd command)
 
 ## Unicode Width Handling
 
@@ -206,21 +203,9 @@ Example from indentation bug investigation:
 
 ### Workflow
 
-- **Issue closure timing**: Close beads issues BEFORE committing
-  - Keeps commit and issue status in sync
-  - Include `.beads/issues.jsonl` changes in the same commit as the implementation
-  - Can amend commits (before push) to add issue closure
+Pre-commit hook automatically handles:
+- Spotless code formatting
+- Copyright header insertion (and re-staging modified files)
+- Build and tests (`mvn clean install`)
 
-- **Standard commit workflow**:
-  1. Stage code files: `git add <files>`
-  2. Close issue: `bd close <issue-id>`
-  3. Stage beads update: `git add .beads/issues.jsonl`
-  4. Commit: `git commit -m "..."`
-  5. Push: `git push`
-
-  **Note:** Pre-commit hook automatically handles:
-  - Spotless code formatting
-  - Copyright header insertion (and re-staging modified files)
-  - Build and tests (`mvn clean install`)
-
-  No manual build step needed before committing!
+No manual build step needed before committing!
