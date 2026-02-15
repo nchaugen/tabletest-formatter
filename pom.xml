@@ -43,8 +43,10 @@
         <version.plugin.release>3.1.1</version.plugin.release>
         <version.plugin.spotless>3.1.0</version.plugin.spotless>
         <version.plugin.versions>2.18.0</version.plugin.versions>
-        <version.tabletest>0.5.8</version.tabletest>
-        <version.tabletest.parser>0.5.9</version.tabletest.parser>
+        <version.tabletest>1.0.0</version.tabletest>
+        <version.tabletest.parser>1.0.0</version.tabletest.parser>
+        <version.junit>6.0.3</version.junit>
+        <version.assertj>3.27.7</version.assertj>
         <surefire.arguments />
     </properties>
 

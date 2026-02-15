@@ -16,7 +16,7 @@
     <dependencies>
         <!-- TableTest Parser -->
         <dependency>
-            <groupId>io.github.nchaugen</groupId>
+            <groupId>org.tabletest</groupId>
             <artifactId>tabletest-parser</artifactId>
             <version>${version.tabletest.parser}</version>
         </dependency>
@@ -25,13 +25,13 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>6.0.1</version>
+            <version>${version.junit}</version>
             <scope>test</scope>
         </dependency>
 
         <!-- TableTest for testing -->
         <dependency>
-            <groupId>io.github.nchaugen</groupId>
+            <groupId>org.tabletest</groupId>
             <artifactId>tabletest-junit</artifactId>
             <version>${version.tabletest}</version>
             <scope>test</scope>
@@ -41,7 +41,7 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.27.6</version>
+            <version>${version.assertj}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

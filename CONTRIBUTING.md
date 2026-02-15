@@ -15,7 +15,7 @@ tabletest-formatter/
 
 ### Module Responsibilities
 
-- **tabletest-formatter-core**: Pure formatting logic, depends on `tabletest-parser:0.5.8`
+- **tabletest-formatter-core**: Pure formatting logic, depends on `org.tabletest:tabletest-parser:1.0.0`
 - **tabletest-formatter-cli**: Picocli-based CLI, creates uber JAR with maven-shade-plugin
 - **tabletest-formatter-spotless**: Implements Spotless FormatterStep for build tool integration
 

@@ -31,8 +31,8 @@ repositories {
 }
 
 dependencies {
-    testImplementation 'io.github.nchaugen.tabletest:tabletest-junit:0.5.8'
-    testImplementation 'org.junit.jupiter:junit-jupiter:6.0.1'
+    testImplementation 'org.tabletest:tabletest-junit:1.0.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter:6.0.3'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:2.1.0'
 }
 
