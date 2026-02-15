@@ -16,7 +16,7 @@ class TableTestExtractorTest {
         String sourceCode = """
                 package com.example;
 
-                import io.github.nchaugen.tabletest.TableTest;
+                import org.tabletest.TableTest;
 
                 class CalculatorTest {
                     @TableTest(\"""
@@ -51,7 +51,7 @@ class TableTestExtractorTest {
         String sourceCode = """
                 package com.example;
 
-                import io.github.nchaugen.tabletest.TableTest;
+                import org.tabletest.TableTest;
 
                 class ExampleTest {
                     void demonstrateUsage() {

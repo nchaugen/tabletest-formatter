@@ -260,7 +260,7 @@ public class TableTestExtractor {
             return false;
         }
 
-        // Read the full annotation name (could be qualified like io.github.nchaugen.tabletest.junit.TableTest)
+        // Read the full annotation name (could be qualified like org.tabletest.junit.TableTest)
         int i = pos + 1;
         int lastDotPos = -1;
 

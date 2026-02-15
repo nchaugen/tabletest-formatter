@@ -102,7 +102,7 @@ class SpotlessIntegrationTest {
 
         // Verify package, imports, and class structure preserved
         assertThat(formatted).contains("package com.example;");
-        assertThat(formatted).contains("import io.github.nchaugen.tabletest.TableTest;");
+        assertThat(formatted).contains("import org.tabletest.TableTest;");
         assertThat(formatted).contains("class CalculatorTest {");
         assertThat(formatted).contains("void testAddition(");
         assertThat(formatted).contains("void testMultiplication(");

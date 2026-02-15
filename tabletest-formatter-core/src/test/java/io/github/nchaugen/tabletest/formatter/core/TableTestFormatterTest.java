@@ -2,8 +2,8 @@ package io.github.nchaugen.tabletest.formatter.core;
 
 import io.github.nchaugen.tabletest.formatter.config.Config;
 import io.github.nchaugen.tabletest.formatter.config.IndentStyle;
-import io.github.nchaugen.tabletest.junit.TableTest;
 import org.junit.jupiter.api.Test;
+import org.tabletest.junit.TableTest;
 
 import java.util.Objects;
 

@@ -176,7 +176,7 @@ public class TableTestFormatter {
      *
      * @param tableText the raw table text
      * @return an array of column widths
-     * @throws io.github.nchaugen.tabletest.parser.TableTestParseException if table cannot be parsed
+     * @throws org.tabletest.parser.TableTestParseException if table cannot be parsed
      * @throws NullPointerException if tableText is null
      */
     public int[] calculateColumnWidths(String tableText) {

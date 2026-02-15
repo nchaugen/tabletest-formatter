@@ -1,6 +1,6 @@
 package example;
 
-import io.github.nchaugen.tabletest.TableTest;
+import org.tabletest.TableTest;
 
 class OuterClass {
 

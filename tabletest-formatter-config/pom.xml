@@ -38,7 +38,7 @@
 
         <!-- TableTest for testing -->
         <dependency>
-            <groupId>io.github.nchaugen</groupId>
+            <groupId>org.tabletest</groupId>
             <artifactId>tabletest-junit</artifactId>
             <version>${version.tabletest}</version>
             <scope>test</scope>

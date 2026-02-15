@@ -1,6 +1,6 @@
 package com.example;
 
-import io.github.nchaugen.tabletest.TableTest;
+import org.tabletest.TableTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
