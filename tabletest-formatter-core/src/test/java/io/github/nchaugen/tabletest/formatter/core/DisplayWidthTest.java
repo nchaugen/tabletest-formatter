@@ -1,7 +1,7 @@
 package io.github.nchaugen.tabletest.formatter.core;
 
-import io.github.nchaugen.tabletest.junit.TableTest;
 import org.junit.jupiter.api.Test;
+import org.tabletest.junit.TableTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -768,10 +768,32 @@ class TableTestExtractorTest {
     }
 
     @Test
-    void shouldMatchFullyQualifiedAnnotation() {
+    void shouldMatchFullyQualifiedDeprecatedAnnotation() {
         String sourceCode = """
                 class Test {
                     @io.github.nchaugen.tabletest.junit.TableTest(\"""
+                        name | age
+                        Alice | 30
+                        \""")
+                    void test1() {}
+                }
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        // Fully qualified annotations are supported - matches on last identifier component
+        assertThat(matches).hasSize(1);
+        assertThat(sourceCode.substring(
+                        matches.getFirst().tableContentStart(),
+                        matches.getFirst().tableContentEnd()))
+                .contains("name | age");
+    }
+
+    @Test
+    void shouldMatchFullyQualifiedAnnotation() {
+        String sourceCode = """
+                class Test {
+                    @org.tabletest.junit.TableTest(\"""
                         name | age
                         Alice | 30
                         \""")

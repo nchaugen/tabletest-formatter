@@ -16,8 +16,8 @@
 package io.github.nchaugen.tabletest.formatter.core;
 
 import io.github.nchaugen.tabletest.formatter.config.Config;
-import io.github.nchaugen.tabletest.parser.Table;
-import io.github.nchaugen.tabletest.parser.TableParser;
+import org.tabletest.parser.Table;
+import org.tabletest.parser.TableParser;
 
 import java.util.Arrays;
 import java.util.List;

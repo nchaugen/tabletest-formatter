@@ -29,6 +29,9 @@ class GradleIntegrationTest {
     @TempDir
     Path testProjectDir;
 
+    @TempDir
+    Path testKitDir;
+
     @BeforeEach
     void setUp() throws IOException {
         copyTestProject();
@@ -106,6 +109,7 @@ class GradleIntegrationTest {
     private BuildResult runGradle(String... tasks) {
         return GradleRunner.create()
                 .withProjectDir(testProjectDir.toFile())
+                .withTestKitDir(testKitDir.toFile())
                 .withGradleVersion("8.11.1")
                 .withArguments(tasks)
                 .build();
