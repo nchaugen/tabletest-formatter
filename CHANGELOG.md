@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0] - 2026-02-16
+## [1.0.0] - 2026-02-17
 ### Added
 - Support for reading indent style and size from .editorconfig
 ### Removed

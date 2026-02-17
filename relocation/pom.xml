@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.nchaugen.tabletest</groupId>
@@ -7,32 +9,8 @@
     <version>1.0.0</version>
     <packaging>pom</packaging>
 
-    <name>TableTest Formatter Relocation POMs</name>
-    <description>Relocation POMs redirecting from io.github.nchaugen.tabletest to org.tabletest.</description>
-    <url>https://github.com/nchaugen/tabletest-formatter</url>
-
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <developers>
-        <developer>
-            <id>nchaugen</id>
-            <name>Nils Christian Haugen</name>
-            <email>nchaugen@gmail.com</email>
-        </developer>
-    </developers>
-
-    <scm>
-        <connection>scm:git:https://github.com/nchaugen/tabletest-formatter.git</connection>
-        <developerConnection>scm:git:git@github.com:nchaugen/tabletest-formatter.git</developerConnection>
-        <url>https://github.com/nchaugen/tabletest-formatter</url>
-        <tag>HEAD</tag>
-    </scm>
+    <name>TableTest Formatter Relocation</name>
+    <description>Relocation POMs for artifacts moved from io.github.nchaugen.tabletest to org.tabletest</description>
 
     <modules>
         <module>tabletest-formatter</module>
@@ -41,40 +19,8 @@
         <module>tabletest-formatter-spotless</module>
     </modules>
 
-    <build>
-        <plugins>
-            <!-- Sign artefacts -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>3.2.7</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                        <configuration>
-                            <gpgArguments>
-                                <arg>--pinentry-mode</arg>
-                                <arg>loopback</arg>
-                            </gpgArguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- Publish to Maven Central -->
-            <plugin>
-                <groupId>org.sonatype.central</groupId>
-                <artifactId>central-publishing-maven-plugin</artifactId>
-                <version>0.9.0</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <publishingServerId>central</publishingServerId>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.install.skip>true</maven.install.skip>
+    </properties>
 </project>
