@@ -1,4 +1,4 @@
-import io.github.nchaugen.tabletest.formatter.spotless.TableTestFormatterStep
+import org.tabletest.formatter.spotless.TableTestFormatterStep
 
 buildscript {
     repositories {
@@ -6,7 +6,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'io.github.nchaugen.tabletest:tabletest-formatter-spotless:0.1.0-SNAPSHOT'
+        classpath 'org.tabletest:tabletest-formatter-spotless:1.0.0-SNAPSHOT'
     }
 }
 

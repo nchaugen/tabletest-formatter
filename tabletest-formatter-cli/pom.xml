@@ -3,9 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>io.github.nchaugen.tabletest</groupId>
+        <groupId>org.tabletest</groupId>
         <artifactId>tabletest-formatter</artifactId>
-        <version>0.1.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>tabletest-formatter-cli</artifactId>
@@ -22,14 +22,14 @@
     <dependencies>
         <!-- TableTest Formatter Core -->
         <dependency>
-            <groupId>io.github.nchaugen.tabletest</groupId>
+            <groupId>org.tabletest</groupId>
             <artifactId>tabletest-formatter-core</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <!-- TableTest Formatter Config -->
         <dependency>
-            <groupId>io.github.nchaugen.tabletest</groupId>
+            <groupId>org.tabletest</groupId>
             <artifactId>tabletest-formatter-config</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -90,7 +90,7 @@
                             </filters>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>io.github.nchaugen.tabletest.formatter.cli.TableTestFormatterCli</mainClass>
+                                    <mainClass>org.tabletest.formatter.cli.TableTestFormatterCli</mainClass>
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer" />
                             </transformers>

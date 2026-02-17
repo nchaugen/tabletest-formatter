@@ -36,7 +36,7 @@ The project uses a custom state machine parser (`TableTestExtractor`) to extract
 **State machine advantages:**
 - Correctly distinguishes real annotations from string literals and comments (solves "dogfooding" problem)
 - Handles both Java and Kotlin with single implementation
-- Supports fully qualified annotation names (`@io.github.nchaugen.tabletest.junit.TableTest`)
+- Supports fully qualified annotation names (`@org.tabletest.junit.TableTest`)
 - No external parser dependencies or platform-specific native libraries
 - Simple, maintainable implementation (~300 lines)
 
@@ -197,9 +197,8 @@ Example from indentation bug investigation:
 ### Package Structure
 
 - **Package naming**: Must match Maven groupId structure
-  - Maven groupId: `io.github.nchaugen.tabletest`
-  - Package name: `io.github.nchaugen.tabletest.formatter.core`
-  - NOT: `io.nchaugen.tabletest.formatter.core` (missing `github`)
+  - Maven groupId: `org.tabletest`
+  - Package name: `org.tabletest.formatter.core`
 
 ### Workflow
 

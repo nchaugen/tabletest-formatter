@@ -38,7 +38,7 @@ We will implement a custom state machine parser (`SmartTableTestExtractor`) that
 - Tracks brace depth to distinguish class scope from method bodies
 - Only extracts `@TableTest` annotations found in the `CODE` state at class scope
 - Handles escaped quotes, nested structures, and mixed line endings
-- Supports both simple (`@TableTest`) and fully qualified (`@io.github.nchaugen.tabletest.junit.TableTest`) annotation names
+- Supports both simple (`@TableTest`) and fully qualified (`@org.tabletest.junit.TableTest`) annotation names
 
 ## Options Considered
 
@@ -120,7 +120,7 @@ A lightweight parser that does "just enough" to solve our specific problem.
 - **Both Java and Kotlin support** - single implementation handles both languages
 - **Platform independent** - pure Java, works everywhere without build complexity
 - **Well-tested** - 44 tests covering edge cases (comments, strings, escapes, nested structures)
-- **Supports fully qualified annotations** - `@io.github.nchaugen.tabletest.junit.TableTest`
+- **Supports fully qualified annotations** - `@org.tabletest.junit.TableTest`
 - **Fast** - single-pass state machine, O(n) time complexity
 - **Simple deployment** - no platform-specific artifacts needed
 

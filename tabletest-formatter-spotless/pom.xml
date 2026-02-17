@@ -3,9 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>io.github.nchaugen.tabletest</groupId>
+        <groupId>org.tabletest</groupId>
         <artifactId>tabletest-formatter</artifactId>
-        <version>0.1.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>tabletest-formatter-spotless</artifactId>
@@ -22,14 +22,14 @@
     <dependencies>
         <!-- TableTest Formatter Core -->
         <dependency>
-            <groupId>io.github.nchaugen.tabletest</groupId>
+            <groupId>org.tabletest</groupId>
             <artifactId>tabletest-formatter-core</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <!-- TableTest Formatter Config -->
         <dependency>
-            <groupId>io.github.nchaugen.tabletest</groupId>
+            <groupId>org.tabletest</groupId>
             <artifactId>tabletest-formatter-config</artifactId>
             <version>${project.version}</version>
         </dependency>

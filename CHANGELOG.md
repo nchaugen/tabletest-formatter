@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-02-16
+### Added
+- Support for reading indent style and size from .editorconfig
+### Removed
+- BREAKING: Removed config parameters for indent style and size, instead use .editorconfig to override defaults
+### Changed
+- Moved to new org.tabletest coordinates, please update your dependencies accordingly
+### Fixed
+- Corrected emoji display width calculation
+
 ## [0.1.0] - 2026-01-03
 ### Added
 - **TableTest table formatting** for Java and Kotlin files (with `@TableTest` annotations), and standalone `.table` files

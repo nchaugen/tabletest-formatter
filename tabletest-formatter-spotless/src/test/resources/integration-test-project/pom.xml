@@ -17,9 +17,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.github.nchaugen.tabletest</groupId>
+            <groupId>org.tabletest</groupId>
             <artifactId>tabletest-junit</artifactId>
-            <version>0.5.8</version>
+            <version>1.0.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -49,7 +49,7 @@
                             </includes>
                             <custom>
                                 <name>tabletest</name>
-                                <call>io.github.nchaugen.tabletest.formatter.spotless.TableTestFormatterStep#create</call>
+                                <call>org.tabletest.formatter.spotless.TableTestFormatterStep#create</call>
                             </custom>
                         </format>
                     </formats>
@@ -59,7 +59,7 @@
                         </includes>
                         <custom>
                             <name>tabletest</name>
-                            <call>io.github.nchaugen.tabletest.formatter.spotless.TableTestFormatterStep#create</call>
+                            <call>org.tabletest.formatter.spotless.TableTestFormatterStep#create</call>
                         </custom>
                     </java>
                     <kotlin>
@@ -68,15 +68,15 @@
                         </includes>
                         <custom>
                             <name>tabletest</name>
-                            <call>io.github.nchaugen.tabletest.formatter.spotless.TableTestFormatterStep#create</call>
+                            <call>org.tabletest.formatter.spotless.TableTestFormatterStep#create</call>
                         </custom>
                     </kotlin>
                 </configuration>
                 <dependencies>
                     <dependency>
-                        <groupId>io.github.nchaugen.tabletest</groupId>
+                        <groupId>org.tabletest</groupId>
                         <artifactId>tabletest-formatter-spotless</artifactId>
-                        <version>0.1.0-SNAPSHOT</version>
+                        <version>1.0.0-SNAPSHOT</version>
                     </dependency>
                 </dependencies>
             </plugin>
