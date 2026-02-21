@@ -1,3 +1,8 @@
+> [!IMPORTANT]
+> TableTest Reporter has new Maven coordinates: `org.tabletest:tabletest-reporter-*:1.0.0`
+>
+> Please update your dependencies to keep receiving updates.
+
 # TableTest Formatter
 
 A formatter for [TableTest](https://github.com/nchaugen/tabletest) tables that ensures consistent, readable formatting across your test suite.

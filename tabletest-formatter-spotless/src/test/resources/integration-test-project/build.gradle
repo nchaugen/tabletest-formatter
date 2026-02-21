@@ -6,7 +6,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'org.tabletest:tabletest-formatter-spotless:1.0.0-SNAPSHOT'
+        classpath 'org.tabletest:tabletest-formatter-spotless:1.0.1-SNAPSHOT'
     }
 }
 
