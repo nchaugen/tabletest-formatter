@@ -27,13 +27,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- TableTest Formatter Config -->
-        <dependency>
-            <groupId>org.tabletest</groupId>
-            <artifactId>tabletest-formatter-config</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <!-- Spotless library for creating FormatterStep -->
         <dependency>
             <groupId>com.diffplug.spotless</groupId>

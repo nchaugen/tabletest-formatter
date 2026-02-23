@@ -63,8 +63,7 @@ The formatter reads configuration from `.editorconfig` files rather than accepti
 **Implementation:**
 
 **Module structure:**
-- `tabletest-formatter-config` - EditorConfig support (`EditorConfigProvider`)
-- `tabletest-formatter-core` - Core formatting logic with `Config` record
+- `tabletest-formatter-core` - Core formatting logic with `Config` record and `EditorConfigProvider`
 - `tabletest-formatter-cli` - CLI tool that reads `.editorconfig`
 - `tabletest-formatter-spotless` - Spotless integration that reads `.editorconfig`
 
