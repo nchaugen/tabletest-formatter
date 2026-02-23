@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-02-23
+### Changed
+- Merged config module into core so integrations only need a single Maven coordinate (`org.tabletest:tabletest-formatter-core`)
+
 ## [1.0.0] - 2026-02-17
 ### Added
 - Support for reading indent style and size from .editorconfig

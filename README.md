@@ -1,5 +1,5 @@
 > [!IMPORTANT]
-> TableTest Reporter has new Maven coordinates: `org.tabletest:tabletest-reporter-*:1.0.0`
+> TableTest Formatter has new Maven coordinates: `org.tabletest:tabletest-formatter-*:1.0.1`
 >
 > Please update your dependencies to keep receiving updates.
 
@@ -178,7 +178,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'org.tabletest:tabletest-formatter-spotless:1.0.0'
+        classpath 'org.tabletest:tabletest-formatter-spotless:1.0.1'
     }
 }
 ```
@@ -283,7 +283,7 @@ Add the formatter CLI as a build dependency in your `pom.xml`:
                             <artifactItem>
                                 <groupId>org.tabletest</groupId>
                                 <artifactId>tabletest-formatter-cli</artifactId>
-                                <version>1.0.0</version>
+                                <version>1.0.1</version>
                                 <classifier>shaded</classifier>
                                 <type>jar</type>
                                 <outputDirectory>${project.build.directory}/formatter</outputDirectory>
@@ -317,7 +317,7 @@ Add exec-maven-plugin to run the formatter:
                 <executable>java</executable>
                 <arguments>
                     <argument>-jar</argument>
-                    <argument>${project.build.directory}/formatter/tabletest-formatter-cli-1.0.0-shaded.jar</argument>
+                    <argument>${project.build.directory}/formatter/tabletest-formatter-cli-1.0.1-shaded.jar</argument>
                     <argument>${project.basedir}/src/test/java</argument>
                 </arguments>
             </configuration>
@@ -351,7 +351,7 @@ indent_size = 0
 ```xml
 <arguments>
     <argument>-jar</argument>
-    <argument>${project.build.directory}/formatter/tabletest-formatter-cli-1.0.0-shaded.jar</argument>
+    <argument>${project.build.directory}/formatter/tabletest-formatter-cli-1.0.1-shaded.jar</argument>
     <argument>${project.basedir}/src/test/java</argument>
     <argument>${project.basedir}/src/main/java</argument>
     <argument>${project.basedir}/src/test/resources</argument>
@@ -362,7 +362,7 @@ indent_size = 0
 ```xml
 <arguments>
     <argument>-jar</argument>
-    <argument>${project.build.directory}/formatter/tabletest-formatter-cli-1.0.0-shaded.jar</argument>
+    <argument>${project.build.directory}/formatter/tabletest-formatter-cli-1.0.1-shaded.jar</argument>
     <argument>--check</argument>
     <argument>${project.basedir}/src/test/java</argument>
 </arguments>
@@ -393,7 +393,7 @@ For CI pipelines, use check mode in a separate execution that runs during valida
         <executable>java</executable>
         <arguments>
             <argument>-jar</argument>
-            <argument>${project.build.directory}/formatter/tabletest-formatter-cli-1.0.0-shaded.jar</argument>
+            <argument>${project.build.directory}/formatter/tabletest-formatter-cli-1.0.1-shaded.jar</argument>
             <argument>--check</argument>
             <argument>${project.basedir}/src/test/java</argument>
         </arguments>
@@ -415,13 +415,13 @@ Java developers can fetch the CLI JAR using Maven:
 
 ```bash
 mvn dependency:get \
-  -Dartifact=org.tabletest:tabletest-formatter-cli:1.0.0:jar:shaded \
+  -Dartifact=org.tabletest:tabletest-formatter-cli:1.0.1:jar:shaded \
   -Dtransitive=false
 ```
 
 The JAR will be downloaded to your local Maven repository:
 ```
-~/.m2/repository/org/tabletest/tabletest-formatter-cli/1.0.0/
+~/.m2/repository/org/tabletest/tabletest-formatter-cli/1.0.1/
 ```
 
 **Option 2: Download from GitHub Releases**
@@ -438,7 +438,7 @@ mvn clean install
 
 The executable JAR will be at:
 ```
-tabletest-formatter-cli/target/tabletest-formatter-cli-1.0.0.jar
+tabletest-formatter-cli/target/tabletest-formatter-cli-1.0.1.jar
 ```
 
 #### Usage
