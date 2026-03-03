@@ -1,7 +1,7 @@
-> [!IMPORTANT]
-> TableTest Formatter has new Maven coordinates: `org.tabletest:tabletest-formatter-*:1.0.1`
->
-> Please update your dependencies to keep receiving updates.
+> [!NOTE]
+> **TableTest Formatter is now natively supported in Spotless!**
+> Use `tableTestFormatter()` in Spotless Gradle plugin 8.3.0+ or `<tableTestFormatter>` in Maven plugin 3.3.0+.
+> No extra dependencies needed — see [Gradle](#gradle-spotless) and [Maven](#maven-spotless) below.
 
 # TableTest Formatter
 
@@ -13,9 +13,8 @@ A formatter for [TableTest](https://github.com/nchaugen/tabletest) tables that e
 - Standalone `.table` files
 
 **Available as:**
-- **Spotless plugin** for Gradle (automatic formatting in your build)
+- **Spotless plugin** for Gradle and Maven (automatic formatting in your build)
 - **CLI tool** for standalone formatting or CI integration
-- **Maven integration** via exec-maven-plugin
 
 ## Key Features
 
@@ -25,7 +24,7 @@ A formatter for [TableTest](https://github.com/nchaugen/tabletest) tables that e
 - **Preserves structure** – Comments and blank lines maintained exactly as written
 - **Unicode support** – Accurate width calculation for CJK characters, emojis, and special characters
 - **Safe by default** – Never breaks builds; returns input unchanged on parse errors
-- **Flexible integration** – Spotless plugin (Gradle), CLI tool, or Maven exec-maven-plugin
+- **Flexible integration** – Spotless plugin (Gradle and Maven) or CLI tool
 
 See [FEATURES.md](FEATURES.md) for comprehensive feature documentation.
 
@@ -37,7 +36,7 @@ See [FEATURES.md](FEATURES.md) for comprehensive feature documentation.
   - [Configuration Options](#configuration-options)
 - [Integration](#integration)
   - [Gradle (Spotless)](#gradle-spotless)
-  - [Maven (exec-maven-plugin)](#maven-exec-maven-plugin)
+  - [Maven (Spotless)](#maven-spotless)
   - [CLI / Manual](#cli--manual)
 - [Requirements](#requirements)
 - [Contributing](#contributing)
@@ -166,72 +165,40 @@ indent_size = 2
 
 ### Gradle (Spotless)
 
-The tabletest-formatter-spotless module integrates with [Spotless](https://github.com/diffplug/spotless) to automatically format TableTest tables in your Gradle projects.
-
-#### Installation
-
-Add the formatter dependency to your `build.gradle`:
-
-```groovy
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'org.tabletest:tabletest-formatter-spotless:1.0.1'
-    }
-}
-```
+TableTest formatter is natively supported in [Spotless](https://github.com/diffplug/spotless) from plugin version 8.3.0 — no extra dependencies required.
 
 #### Setup
 
 ```groovy
-import org.tabletest.formatter.spotless.TableTestFormatterStep
-
 plugins {
-    id 'com.diffplug.spotless' version '8.1.0'
+    id 'com.diffplug.spotless' version '8.3.0'
 }
 
 spotless {
-    // Format standalone .table files
-    format 'tableFiles', {
-        target 'src/**/*.table'
-        addStep(TableTestFormatterStep.create())
-    }
-
-    // Format @TableTest in Java files
     java {
-        target 'src/**/*.java'
-        addStep(TableTestFormatterStep.create())
+        tableTestFormatter()
+        // tableTestFormatter('1.0.1') // pin a specific version
     }
-
-    // Format @TableTest in Kotlin files
     kotlin {
-        target 'src/**/*.kt'
-        addStep(TableTestFormatterStep.create())
+        tableTestFormatter()
     }
 }
 ```
 
-**Configuration:**
+> **Note:** Standalone `.table` files are not yet supported by the official Spotless DSL.
+> Use the [CLI tool](#cli--manual) to format them.
 
-Formatting settings are read from `.editorconfig` files in your project. Create a `.editorconfig` file in your project root:
+#### Configuration
+
+Formatting settings are read from `.editorconfig` files. Place one in your project root:
 
 ```ini
-[*.java]
+[*.{java,kt}]
 indent_style = space
 indent_size = 4
-
-[*.kt]
-indent_style = space
-indent_size = 4
-
-[*.table]
-indent_style = space
-indent_size = 0
 ```
 
-The formatter automatically finds and uses the applicable `.editorconfig` settings for each file being formatted.
+The formatter searches up the directory tree to find the applicable configuration for each file.
 
 #### Usage
 
@@ -245,163 +212,69 @@ The formatter automatically finds and uses the applicable `.editorconfig` settin
 
 #### CI Integration
 
-Add to your CI pipeline to enforce formatting:
-
 ```yaml
 # GitHub Actions example
 - name: Check TableTest formatting
   run: ./gradlew spotlessCheck
 ```
 
-### Maven (exec-maven-plugin)
+### Maven (Spotless)
 
-Maven projects can use the CLI tool via [exec-maven-plugin](https://www.mojohaus.org/exec-maven-plugin/) to automatically format tables during the build. This provides build-integrated formatting until official Spotless Maven support is available.
-
-**Note:** Official Spotless Maven integration requires contributing the formatter to the Spotless project itself, as the Spotless Maven plugin doesn't support programmatic custom steps.
-
-#### Installation
-
-Add the formatter CLI as a build dependency in your `pom.xml`:
-
-```xml
-<build>
-    <plugins>
-        <!-- Download the formatter CLI -->
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <version>3.3.0</version>
-            <executions>
-                <execution>
-                    <id>copy-formatter-cli</id>
-                    <phase>generate-resources</phase>
-                    <goals>
-                        <goal>copy</goal>
-                    </goals>
-                    <configuration>
-                        <artifactItems>
-                            <artifactItem>
-                                <groupId>org.tabletest</groupId>
-                                <artifactId>tabletest-formatter-cli</artifactId>
-                                <version>1.0.1</version>
-                                <classifier>shaded</classifier>
-                                <type>jar</type>
-                                <outputDirectory>${project.build.directory}/formatter</outputDirectory>
-                            </artifactItem>
-                        </artifactItems>
-                    </configuration>
-                </execution>
-            </executions>
-        </plugin>
-    </plugins>
-</build>
-```
+TableTest formatter is natively supported in the [Spotless Maven plugin](https://github.com/diffplug/spotless/tree/main/plugin-maven) from version 3.3.0 — no extra dependencies required.
 
 #### Setup
 
-Add exec-maven-plugin to run the formatter:
+Add the Spotless Maven plugin to your `pom.xml`:
 
 ```xml
 <plugin>
-    <groupId>org.codehaus.mojo</groupId>
-    <artifactId>exec-maven-plugin</artifactId>
-    <version>3.6.3</version>
-    <executions>
-        <execution>
-            <id>format-tabletest-tables</id>
-            <phase>process-test-classes</phase>
-            <goals>
-                <goal>exec</goal>
-            </goals>
-            <configuration>
-                <executable>java</executable>
-                <arguments>
-                    <argument>-jar</argument>
-                    <argument>${project.build.directory}/formatter/tabletest-formatter-cli-1.0.1-shaded.jar</argument>
-                    <argument>${project.basedir}/src/test/java</argument>
-                </arguments>
-            </configuration>
-        </execution>
-    </executions>
+    <groupId>com.diffplug.spotless</groupId>
+    <artifactId>spotless-maven-plugin</artifactId>
+    <version>3.3.0</version>
+    <configuration>
+        <java>
+            <tableTestFormatter/>
+            <!-- <tableTestFormatter><version>1.0.1</version></tableTestFormatter> pin a specific version -->
+        </java>
+        <kotlin>
+            <tableTestFormatter/>
+        </kotlin>
+    </configuration>
 </plugin>
 ```
 
-**Configuration:**
+> **Note:** Standalone `.table` files are not yet supported by the official Spotless DSL.
+> Use the [CLI tool](#cli--manual) to format them.
 
-Formatting settings are read from `.editorconfig` files. Create a `.editorconfig` in your project root:
+#### Configuration
+
+Formatting settings are read from `.editorconfig` files. Place one in your project root:
 
 ```ini
-[*.java]
+[*.{java,kt}]
 indent_style = space
 indent_size = 4
-
-[*.table]
-indent_style = space
-indent_size = 0
 ```
 
-**Options:**
-
-**Build phase** – Choose when formatting runs:
-- `process-test-classes` – After test compilation (recommended for apply mode)
-- `verify` – During verification phase
-- `validate` – Early in the build (good for check mode in CI)
-
-**Multiple directories** – Add multiple paths as separate arguments:
-```xml
-<arguments>
-    <argument>-jar</argument>
-    <argument>${project.build.directory}/formatter/tabletest-formatter-cli-1.0.1-shaded.jar</argument>
-    <argument>${project.basedir}/src/test/java</argument>
-    <argument>${project.basedir}/src/main/java</argument>
-    <argument>${project.basedir}/src/test/resources</argument>
-</arguments>
-```
-
-**Check mode** – Fail build if formatting needed (add `--check` argument):
-```xml
-<arguments>
-    <argument>-jar</argument>
-    <argument>${project.build.directory}/formatter/tabletest-formatter-cli-1.0.1-shaded.jar</argument>
-    <argument>--check</argument>
-    <argument>${project.basedir}/src/test/java</argument>
-</arguments>
-```
+The formatter searches up the directory tree to find the applicable configuration for each file.
 
 #### Usage
 
 ```bash
-# Apply formatting (automatic during build)
-mvn clean install
+# Check formatting (exits with error if changes needed)
+mvn spotless:check
 
-# Check formatting only (with --check configuration)
-mvn validate
+# Apply formatting
+mvn spotless:apply
 ```
 
 #### CI Integration
 
-For CI pipelines, use check mode in a separate execution that runs during validation:
-
-```xml
-<execution>
-    <id>check-tabletest-formatting</id>
-    <phase>validate</phase>
-    <goals>
-        <goal>exec</goal>
-    </goals>
-    <configuration>
-        <executable>java</executable>
-        <arguments>
-            <argument>-jar</argument>
-            <argument>${project.build.directory}/formatter/tabletest-formatter-cli-1.0.1-shaded.jar</argument>
-            <argument>--check</argument>
-            <argument>${project.basedir}/src/test/java</argument>
-        </arguments>
-    </configuration>
-</execution>
+```yaml
+# GitHub Actions example
+- name: Check TableTest formatting
+  run: mvn spotless:check
 ```
-
-This will fail the build if any files need formatting, helping enforce consistent formatting in your CI pipeline.
 
 ### CLI / Manual
 
@@ -522,15 +395,14 @@ java -jar tabletest-formatter-cli.jar --verbose \
 - **Java:** 21 or later (required by tabletest-parser dependency)
 
 **Tested with:**
-- **Gradle:** 8.11.1
+- **Gradle:** 8.12
 - **Maven:** 3.9.9
-- **Spotless Gradle Plugin:** 8.1.0
-- **exec-maven-plugin:** 3.6.3
+- **Spotless Gradle Plugin:** 8.3.0
+- **Spotless Maven Plugin:** 3.3.0
 
-**Theoretical minimums** (based on dependency requirements, not tested):
-- **Gradle:** 8.1+ (required by Spotless 8.1.0) or 7.3+ (if using Spotless 8.0.0)
-- **Maven:** 3.6.3+ (required by exec-maven-plugin 3.6.3)
-- **Spotless Gradle Plugin:** 8.0.0+ (requires Java 17+, satisfied by our Java 21 requirement)
+**Minimum Spotless versions** for native `tableTestFormatter` support:
+- **Spotless Gradle Plugin:** 8.3.0+
+- **Spotless Maven Plugin:** 3.3.0+
 
 The formatter runs on any platform with Java 21+: Linux, macOS, Windows.
 

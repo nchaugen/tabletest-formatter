@@ -1,0 +1,43 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '2.1.0'
+    id 'com.diffplug.spotless' version '8.3.0'
+}
+
+group = 'com.example'
+version = '1.0.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.tabletest:tabletest-junit:1.0.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter:6.0.3'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:2.1.0'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+spotless {
+    java {
+        tableTestFormatter()
+        // tableTestFormatter('1.0.1') // pin a specific version
+    }
+
+    kotlin {
+        tableTestFormatter()
+    }
+
+    // NOTE: .table file formatting is not yet available via the official Spotless DSL.
+    // To format .table files, use tabletest-formatter-cli directly, or the addStep() API
+    // with tabletest-formatter-spotless as a buildscript dependency.
+}

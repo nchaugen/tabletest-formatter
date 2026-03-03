@@ -113,7 +113,7 @@ class GradleIntegrationTest {
         return GradleRunner.create()
                 .withProjectDir(testProjectDir.toFile())
                 .withTestKitDir(testKitDir.toFile())
-                .withGradleVersion("8.11.1")
+                .withGradleVersion("8.12")
                 .withArguments(arguments)
                 .build();
     }

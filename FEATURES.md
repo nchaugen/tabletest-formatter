@@ -9,7 +9,7 @@ This document describes the features provided by the TableTest Formatter.
 - **Preserves structure** – Comments and blank lines maintained exactly as written
 - **Unicode support** – Accurate width calculation for CJK characters, emojis, and special characters
 - **Safe by default** – Never breaks builds; returns input unchanged on parse errors
-- **Flexible integration** – Spotless plugin (Gradle), CLI tool, or Maven exec-maven-plugin
+- **Flexible integration** – Spotless plugin (Gradle and Maven) or CLI tool
 
 ## Table of Contents
 
@@ -45,11 +45,11 @@ All formatting features work identically across these contexts.
 
 TableTest Formatter is available through three integration methods:
 
-| Method                        | Description                                     | Best For                                 |
-|-------------------------------|-------------------------------------------------|------------------------------------------|
-| **Spotless (Gradle)**         | Build-integrated formatting via Spotless plugin | Gradle projects, automated formatting    |
-| **CLI**                       | Standalone command-line tool                    | CI/CD, manual formatting, Maven projects |
-| **Maven (exec-maven-plugin)** | Maven build integration using CLI               | Maven projects without Spotless          |
+| Method                | Description                                     | Best For                              |
+|-----------------------|-------------------------------------------------|---------------------------------------|
+| **Spotless (Gradle)** | Build-integrated formatting via Spotless plugin | Gradle projects, automated formatting |
+| **Spotless (Maven)**  | Build-integrated formatting via Spotless plugin | Maven projects, automated formatting  |
+| **CLI**               | Standalone command-line tool                    | CI/CD, manual formatting, scripting   |
 
 ## Features
 
