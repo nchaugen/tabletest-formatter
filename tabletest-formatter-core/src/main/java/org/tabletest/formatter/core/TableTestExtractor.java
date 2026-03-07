@@ -34,7 +34,7 @@ public class TableTestExtractor {
         STRING, // Inside "..." string
         TEXT_BLOCK, // Inside """...""" text block
         CHAR_LITERAL, // Inside '...' char literal
-        LOOKING_FOR_TEXT_BLOCK // After @TableTest, looking for text block
+        LOOKING_FOR_TABLE_CONTENT // After @TableTest, looking for text block or string array
     }
 
     public List<TableMatch> findAll(String sourceCode) {
@@ -104,21 +104,21 @@ public class TableTestExtractor {
                         }
                         baseIndentEnd = j;
                         // Switch to looking for text block (will skip comments/strings naturally)
-                        state = State.LOOKING_FOR_TEXT_BLOCK;
+                        state = State.LOOKING_FOR_TABLE_CONTENT;
                     }
                     break;
 
-                case LOOKING_FOR_TEXT_BLOCK:
+                case LOOKING_FOR_TABLE_CONTENT:
                     // After @TableTest, looking for opening """ while handling comments/strings
                     // Check for comment starts (handle like CODE state)
                     if (c == '/' && next == '/') {
-                        returnState = State.LOOKING_FOR_TEXT_BLOCK;
+                        returnState = State.LOOKING_FOR_TABLE_CONTENT;
                         state = State.LINE_COMMENT;
                         tableContentEnd += 2;
                         continue;
                     }
                     if (c == '/' && next == '*') {
-                        returnState = State.LOOKING_FOR_TEXT_BLOCK;
+                        returnState = State.LOOKING_FOR_TABLE_CONTENT;
                         state = State.BLOCK_COMMENT;
                         tableContentEnd += 2;
                         continue;
@@ -133,13 +133,13 @@ public class TableTestExtractor {
                         continue;
                     }
                     if (c == '"') {
-                        returnState = State.LOOKING_FOR_TEXT_BLOCK;
+                        returnState = State.LOOKING_FOR_TABLE_CONTENT;
                         state = State.STRING;
                         tableContentEnd++;
                         continue;
                     }
                     if (c == '\'') {
-                        returnState = State.LOOKING_FOR_TEXT_BLOCK;
+                        returnState = State.LOOKING_FOR_TABLE_CONTENT;
                         state = State.CHAR_LITERAL;
                         tableContentEnd++;
                         continue;
