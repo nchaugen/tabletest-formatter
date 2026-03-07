@@ -34,7 +34,8 @@ public class TableTestExtractor {
         STRING, // Inside "..." string
         TEXT_BLOCK, // Inside """...""" text block
         CHAR_LITERAL, // Inside '...' char literal
-        LOOKING_FOR_TABLE_CONTENT // After @TableTest, looking for text block or string array
+        LOOKING_FOR_TABLE_CONTENT, // After @TableTest, looking for text block or string array
+        STRING_ARRAY // Inside {...} string array
     }
 
     public List<TableMatch> findAll(String sourceCode) {
@@ -145,9 +146,15 @@ public class TableTestExtractor {
                         continue;
                     }
 
+                    // Found opening { - start extracting string array
+                    if (c == '{') {
+                        tableContentStart = tableContentEnd + 1;
+                        state = State.STRING_ARRAY;
+                        break;
+                    }
+
                     // If we hit something that's not part of annotation syntax, give up
-                    if (c == ';' || c == '{') {
-                        // End of annotation without finding text block
+                    if (c == ';' || c == ')') {
                         returnState = State.CODE;
                         state = State.CODE;
                         baseIndentStart = -1;
@@ -201,6 +208,39 @@ public class TableTestExtractor {
                         state = State.CODE;
                         tableContentEnd += 3;
                         continue;
+                    }
+                    break;
+
+                case STRING_ARRAY:
+                    if (c == '"') {
+                        returnState = State.STRING_ARRAY;
+                        state = State.STRING;
+                        tableContentEnd++;
+                        continue;
+                    }
+                    if (c == '/' && next == '/') {
+                        returnState = State.STRING_ARRAY;
+                        state = State.LINE_COMMENT;
+                        tableContentEnd += 2;
+                        continue;
+                    }
+                    if (c == '/' && next == '*') {
+                        returnState = State.STRING_ARRAY;
+                        state = State.BLOCK_COMMENT;
+                        tableContentEnd += 2;
+                        continue;
+                    }
+                    if (c == '}') {
+                        matches.add(new TableMatch(
+                                TableMatch.MatchType.STRING_ARRAY,
+                                tableContentStart,
+                                tableContentEnd,
+                                baseIndentStart,
+                                baseIndentEnd));
+                        baseIndentStart = -1;
+                        baseIndentEnd = -1;
+                        tableContentStart = -1;
+                        state = State.CODE;
                     }
                     break;
 

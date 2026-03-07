@@ -950,6 +950,169 @@ class TableTestExtractorTest {
         assertThat(extractedIndent).isEqualTo(indent);
     }
 
+    // ========== String Array Tests ==========
+
+    @Test
+    void shouldExtractStringArray() {
+        String sourceCode = """
+                class Test {
+                    @TableTest({"a|b", "1|2"})
+                    void test() {}
+                }
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        assertThat(matches).hasSize(1);
+        TableMatch match = matches.getFirst();
+        assertThat(match.matchType()).isEqualTo(TableMatch.MatchType.STRING_ARRAY);
+        String content = sourceCode.substring(match.tableContentStart(), match.tableContentEnd());
+        assertThat(content).isEqualTo("\"a|b\", \"1|2\"");
+    }
+
+    @Test
+    void shouldExtractStringArrayWithValueParameter() {
+        String sourceCode = """
+                class Test {
+                    @TableTest(value = {"a|b", "1|2"})
+                    void test() {}
+                }
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        assertThat(matches).hasSize(1);
+        assertThat(matches.getFirst().matchType()).isEqualTo(TableMatch.MatchType.STRING_ARRAY);
+        String content = sourceCode.substring(
+                matches.getFirst().tableContentStart(), matches.getFirst().tableContentEnd());
+        assertThat(content).isEqualTo("\"a|b\", \"1|2\"");
+    }
+
+    @Test
+    void shouldExtractStringArrayWithWhitespaceVariations() {
+        String sourceCode = """
+                class Test {
+                    @TableTest({  "a|b" ,  "1|2"  })
+                    void test() {}
+                }
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        assertThat(matches).hasSize(1);
+        assertThat(matches.getFirst().matchType()).isEqualTo(TableMatch.MatchType.STRING_ARRAY);
+    }
+
+    @Test
+    void shouldExtractStringArrayWithTrailingComma() {
+        String sourceCode = """
+                class Test {
+                    @TableTest({"a|b", "1|2",})
+                    void test() {}
+                }
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        assertThat(matches).hasSize(1);
+        assertThat(matches.getFirst().matchType()).isEqualTo(TableMatch.MatchType.STRING_ARRAY);
+    }
+
+    @Test
+    void shouldExtractStringArrayWithEntriesOnSeparateLines() {
+        String sourceCode = """
+                class Test {
+                    @TableTest({
+                        "a|b",
+                        "1|2"
+                    })
+                    void test() {}
+                }
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        assertThat(matches).hasSize(1);
+        assertThat(matches.getFirst().matchType()).isEqualTo(TableMatch.MatchType.STRING_ARRAY);
+    }
+
+    @Test
+    void shouldExtractMixOfTextBlockAndStringArray() {
+        String sourceCode = """
+                class Test {
+                    @TableTest(\"""
+                        a | b
+                        1 | 2
+                        \""")
+                    void test1() {}
+
+                    @TableTest({"x|y", "3|4"})
+                    void test2() {}
+                }
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        assertThat(matches).hasSize(2);
+        assertThat(matches.get(0).matchType()).isEqualTo(TableMatch.MatchType.TEXT_BLOCK);
+        assertThat(matches.get(1).matchType()).isEqualTo(TableMatch.MatchType.STRING_ARRAY);
+    }
+
+    @Test
+    void shouldIgnoreStringArrayInComments() {
+        String sourceCode = """
+                class Test {
+                    // @TableTest({"a|b", "1|2"})
+                    /* @TableTest({"x|y", "3|4"}) */
+
+                    @TableTest({"real|data", "5|6"})
+                    void test() {}
+                }
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        assertThat(matches).hasSize(1);
+        String content = sourceCode.substring(
+                matches.getFirst().tableContentStart(), matches.getFirst().tableContentEnd());
+        assertThat(content).contains("real|data");
+    }
+
+    @Test
+    void shouldExtractStringArrayWithCommentsInsideArray() {
+        String sourceCode = """
+                class Test {
+                    @TableTest({
+                        "a|b", // header
+                        "1|2"
+                    })
+                    void test() {}
+                }
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        assertThat(matches).hasSize(1);
+        assertThat(matches.getFirst().matchType()).isEqualTo(TableMatch.MatchType.STRING_ARRAY);
+    }
+
+    @Test
+    void shouldDetectBaseIndentationForStringArray() {
+        String sourceCode = """
+                class Test {
+                    @TableTest({"a|b", "1|2"})
+                    void test() {}
+                }
+                """;
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        assertThat(matches).hasSize(1);
+        String indent = sourceCode.substring(
+                matches.getFirst().baseIndentStart(), matches.getFirst().baseIndentEnd());
+        assertThat(indent).isEqualTo("    ");
+    }
+
     // ========== Escaped Quotes Tests ==========
 
     @Test
