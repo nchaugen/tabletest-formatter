@@ -17,8 +17,13 @@ package org.tabletest.formatter.core;
 
 import org.tabletest.formatter.config.Config;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static java.util.stream.Collectors.joining;
 
 /**
  * Formats source files containing @TableTest annotations.
@@ -54,18 +59,80 @@ public class SourceFileFormatter {
     }
 
     private String formatMatch(String result, String originalContent, TableMatch match, Config config) {
+        return switch (match.matchType()) {
+            case TEXT_BLOCK -> formatTextBlockMatch(result, originalContent, match, config);
+            case STRING_ARRAY -> formatStringArrayMatch(result, originalContent, match, config);
+        };
+    }
+
+    private String formatTextBlockMatch(String result, String originalContent, TableMatch match, Config config) {
         String originalTable = originalContent.substring(match.tableContentStart(), match.tableContentEnd());
         String baseIndentString = originalContent.substring(match.baseIndentStart(), match.baseIndentEnd());
         String formattedTable = formatter.format(originalTable, baseIndentString, config);
 
-        return formattedTable.equals(originalTable) ? result : replaceTableContent(result, match, formattedTable);
-    }
+        if (formattedTable.equals(originalTable)) {
+            return result;
+        }
 
-    private String replaceTableContent(String result, TableMatch match, String formattedTable) {
         // Ensure at least one newline after opening quotes (""") for @TableTest annotations.
         // Preserves multiple newlines if present. Improves readability (Kotlin) and syntax correctness (Java).
         String replacement = formattedTable.startsWith("\n") ? formattedTable : "\n" + formattedTable;
-
         return result.substring(0, match.tableContentStart()) + replacement + result.substring(match.tableContentEnd());
+    }
+
+    private String formatStringArrayMatch(String result, String originalContent, TableMatch match, Config config) {
+        String arrayContent = originalContent.substring(match.tableContentStart(), match.tableContentEnd());
+        String baseIndentString = originalContent.substring(match.baseIndentStart(), match.baseIndentEnd());
+
+        // Extract string values from array content
+        List<String> entries = extractStringEntries(arrayContent);
+        if (entries.isEmpty()) {
+            return result;
+        }
+
+        // Format as plain table text using existing formatter logic
+        String tableText = String.join("\n", entries);
+        String formattedTable = formatter.format(tableText, "", Config.NO_INDENT);
+
+        // Split into lines and pad for aligned closing quotes
+        String[] formattedLines = formattedTable.split("\n", -1);
+        // Remove trailing empty element from split
+        String[] lines = Arrays.stream(formattedLines).filter(l -> !l.isEmpty()).toArray(String[]::new);
+
+        int maxWidth = Arrays.stream(lines).mapToInt(String::length).max().orElse(0);
+
+        // Build indented string array
+        String indent = config.indentSize() > 0
+                ? baseIndentString + config.indentStyle().repeat(config.indentSize())
+                : baseIndentString;
+
+        String replacement = Arrays.stream(lines)
+                .map(line -> indent + "\"" + padRight(line, maxWidth) + "\"")
+                .collect(joining(",\n"));
+
+        String formatted = "\n" + replacement + "\n" + baseIndentString;
+
+        String original = arrayContent;
+        if (formatted.equals(original)) {
+            return result;
+        }
+
+        return result.substring(0, match.tableContentStart()) + formatted + result.substring(match.tableContentEnd());
+    }
+
+    private static final Pattern STRING_ENTRY_PATTERN = Pattern.compile("\"((?:[^\"\\\\]|\\\\.)*)\"");
+
+    private List<String> extractStringEntries(String arrayContent) {
+        Matcher matcher = STRING_ENTRY_PATTERN.matcher(arrayContent);
+        List<String> entries = new java.util.ArrayList<>();
+        while (matcher.find()) {
+            entries.add(matcher.group(1));
+        }
+        return entries;
+    }
+
+    private String padRight(String value, int width) {
+        int padding = width - value.length();
+        return padding > 0 ? value + " ".repeat(padding) : value;
     }
 }

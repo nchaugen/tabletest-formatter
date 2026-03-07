@@ -482,6 +482,175 @@ class SourceFileFormatterTest {
                 """);
     }
 
+    // ========== String Array Tests ==========
+
+    @Test
+    void shouldFormatStringArray() {
+        String input = """
+                class Test {
+                    @TableTest({"name|age","Alice|30","Bob|7"})
+                    void test() {}
+                }
+                """;
+
+        String result = formatter.format(input, Config.SPACES_4);
+
+        assertThat(result).isEqualTo("""
+                class Test {
+                    @TableTest({
+                        "name  | age",
+                        "Alice | 30 ",
+                        "Bob   | 7  "
+                    })
+                    void test() {}
+                }
+                """);
+    }
+
+    @Test
+    void shouldFormatStringArrayWithNoIndent() {
+        String input = """
+                @TableTest({"name|age","Alice|30"})
+                void test() {}
+                """;
+
+        String result = formatter.format(input, Config.NO_INDENT);
+
+        assertThat(result).isEqualTo("""
+                @TableTest({
+                "name  | age",
+                "Alice | 30 "
+                })
+                void test() {}
+                """);
+    }
+
+    @Test
+    void shouldFormatStringArrayIdempotently() {
+        String input = """
+                class Test {
+                    @TableTest({
+                        "name  | age",
+                        "Alice | 30 ",
+                        "Bob   | 7  "
+                    })
+                    void test() {}
+                }
+                """;
+
+        String result = formatter.format(input, Config.SPACES_4);
+
+        assertThat(result).isEqualTo(input);
+    }
+
+    @Test
+    void shouldFormatStringArrayInNestedClass() {
+        String input = """
+                class Outer {
+                    class Inner {
+                        @TableTest({"name|age","Alice|30"})
+                        void test() {}
+                    }
+                }
+                """;
+
+        String result = formatter.format(input, Config.SPACES_4);
+
+        assertThat(result).isEqualTo("""
+                class Outer {
+                    class Inner {
+                        @TableTest({
+                            "name  | age",
+                            "Alice | 30 "
+                        })
+                        void test() {}
+                    }
+                }
+                """);
+    }
+
+    @Test
+    void shouldFormatMixedTextBlockAndStringArray() {
+        String input = """
+                class Test {
+                    @TableTest(\"""
+                    name|age
+                    Alice|30
+                    \""")
+                    void test1() {}
+
+                    @TableTest({"city|country","London|UK"})
+                    void test2() {}
+                }
+                """;
+
+        String result = formatter.format(input, Config.SPACES_4);
+
+        assertThat(result).isEqualTo("""
+                class Test {
+                    @TableTest(\"""
+                        name  | age
+                        Alice | 30
+                        \""")
+                    void test1() {}
+
+                    @TableTest({
+                        "city   | country",
+                        "London | UK     "
+                    })
+                    void test2() {}
+                }
+                """);
+    }
+
+    @Test
+    void shouldFormatSingleEntryStringArray() {
+        String input = """
+                class Test {
+                    @TableTest({"name|age"})
+                    void test() {}
+                }
+                """;
+
+        String result = formatter.format(input, Config.SPACES_4);
+
+        assertThat(result).isEqualTo("""
+                class Test {
+                    @TableTest({
+                        "name | age"
+                    })
+                    void test() {}
+                }
+                """);
+    }
+
+    @Test
+    void shouldFormatStringArrayWithEntriesOnSeparateLines() {
+        String input = """
+                class Test {
+                    @TableTest({
+                        "name|age",
+                        "Alice|30"
+                    })
+                    void test() {}
+                }
+                """;
+
+        String result = formatter.format(input, Config.SPACES_4);
+
+        assertThat(result).isEqualTo("""
+                class Test {
+                    @TableTest({
+                        "name  | age",
+                        "Alice | 30 "
+                    })
+                    void test() {}
+                }
+                """);
+    }
+
+    // ========== Text Block Tests (continued) ==========
+
     @Test
     void shouldPreserveMultipleNewlinesAfterOpeningQuotes() {
         String input = """
