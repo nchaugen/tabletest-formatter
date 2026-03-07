@@ -18,9 +18,17 @@ package org.tabletest.formatter.core;
 /**
  * Immutable value object representing a matched @TableTest annotation in source code.
  *
+ * @param matchType         the type of table content (text block or string array)
  * @param tableContentStart byte offset where table content starts
  * @param tableContentEnd   byte offset where table content ends
  * @param baseIndentStart   byte offset where base indentation starts
  * @param baseIndentEnd     byte offset where base indentation ends
  */
-public record TableMatch(int tableContentStart, int tableContentEnd, int baseIndentStart, int baseIndentEnd) {}
+public record TableMatch(
+        MatchType matchType, int tableContentStart, int tableContentEnd, int baseIndentStart, int baseIndentEnd) {
+
+    enum MatchType {
+        TEXT_BLOCK,
+        STRING_ARRAY
+    }
+}

@@ -186,8 +186,12 @@ public class TableTestExtractor {
                         // Found end of text block
                         if (tableContentStart != -1) {
                             // We were extracting - record the match
-                            matches.add(
-                                    new TableMatch(tableContentStart, tableContentEnd, baseIndentStart, baseIndentEnd));
+                            matches.add(new TableMatch(
+                                    TableMatch.MatchType.TEXT_BLOCK,
+                                    tableContentStart,
+                                    tableContentEnd,
+                                    baseIndentStart,
+                                    baseIndentEnd));
 
                             // Reset tracking
                             baseIndentStart = -1;
