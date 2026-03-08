@@ -30,13 +30,11 @@ import static java.util.stream.Collectors.joining;
 class CellFormatter {
 
     String formatCell(Object cell) {
-        return switch (cell) {
-            case null -> "";
-            case List<?> list -> formatList(list);
-            case Set<?> set -> formatSet(set);
-            case Map<?, ?> map -> formatMap(map);
-            default -> cell.toString();
-        };
+        if (cell == null) return "";
+        if (cell instanceof List<?> list) return formatList(list);
+        if (cell instanceof Set<?> set) return formatSet(set);
+        if (cell instanceof Map<?, ?> map) return formatMap(map);
+        return cell.toString();
     }
 
     private String formatList(List<?> list) {

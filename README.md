@@ -402,7 +402,7 @@ java -jar tabletest-formatter-cli.jar --verbose \
 ## Requirements
 
 **Minimum:**
-- **Java:** 21 or later (required by tabletest-parser dependency)
+- **Java:** 17 or later
 
 **Tested with:**
 - **Gradle:** 8.12
@@ -414,7 +414,7 @@ java -jar tabletest-formatter-cli.jar --verbose \
 - **Spotless Gradle Plugin:** 8.3.0+
 - **Spotless Maven Plugin:** 3.3.0+
 
-The formatter runs on any platform with Java 21+: Linux, macOS, Windows.
+The formatter runs on any platform with Java 17+: Linux, macOS, Windows.
 
 ## Contributing
 

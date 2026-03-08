@@ -21,7 +21,7 @@ tabletest-formatter/
 
 ## Requirements
 
-- **Java 21** or later
+- **Java 17** or later
 - **Maven 3.6+**
 
 ## Building

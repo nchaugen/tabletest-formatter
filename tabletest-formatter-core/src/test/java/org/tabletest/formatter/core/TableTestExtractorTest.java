@@ -34,7 +34,7 @@ class TableTestExtractorTest {
         List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(1);
-        TableMatch match = matches.getFirst();
+        TableMatch match = matches.get(0);
         String extracted = sourceCode.substring(match.tableContentStart(), match.tableContentEnd());
         String normalized = extracted.stripIndent().strip();
         String expected = """
@@ -82,7 +82,7 @@ class TableTestExtractorTest {
         // Should find exactly 1 match (the real annotation, not the one in the string)
         assertThat(matches).hasSize(1);
         String extracted = sourceCode.substring(
-                matches.getFirst().tableContentStart(), matches.getFirst().tableContentEnd());
+                matches.get(0).tableContentStart(), matches.get(0).tableContentEnd());
         String normalized = extracted.stripIndent().strip();
         assertThat(normalized).contains("real | data");
         assertThat(normalized).doesNotContain("x | y");
@@ -163,8 +163,7 @@ class TableTestExtractorTest {
         // Should only find the real annotation, not the ones in comments
         assertThat(matches).hasSize(1);
         assertThat(sourceCode.substring(
-                        matches.getFirst().tableContentStart(),
-                        matches.getFirst().tableContentEnd()))
+                        matches.get(0).tableContentStart(), matches.get(0).tableContentEnd()))
                 .contains("real | value");
     }
 
@@ -207,8 +206,7 @@ class TableTestExtractorTest {
 
         assertThat(matches).hasSize(1);
         assertThat(sourceCode.substring(
-                        matches.getFirst().tableContentStart(),
-                        matches.getFirst().tableContentEnd()))
+                        matches.get(0).tableContentStart(), matches.get(0).tableContentEnd()))
                 .contains("x | y");
     }
 
@@ -228,8 +226,7 @@ class TableTestExtractorTest {
 
         assertThat(matches).hasSize(1);
         assertThat(sourceCode.substring(
-                        matches.getFirst().tableContentStart(),
-                        matches.getFirst().tableContentEnd()))
+                        matches.get(0).tableContentStart(), matches.get(0).tableContentEnd()))
                 .contains("x | y");
     }
 
@@ -284,8 +281,7 @@ class TableTestExtractorTest {
         // Should only find the text block (test2), not the regular strings (test1, test3)
         assertThat(matches).hasSize(1);
         assertThat(sourceCode.substring(
-                        matches.getFirst().tableContentStart(),
-                        matches.getFirst().tableContentEnd()))
+                        matches.get(0).tableContentStart(), matches.get(0).tableContentEnd()))
                 .contains("x | y")
                 .contains("3 | 4");
     }
@@ -333,7 +329,7 @@ class TableTestExtractorTest {
 
         assertThat(matches).hasSize(1);
         String extractedIndent = sourceCode.substring(
-                matches.getFirst().baseIndentStart(), matches.getFirst().baseIndentEnd());
+                matches.get(0).baseIndentStart(), matches.get(0).baseIndentEnd());
         assertThat(extractedIndent).isEqualTo("    ");
     }
 
@@ -355,7 +351,7 @@ class TableTestExtractorTest {
 
         assertThat(matches).hasSize(1);
         String extractedIndent = sourceCode.substring(
-                matches.getFirst().baseIndentStart(), matches.getFirst().baseIndentEnd());
+                matches.get(0).baseIndentStart(), matches.get(0).baseIndentEnd());
         assertThat(extractedIndent).isEqualTo("        ");
     }
 
@@ -379,8 +375,7 @@ class TableTestExtractorTest {
 
         assertThat(matches).hasSize(1);
         assertThat(sourceCode.substring(
-                        matches.getFirst().tableContentStart(),
-                        matches.getFirst().tableContentEnd()))
+                        matches.get(0).tableContentStart(), matches.get(0).tableContentEnd()))
                 .contains("x | y");
     }
 
@@ -401,7 +396,7 @@ class TableTestExtractorTest {
 
         assertThat(matches).hasSize(1);
         String extracted = sourceCode.substring(
-                matches.getFirst().tableContentStart(), matches.getFirst().tableContentEnd());
+                matches.get(0).tableContentStart(), matches.get(0).tableContentEnd());
         assertThat(extracted).contains("name | age");
         assertThat(extracted).contains("Alice | 30");
     }
@@ -422,7 +417,7 @@ class TableTestExtractorTest {
 
         assertThat(matches).hasSize(1);
         String extracted = sourceCode.substring(
-                matches.getFirst().tableContentStart(), matches.getFirst().tableContentEnd());
+                matches.get(0).tableContentStart(), matches.get(0).tableContentEnd());
         assertThat(extracted).contains("name | age");
         assertThat(extracted).contains("Alice | 30");
     }
@@ -482,7 +477,7 @@ class TableTestExtractorTest {
 
         assertThat(matches).hasSize(1);
         String extracted = sourceCode.substring(
-                matches.getFirst().tableContentStart(), matches.getFirst().tableContentEnd());
+                matches.get(0).tableContentStart(), matches.get(0).tableContentEnd());
         String normalized = extracted.stripIndent().strip();
         assertThat(normalized).contains("a | b | sum");
     }
@@ -537,8 +532,7 @@ class TableTestExtractorTest {
 
         assertThat(matches).hasSize(1);
         assertThat(sourceCode.substring(
-                        matches.getFirst().tableContentStart(),
-                        matches.getFirst().tableContentEnd()))
+                        matches.get(0).tableContentStart(), matches.get(0).tableContentEnd()))
                 .contains("x | y");
     }
 
@@ -560,7 +554,7 @@ class TableTestExtractorTest {
 
         assertThat(matches).hasSize(1);
         String extractedIndent = sourceCode.substring(
-                matches.getFirst().baseIndentStart(), matches.getFirst().baseIndentEnd());
+                matches.get(0).baseIndentStart(), matches.get(0).baseIndentEnd());
         assertThat(extractedIndent).isEqualTo("        ");
     }
 
@@ -582,8 +576,7 @@ class TableTestExtractorTest {
 
         assertThat(matches).hasSize(1);
         assertThat(sourceCode.substring(
-                        matches.getFirst().tableContentStart(),
-                        matches.getFirst().tableContentEnd()))
+                        matches.get(0).tableContentStart(), matches.get(0).tableContentEnd()))
                 .contains("x | y");
     }
 
@@ -606,8 +599,7 @@ class TableTestExtractorTest {
         // Should only find the real annotation, not the one in the string
         assertThat(matches).hasSize(1);
         assertThat(sourceCode.substring(
-                        matches.getFirst().tableContentStart(),
-                        matches.getFirst().tableContentEnd()))
+                        matches.get(0).tableContentStart(), matches.get(0).tableContentEnd()))
                 .contains("real | data");
     }
 
@@ -625,7 +617,7 @@ class TableTestExtractorTest {
         List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(1);
-        TableMatch match = matches.getFirst();
+        TableMatch match = matches.get(0);
 
         // Verify we can extract the table content from source using the positions
         String tableContent = sourceCode.substring(match.tableContentStart(), match.tableContentEnd());
@@ -739,7 +731,7 @@ class TableTestExtractorTest {
         // Extraction should succeed (parsing may fail, but that's not the extractor's concern)
         assertThat(matches).hasSize(1);
         String extracted = sourceCode.substring(
-                matches.getFirst().tableContentStart(), matches.getFirst().tableContentEnd());
+                matches.get(0).tableContentStart(), matches.get(0).tableContentEnd());
         assertThat(extracted.stripIndent().strip()).isEmpty();
     }
 
@@ -761,7 +753,7 @@ class TableTestExtractorTest {
 
         assertThat(matches).hasSize(1);
         String extractedText = sourceCode.substring(
-                matches.getFirst().tableContentStart(), matches.getFirst().tableContentEnd());
+                matches.get(0).tableContentStart(), matches.get(0).tableContentEnd());
         // Text blocks handle escape sequences at compile time, so quotes appear as regular quotes
         assertThat(extractedText).contains("She said \"hello\"");
         // Actual newline appears in the text block (not \n escape sequence)
@@ -785,8 +777,7 @@ class TableTestExtractorTest {
         // Fully qualified annotations are supported - matches on last identifier component
         assertThat(matches).hasSize(1);
         assertThat(sourceCode.substring(
-                        matches.getFirst().tableContentStart(),
-                        matches.getFirst().tableContentEnd()))
+                        matches.get(0).tableContentStart(), matches.get(0).tableContentEnd()))
                 .contains("name | age");
     }
 
@@ -807,8 +798,7 @@ class TableTestExtractorTest {
         // Fully qualified annotations are supported - matches on last identifier component
         assertThat(matches).hasSize(1);
         assertThat(sourceCode.substring(
-                        matches.getFirst().tableContentStart(),
-                        matches.getFirst().tableContentEnd()))
+                        matches.get(0).tableContentStart(), matches.get(0).tableContentEnd()))
                 .contains("name | age");
     }
 
@@ -831,8 +821,7 @@ class TableTestExtractorTest {
         // This is unlikely to cause issues in practice since @TableTest is relatively unique
         assertThat(matches).hasSize(1);
         assertThat(sourceCode.substring(
-                        matches.getFirst().tableContentStart(),
-                        matches.getFirst().tableContentEnd()))
+                        matches.get(0).tableContentStart(), matches.get(0).tableContentEnd()))
                 .contains("x | y");
     }
 
@@ -853,8 +842,8 @@ class TableTestExtractorTest {
 
         assertThat(matchesCrlf).hasSize(1);
         assertThat(sourceCodeCrlf.substring(
-                        matchesCrlf.getFirst().tableContentStart(),
-                        matchesCrlf.getFirst().tableContentEnd()))
+                        matchesCrlf.get(0).tableContentStart(),
+                        matchesCrlf.get(0).tableContentEnd()))
                 .contains("name | age");
 
         // Test with Unix-style LF line endings
@@ -872,8 +861,7 @@ class TableTestExtractorTest {
 
         assertThat(matchesLf).hasSize(1);
         assertThat(sourceCodeLf.substring(
-                        matchesLf.getFirst().tableContentStart(),
-                        matchesLf.getFirst().tableContentEnd()))
+                        matchesLf.get(0).tableContentStart(), matchesLf.get(0).tableContentEnd()))
                 .contains("name | age");
     }
 
@@ -892,7 +880,7 @@ class TableTestExtractorTest {
 
         assertThat(matches).hasSize(1);
         String extractedIndent = sourceCode.substring(
-                matches.getFirst().baseIndentStart(), matches.getFirst().baseIndentEnd());
+                matches.get(0).baseIndentStart(), matches.get(0).baseIndentEnd());
         assertThat(extractedIndent).isEqualTo("    ");
     }
 
@@ -910,7 +898,7 @@ class TableTestExtractorTest {
 
         assertThat(matches).hasSize(1);
         String extractedIndent = sourceCode.substring(
-                matches.getFirst().baseIndentStart(), matches.getFirst().baseIndentEnd());
+                matches.get(0).baseIndentStart(), matches.get(0).baseIndentEnd());
         assertThat(extractedIndent).isEqualTo("    ");
     }
 
@@ -928,7 +916,7 @@ class TableTestExtractorTest {
 
         assertThat(matches).hasSize(1);
         String extractedIndent = actualSource.substring(
-                matches.getFirst().baseIndentStart(), matches.getFirst().baseIndentEnd());
+                matches.get(0).baseIndentStart(), matches.get(0).baseIndentEnd());
         assertThat(extractedIndent).isEqualTo(indent);
     }
 
@@ -946,7 +934,7 @@ class TableTestExtractorTest {
 
         assertThat(matches).hasSize(1);
         String extractedIndent = actualSource.substring(
-                matches.getFirst().baseIndentStart(), matches.getFirst().baseIndentEnd());
+                matches.get(0).baseIndentStart(), matches.get(0).baseIndentEnd());
         assertThat(extractedIndent).isEqualTo(indent);
     }
 
@@ -964,7 +952,7 @@ class TableTestExtractorTest {
         List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(1);
-        TableMatch match = matches.getFirst();
+        TableMatch match = matches.get(0);
         assertThat(match.matchType()).isEqualTo(TableMatch.MatchType.STRING_ARRAY);
         String content = sourceCode.substring(match.tableContentStart(), match.tableContentEnd());
         assertThat(content).isEqualTo("\"a|b\", \"1|2\"");
@@ -982,9 +970,9 @@ class TableTestExtractorTest {
         List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(1);
-        assertThat(matches.getFirst().matchType()).isEqualTo(TableMatch.MatchType.STRING_ARRAY);
+        assertThat(matches.get(0).matchType()).isEqualTo(TableMatch.MatchType.STRING_ARRAY);
         String content = sourceCode.substring(
-                matches.getFirst().tableContentStart(), matches.getFirst().tableContentEnd());
+                matches.get(0).tableContentStart(), matches.get(0).tableContentEnd());
         assertThat(content).isEqualTo("\"a|b\", \"1|2\"");
     }
 
@@ -1000,7 +988,7 @@ class TableTestExtractorTest {
         List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(1);
-        assertThat(matches.getFirst().matchType()).isEqualTo(TableMatch.MatchType.STRING_ARRAY);
+        assertThat(matches.get(0).matchType()).isEqualTo(TableMatch.MatchType.STRING_ARRAY);
     }
 
     @Test
@@ -1015,7 +1003,7 @@ class TableTestExtractorTest {
         List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(1);
-        assertThat(matches.getFirst().matchType()).isEqualTo(TableMatch.MatchType.STRING_ARRAY);
+        assertThat(matches.get(0).matchType()).isEqualTo(TableMatch.MatchType.STRING_ARRAY);
     }
 
     @Test
@@ -1033,7 +1021,7 @@ class TableTestExtractorTest {
         List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(1);
-        assertThat(matches.getFirst().matchType()).isEqualTo(TableMatch.MatchType.STRING_ARRAY);
+        assertThat(matches.get(0).matchType()).isEqualTo(TableMatch.MatchType.STRING_ARRAY);
     }
 
     @Test
@@ -1074,7 +1062,7 @@ class TableTestExtractorTest {
 
         assertThat(matches).hasSize(1);
         String content = sourceCode.substring(
-                matches.getFirst().tableContentStart(), matches.getFirst().tableContentEnd());
+                matches.get(0).tableContentStart(), matches.get(0).tableContentEnd());
         assertThat(content).contains("real|data");
     }
 
@@ -1093,7 +1081,7 @@ class TableTestExtractorTest {
         List<TableMatch> matches = extractor.findAll(sourceCode);
 
         assertThat(matches).hasSize(1);
-        assertThat(matches.getFirst().matchType()).isEqualTo(TableMatch.MatchType.STRING_ARRAY);
+        assertThat(matches.get(0).matchType()).isEqualTo(TableMatch.MatchType.STRING_ARRAY);
     }
 
     @Test
@@ -1109,7 +1097,7 @@ class TableTestExtractorTest {
 
         assertThat(matches).hasSize(1);
         String indent = sourceCode.substring(
-                matches.getFirst().baseIndentStart(), matches.getFirst().baseIndentEnd());
+                matches.get(0).baseIndentStart(), matches.get(0).baseIndentEnd());
         assertThat(indent).isEqualTo("    ");
     }
 
@@ -1191,7 +1179,7 @@ class TableTestExtractorTest {
         // Should find exactly 1 match (the real annotation, not the one in the text block)
         assertThat(matches).hasSize(1);
         String extracted = sourceCode.substring(
-                matches.getFirst().tableContentStart(), matches.getFirst().tableContentEnd());
+                matches.get(0).tableContentStart(), matches.get(0).tableContentEnd());
         String normalized = extracted.stripIndent().strip();
         assertThat(normalized).contains("real | data");
         assertThat(normalized).doesNotContain("fake | data");

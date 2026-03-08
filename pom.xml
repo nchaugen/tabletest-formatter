@@ -15,9 +15,9 @@
 
     <properties>
         <copyright.holder>Nils Christian Haugen</copyright.holder>
-        <maven.compiler.release>21</maven.compiler.release>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>17</maven.compiler.release>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <repository.url.https>https://github.com/nchaugen/tabletest-formatter.git</repository.url.https>
         <repository.url.ssh>git@github.com:nchaugen/tabletest-formatter.git</repository.url.ssh>
