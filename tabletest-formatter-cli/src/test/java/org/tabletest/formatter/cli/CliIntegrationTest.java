@@ -193,6 +193,20 @@ class CliIntegrationTest {
     }
 
     @Test
+    void shouldHandleStringArraySyntax(@TempDir Path tempDir) throws IOException, URISyntaxException {
+        // Given: file with string array @TableTest syntax
+        Path testFile = tempDir.resolve("StringArrayTest.java");
+        copyUnformattedFile(testFile);
+
+        // When: applying formatting
+        int exitCode = executeCliApplyMode(tempDir);
+
+        // Then: file is formatted with aligned columns and quote-aligned padding
+        assertThat(exitCode).isZero();
+        assertThat(actualContent(testFile)).isEqualTo(expectedContent(testFile));
+    }
+
+    @Test
     void shouldHandleNestedKotlinClasses(@TempDir Path tempDir) throws IOException, URISyntaxException {
         // Given: Kotlin file with nested classes
         Path testFile = tempDir.resolve("NestedClassTest.kt");
