@@ -19,7 +19,7 @@ A formatter for [TableTest](https://github.com/nchaugen/tabletest) tables that e
 ## Key Features
 
 - **Consistent, readable tables** – Vertically aligned columns and rows with normalized spacing
-- **Context-aware** – Works in standalone `.table` files, Java text blocks, and Kotlin raw strings
+- **Context-aware** – Works in standalone `.table` files, Java/Kotlin text blocks, and Java string arrays
 - **Smart collection formatting** – Normalizes spacing in lists, sets, and maps while preserving your quote choices
 - **Preserves structure** – Comments and blank lines maintained exactly as written
 - **Unicode support** – Accurate width calculation for CJK characters, emojis, and special characters
@@ -46,7 +46,7 @@ See [FEATURES.md](FEATURES.md) for comprehensive feature documentation.
 
 TableTest uses a pipe-delimited table format for data-driven testing. Tables can appear in Java files (as multiline string parameters to `@TableTest` annotation), Kotlin files (as multiline string parameters to `@TableTest` annotation), or standalone `.table` files.
 
-**Basic example:**
+**Text block syntax (Java/Kotlin):**
 
 ```java
 @TableTest("""
@@ -54,6 +54,16 @@ TableTest uses a pipe-delimited table format for data-driven testing. Tables can
     Basic case        | 5     | 10
     Edge case at zero | 0     | 0
     """)
+```
+
+**String array syntax (Java only):**
+
+```java
+@TableTest({
+    "Scenario          | Input | Expected",
+    "Basic case        | 5     | 10      ",
+    "Edge case at zero | 0     | 0       "
+})
 ```
 
 **Core components:**

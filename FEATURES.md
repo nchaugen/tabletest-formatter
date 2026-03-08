@@ -4,7 +4,7 @@ This document describes the features provided by the TableTest Formatter.
 
 **Key features:**
 - **Consistent, readable tables** – Vertically aligned columns and rows with normalized spacing
-- **Context-aware** – Works in standalone `.table` files, Java text blocks, and Kotlin raw strings
+- **Context-aware** – Works in standalone `.table` files, Java/Kotlin text blocks, and Java string arrays
 - **Smart collection formatting** – Normalizes spacing in lists, sets, and maps while preserving your quote choices
 - **Preserves structure** – Comments and blank lines maintained exactly as written
 - **Unicode support** – Accurate width calculation for CJK characters, emojis, and special characters
@@ -33,11 +33,11 @@ This document describes the features provided by the TableTest Formatter.
 
 The formatter provides TableTest formatting support in three contexts:
 
-| Context              | Description                                                  |
-|----------------------|--------------------------------------------------------------|
-| **Native files**     | Standalone `.table` files                                    |
-| **Java injection**   | TableTest content inside `@TableTest` annotation text blocks |
-| **Kotlin injection** | TableTest content inside `@TableTest` annotation raw strings |
+| Context                      | Description                                                         |
+|------------------------------|---------------------------------------------------------------------|
+| **Native files**             | Standalone `.table` files                                           |
+| **Java/Kotlin text blocks**  | TableTest content inside `@TableTest("""...""")` text blocks        |
+| **Java string arrays**       | TableTest content inside `@TableTest({"row1", "row2"})` arrays      |
 
 All formatting features work identically across these contexts.
 
@@ -140,21 +140,32 @@ Positions the table appropriately within its context:
 - Additional indentation is added using the configured `indentStyle` (default: 4 spaces)
 - Configurable via `indentSize` parameter (0 = align with annotation, N = add N indent characters)
 
-**Before:**
+**Text block – before/after:**
 ```java
     @TableTest("""
 Scenario|Input|Expected
 Basic case|5|10
         """)
 ```
-
-**After:**
 ```java
     @TableTest("""
         Scenario   | Input | Expected
         Basic case | 5     | 10
         """)
 ```
+
+**Java string array – before/after:**
+```java
+    @TableTest({"Scenario|Input|Expected","Basic case|5|10"})
+```
+```java
+    @TableTest({
+        "Scenario   | Input | Expected",
+        "Basic case | 5     | 10      "
+    })
+```
+
+String array entries are padded with trailing spaces so all closing `"` align vertically.
 
 ### Comments and Blank Lines
 
