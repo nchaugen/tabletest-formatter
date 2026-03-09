@@ -26,6 +26,6 @@ jobs:
           key: ${{ runner.os }}-maven-samples-${{ hashFiles('samples/**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-samples-
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
       - name: Run smoke tests
         run: ./samples/smoke-test.sh
