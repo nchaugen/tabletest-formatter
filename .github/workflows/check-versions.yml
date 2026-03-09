@@ -1,0 +1,129 @@
+name: Check Latest Sample Versions
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'  # Weekly on Monday at 08:00 UTC
+  workflow_dispatch:
+
+jobs:
+  check-versions:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Query latest versions
+        id: versions
+        run: |
+          query_latest() {
+            curl -s "https://repo1.maven.org/maven2/$1/maven-metadata.xml" \
+              | grep -o '<version>[^<]*</version>' | grep -o '[0-9][^<]*' \
+              | grep -v 'SNAPSHOT\|RC\|M[0-9]\|Alpha\|Beta' | sort -V | tail -1
+          }
+
+          SPOTLESS_MAVEN=$(query_latest "com/diffplug/spotless/spotless-maven-plugin")
+          SPOTLESS_GRADLE=$(query_latest "com/diffplug/spotless/spotless-plugin-gradle")
+          TABLETEST_JUNIT=$(query_latest "org/tabletest/tabletest-junit")
+          KOTLIN=$(query_latest "org/jetbrains/kotlin/kotlin-stdlib")
+          JUNIT=$(query_latest "org/junit/jupiter/junit-jupiter")
+
+          echo "spotless_maven=${SPOTLESS_MAVEN}" >> $GITHUB_OUTPUT
+          echo "spotless_gradle=${SPOTLESS_GRADLE}" >> $GITHUB_OUTPUT
+          echo "tabletest_junit=${TABLETEST_JUNIT}" >> $GITHUB_OUTPUT
+          echo "kotlin=${KOTLIN}" >> $GITHUB_OUTPUT
+          echo "junit=${JUNIT}" >> $GITHUB_OUTPUT
+
+          echo "Queried: Spotless Maven=${SPOTLESS_MAVEN}, Spotless Gradle=${SPOTLESS_GRADLE}, TableTest JUnit=${TABLETEST_JUNIT}, Kotlin=${KOTLIN}, JUnit=${JUNIT}"
+
+      - name: Load current versions
+        id: current
+        run: |
+          source samples/latest-versions.env
+          echo "spotless_maven=${SPOTLESS_MAVEN_LATEST}" >> $GITHUB_OUTPUT
+          echo "spotless_gradle=${SPOTLESS_GRADLE_LATEST}" >> $GITHUB_OUTPUT
+          echo "tabletest_junit=${TABLETEST_JUNIT_LATEST}" >> $GITHUB_OUTPUT
+          echo "kotlin=${KOTLIN_LATEST}" >> $GITHUB_OUTPUT
+          echo "junit=${JUNIT_LATEST}" >> $GITHUB_OUTPUT
+
+      - name: Update versions if changed
+        id: update
+        run: |
+          CHANGES=""
+          UPDATED=false
+
+          check() {
+            local label="$1" new="$2" old="$3" var="$4"
+            if [ -n "$new" ] && [ "$new" != "$old" ]; then
+              CHANGES="${CHANGES}- ${label} ${old} → ${new}\n"
+              UPDATED=true
+              eval "${var}=${new}"
+            else
+              eval "${var}=${old}"
+            fi
+          }
+
+          check "Spotless Maven plugin" \
+            "${{ steps.versions.outputs.spotless_maven }}" \
+            "${{ steps.current.outputs.spotless_maven }}" \
+            SPOTLESS_MAVEN
+
+          check "Spotless Gradle plugin" \
+            "${{ steps.versions.outputs.spotless_gradle }}" \
+            "${{ steps.current.outputs.spotless_gradle }}" \
+            SPOTLESS_GRADLE
+
+          check "TableTest JUnit" \
+            "${{ steps.versions.outputs.tabletest_junit }}" \
+            "${{ steps.current.outputs.tabletest_junit }}" \
+            TABLETEST_JUNIT
+
+          check "Kotlin" \
+            "${{ steps.versions.outputs.kotlin }}" \
+            "${{ steps.current.outputs.kotlin }}" \
+            KOTLIN
+
+          check "JUnit" \
+            "${{ steps.versions.outputs.junit }}" \
+            "${{ steps.current.outputs.junit }}" \
+            JUNIT
+
+          echo "updated=${UPDATED}" >> $GITHUB_OUTPUT
+          echo "changes<<EOF" >> $GITHUB_OUTPUT
+          printf '%b' "${CHANGES}" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          if [ "$UPDATED" = "true" ]; then
+            printf 'SPOTLESS_MAVEN_LATEST=%s\nSPOTLESS_GRADLE_LATEST=%s\nTABLETEST_JUNIT_LATEST=%s\nKOTLIN_LATEST=%s\nJUNIT_LATEST=%s\n' \
+              "$SPOTLESS_MAVEN" "$SPOTLESS_GRADLE" "$TABLETEST_JUNIT" "$KOTLIN" "$JUNIT" \
+              > samples/latest-versions.env
+
+            # Update Maven sample
+            sed -i "/<artifactId>spotless-maven-plugin</{n;s|<version>[0-9.]*</version>|<version>${SPOTLESS_MAVEN}</version>|}" samples/maven-sample/pom.xml
+            sed -i "/<artifactId>tabletest-junit</{n;s|<version>[0-9.]*</version>|<version>${TABLETEST_JUNIT}</version>|}" samples/maven-sample/pom.xml
+            sed -i "/<artifactId>junit-jupiter</{n;s|<version>[0-9.]*</version>|<version>${JUNIT}</version>|}" samples/maven-sample/pom.xml
+            sed -i "s|<kotlin.version>[0-9.]*</kotlin.version>|<kotlin.version>${KOTLIN}</kotlin.version>|" samples/maven-sample/pom.xml
+
+            # Update Gradle sample
+            sed -i "s|id 'org.jetbrains.kotlin.jvm' version '[0-9.]*'|id 'org.jetbrains.kotlin.jvm' version '${KOTLIN}'|" samples/gradle-sample/build.gradle
+            sed -i "s|id 'com.diffplug.spotless' version '[0-9.]*'|id 'com.diffplug.spotless' version '${SPOTLESS_GRADLE}'|" samples/gradle-sample/build.gradle
+            sed -i "s|org.tabletest:tabletest-junit:[0-9.]*|org.tabletest:tabletest-junit:${TABLETEST_JUNIT}|" samples/gradle-sample/build.gradle
+            sed -i "s|org.junit.jupiter:junit-jupiter:[0-9.]*|org.junit.jupiter:junit-jupiter:${JUNIT}|" samples/gradle-sample/build.gradle
+            sed -i "s|org.jetbrains.kotlin:kotlin-stdlib:[0-9.]*|org.jetbrains.kotlin:kotlin-stdlib:${KOTLIN}|" samples/gradle-sample/build.gradle
+          fi
+
+      - name: Create pull request
+        if: steps.update.outputs.updated == 'true'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          branch: chore/update-sample-versions
+          title: 'chore: update sample dependency versions'
+          body: |
+            Updated sample dependency versions:
+
+            ${{ steps.update.outputs.changes }}
+
+            The smoke test workflow validates these updates.
+          commit-message: 'chore: update sample dependency versions'
+          labels: dependencies
