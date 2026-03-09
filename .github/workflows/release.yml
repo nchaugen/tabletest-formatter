@@ -89,7 +89,7 @@ jobs:
           sed -i 's|tabletest-formatter-cli-[0-9]\+\.[0-9]\+\.[0-9]\+\.jar|tabletest-formatter-cli-'"$VERSION"'.jar|g' README.md
           # Sample projects
           sed -i "s|tableTestFormatter('[0-9]\+\.[0-9]\+\.[0-9]\+')|tableTestFormatter('$VERSION')|g" samples/gradle-sample/build.gradle
-          sed -i "s|<version>[0-9]\+\.[0-9]\+\.[0-9]\+</version>|<version>$VERSION</version>|g" samples/maven-sample/pom.xml
+          sed -i '/<tableTestFormatter>/{n;s|<version>[0-9]\+\.[0-9]\+\.[0-9]\+</version>|<version>'"$VERSION"'</version>|}' samples/maven-sample/pom.xml
 
       - name: Commit release
         run: |
@@ -122,7 +122,7 @@ jobs:
           # Update integration test resources to next snapshot
           sed -i "s|org.tabletest:tabletest-formatter-spotless:[^'\"<]*|org.tabletest:tabletest-formatter-spotless:$NEXT_SNAPSHOT|g" \
             tabletest-formatter-spotless/src/test/resources/integration-test-project/build.gradle
-          sed -i "s|<version>[^<]*</version>|<version>$NEXT_SNAPSHOT</version>|" \
+          sed -i '/tabletest-formatter-spotless/{n;s|<version>[^<]*</version>|<version>'"$NEXT_SNAPSHOT"'</version>|}' \
             tabletest-formatter-spotless/src/test/resources/integration-test-project/pom.xml
 
       - name: Commit next development version
