@@ -98,6 +98,10 @@ jobs:
           git add -A
           git commit -m "release: prepare $VERSION"
 
+      - name: Show release commit (dry-run)
+        if: ${{ inputs.dry-run }}
+        run: git log --patch HEAD~1..HEAD
+
       - name: Deploy to Maven Central
         if: ${{ !inputs.dry-run }}
         run: mvn clean deploy -Prelease
@@ -128,9 +132,9 @@ jobs:
           git add -A
           git commit -m "chore: set next development version $NEXT_SNAPSHOT"
 
-      - name: Show changes (dry-run)
+      - name: Show snapshot commit (dry-run)
         if: ${{ inputs.dry-run }}
-        run: git log --patch HEAD~2..HEAD
+        run: git log --patch HEAD~1..HEAD
 
       - name: Push commits and tags
         if: ${{ !inputs.dry-run }}
