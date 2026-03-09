@@ -23,28 +23,28 @@
         <repository.url.ssh>git@github.com:nchaugen/tabletest-formatter.git</repository.url.ssh>
         <project.scm.id>github</project.scm.id>
         <version.plugin.license>5.0.0</version.plugin.license>
-        <version.plugin.clean>3.2.0</version.plugin.clean>
-        <version.plugin.resources>3.2.0</version.plugin.resources>
-        <version.plugin.compiler>3.14.1</version.plugin.compiler>
+        <version.plugin.clean>3.5.0</version.plugin.clean>
+        <version.plugin.resources>3.5.0</version.plugin.resources>
+        <version.plugin.compiler>3.15.0</version.plugin.compiler>
         <version.plugin.surefire>3.5.5</version.plugin.surefire>
-        <version.plugin.jar>3.2.2</version.plugin.jar>
+        <version.plugin.jar>3.5.0</version.plugin.jar>
         <version.plugin.install>3.1.4</version.plugin.install>
         <version.plugin.deploy>3.1.4</version.plugin.deploy>
-        <version.plugin.site>3.12.0</version.plugin.site>
-        <version.plugin.help>3.2.0</version.plugin.help>
-        <version.plugin.assembly>3.4.2</version.plugin.assembly>
-        <version.plugin.dependency>3.3.0</version.plugin.dependency>
+        <version.plugin.site>3.21.0</version.plugin.site>
+        <version.plugin.help>3.5.1</version.plugin.help>
+        <version.plugin.assembly>3.8.0</version.plugin.assembly>
+        <version.plugin.dependency>3.10.0</version.plugin.dependency>
         <version.plugin.javadoc>3.12.0</version.plugin.javadoc>
         <version.plugin.source>3.4.0</version.plugin.source>
-        <version.plugin.reports>3.0.0</version.plugin.reports>
+        <version.plugin.reports>3.9.0</version.plugin.reports>
         <version.plugin.staging>1.7.0</version.plugin.staging>
-        <version.plugin.gpg>3.2.7</version.plugin.gpg>
-        <version.plugin.publishing>0.9.0</version.plugin.publishing>
-        <version.plugin.release>3.1.1</version.plugin.release>
-        <version.plugin.spotless>3.1.0</version.plugin.spotless>
-        <version.plugin.versions>2.18.0</version.plugin.versions>
-        <version.tabletest>1.0.0</version.tabletest>
-        <version.tabletest.parser>1.0.0</version.tabletest.parser>
+        <version.plugin.gpg>3.2.8</version.plugin.gpg>
+        <version.plugin.publishing>0.10.0</version.plugin.publishing>
+        <version.plugin.release>3.3.1</version.plugin.release>
+        <version.plugin.spotless>3.3.0</version.plugin.spotless>
+        <version.plugin.versions>2.21.0</version.plugin.versions>
+        <version.tabletest>1.1.0</version.tabletest>
+        <version.tabletest.parser>1.1.0</version.tabletest.parser>
         <version.junit>6.0.3</version.junit>
         <version.assertj>3.27.7</version.assertj>
         <surefire.arguments />
