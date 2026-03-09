@@ -14,7 +14,7 @@
     <description>Spotless integration for TableTest formatter.</description>
 
     <properties>
-        <version.spotless.lib>3.1.0</version.spotless.lib>
+        <version.spotless.lib>4.4.0</version.spotless.lib>
         <version.slf4j>2.0.17</version.slf4j>
         <version.gradle.test.kit>8.11.1</version.gradle.test.kit>
     </properties>
