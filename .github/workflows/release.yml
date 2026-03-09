@@ -1,61 +1,145 @@
 name: Release
 
-# This workflow automatically builds and attaches the CLI jar to GitHub releases.
-#
-# Expected workflow:
-#   1. Create release manually on GitHub (title: v<version>, body: changelog entries)
-#   2. Push tag (or create tag on GitHub) → this workflow attaches the jar
-#
-# If you forget to create the release first, this will create a basic release
-# that you can edit afterwards to add the proper title and changelog.
-
 on:
-  push:
-    tags:
-      - 'tabletest-formatter-*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. 1.0.2)'
+        required: true
+        type: string
+      dry-run:
+        description: 'Build and validate without deploying or pushing'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  VERSION: ${{ inputs.version }}
 
 permissions:
   contents: write
 
 jobs:
-  build-and-release:
+  release:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Set up JDK 21
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: 'maven'
+          java-version: '25'
+          distribution: temurin
+          server-id: central
+          server-username: MAVEN_CENTRAL_USERNAME
+          server-password: MAVEN_CENTRAL_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: GPG_PASSPHRASE
 
-      - name: Extract version from tag
-        id: version
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-release-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-release-
+
+      - name: Validate preconditions
         run: |
-          TAG=${GITHUB_REF#refs/tags/tabletest-formatter-}
-          echo "version=$TAG" >> $GITHUB_OUTPUT
-          echo "Version: $TAG"
-
-      - name: Build CLI JAR
-        run: mvn clean package -pl tabletest-formatter-cli -am -DskipTests
-
-      - name: Verify JAR exists
-        run: |
-          JAR_PATH="tabletest-formatter-cli/target/tabletest-formatter-cli-${{ steps.version.outputs.version }}.jar"
-          if [ ! -f "$JAR_PATH" ]; then
-            echo "Error: JAR not found at $JAR_PATH"
+          # Validate semver pattern
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::Version '$VERSION' does not match semver pattern (e.g. 1.0.2)"
             exit 1
           fi
-          ls -lh "$JAR_PATH"
 
-      - name: Attach JAR to GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            tabletest-formatter-cli/target/tabletest-formatter-cli-${{ steps.version.outputs.version }}.jar
-          fail_on_unmatched_files: true
-          # Note: Create the release manually first (title: v<version>, body: changelog)
-          # If you forget, this will create a basic release that you can edit afterwards
+          # Validate changelog has unreleased content
+          UNRELEASED=$(sed -n '/^## \[Unreleased\]/,/^## \[/p' CHANGELOG.md | sed '1d;$d')
+          if [ -z "$UNRELEASED" ]; then
+            echo "::error::CHANGELOG.md has no content under [Unreleased]"
+            exit 1
+          fi
+
+          # Validate tag does not already exist
+          if git tag -l "tabletest-formatter-$VERSION" | grep -q .; then
+            echo "::error::Tag tabletest-formatter-$VERSION already exists"
+            exit 1
+          fi
+
+          echo "All preconditions passed"
+
+      - name: Set release versions in POMs
+        run: |
+          mvn versions:set -DnewVersion="$VERSION" -DgenerateBackupPoms=false -q
+
+      - name: Stamp CHANGELOG.md
+        run: |
+          TODAY=$(date +%Y-%m-%d)
+          sed -i "s|^## \[Unreleased\]|## [Unreleased]\n\n## [$VERSION] - $TODAY|" CHANGELOG.md
+
+      - name: Update version references
+        run: |
+          # README.md — Spotless config examples
+          sed -i "s|tableTestFormatter('[0-9]\+\.[0-9]\+\.[0-9]\+')|tableTestFormatter('$VERSION')|g" README.md
+          sed -i '/<tableTestFormatter>/{n;s|<version>[0-9]\+\.[0-9]\+\.[0-9]\+</version>|<version>'"$VERSION"'</version>|}' README.md
+          # README.md — CLI artifact and path references
+          sed -i 's|tabletest-formatter-cli:[0-9]\+\.[0-9]\+\.[0-9]\+|tabletest-formatter-cli:'"$VERSION"'|g' README.md
+          sed -i 's|tabletest-formatter-cli/[0-9]\+\.[0-9]\+\.[0-9]\+/|tabletest-formatter-cli/'"$VERSION"'/|g' README.md
+          sed -i 's|tabletest-formatter-cli-[0-9]\+\.[0-9]\+\.[0-9]\+\.jar|tabletest-formatter-cli-'"$VERSION"'.jar|g' README.md
+          # Sample projects
+          sed -i "s|tableTestFormatter('[0-9]\+\.[0-9]\+\.[0-9]\+')|tableTestFormatter('$VERSION')|g" samples/gradle-sample/build.gradle
+          sed -i "s|<version>[0-9]\+\.[0-9]\+\.[0-9]\+</version>|<version>$VERSION</version>|g" samples/maven-sample/pom.xml
+
+      - name: Commit release
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "release: prepare $VERSION"
+
+      - name: Deploy to Maven Central
+        if: ${{ !inputs.dry-run }}
+        run: mvn clean deploy -Prelease
+        env:
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Create git tag
+        run: |
+          git tag "tabletest-formatter-$VERSION"
+
+      - name: Set next SNAPSHOT version
+        run: |
+          NEXT_PATCH=$(echo "$VERSION" | awk -F. '{print $1"."$2"."$3+1}')
+          NEXT_SNAPSHOT="${NEXT_PATCH}-SNAPSHOT"
+          mvn versions:set -DnewVersion="$NEXT_SNAPSHOT" -DgenerateBackupPoms=false -q
+          # Update integration test resources to next snapshot
+          sed -i "s|org.tabletest:tabletest-formatter-spotless:[^'\"<]*|org.tabletest:tabletest-formatter-spotless:$NEXT_SNAPSHOT|g" \
+            tabletest-formatter-spotless/src/test/resources/integration-test-project/build.gradle
+          sed -i "s|<version>[^<]*</version>|<version>$NEXT_SNAPSHOT</version>|" \
+            tabletest-formatter-spotless/src/test/resources/integration-test-project/pom.xml
+
+      - name: Commit next development version
+        run: |
+          NEXT_PATCH=$(echo "$VERSION" | awk -F. '{print $1"."$2"."$3+1}')
+          NEXT_SNAPSHOT="${NEXT_PATCH}-SNAPSHOT"
+          git add -A
+          git commit -m "chore: set next development version $NEXT_SNAPSHOT"
+
+      - name: Push commits and tags
+        if: ${{ !inputs.dry-run }}
+        run: |
+          git push origin main --tags
+
+      - name: Create GitHub release
+        if: ${{ !inputs.dry-run }}
+        run: |
+          BODY=$(sed -n "/^## \[$VERSION\]/,/^## \[/{/^## \[/!p}" CHANGELOG.md)
+          gh release create "tabletest-formatter-$VERSION" \
+            --title "TableTest Formatter $VERSION" \
+            --notes "$BODY" \
+            tabletest-formatter-cli/target/tabletest-formatter-cli-$VERSION.jar
+        env:
+          GH_TOKEN: ${{ github.token }}
