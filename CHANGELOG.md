@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for Java string array syntax `@TableTest({"header | col", "val | val"})` alongside existing text block syntax
 ### Changed
 - Lowered Java requirement from 21 to 17
+### Removed
+- `tabletest-formatter-spotless` module — TableTest formatting is now supported natively by [Spotless](https://github.com/diffplug/spotless)
 
 ## [1.0.1] - 2026-02-23
 ### Changed
