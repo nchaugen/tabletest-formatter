@@ -16,7 +16,6 @@
         <module>tabletest-formatter</module>
         <module>tabletest-formatter-core</module>
         <module>tabletest-formatter-cli</module>
-        <module>tabletest-formatter-spotless</module>
     </modules>
 
     <properties>

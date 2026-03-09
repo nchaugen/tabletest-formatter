@@ -3,8 +3,7 @@
 Standalone sample projects that demonstrate and verify the official Spotless integration
 for the TableTest Formatter.
 
-These projects use the **native Spotless DSL** (`tableTestFormatter()` / `<tableTestFormatter>`)
-— no dependency on `tabletest-formatter-spotless` is required.
+These projects use the **native Spotless DSL** (`tableTestFormatter()` / `<tableTestFormatter>`).
 
 ## Samples
 

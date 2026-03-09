@@ -102,9 +102,12 @@ jobs:
         if: ${{ inputs.dry-run }}
         run: git log --patch HEAD~1..HEAD
 
+      - name: Build and test
+        run: mvn clean install --no-transfer-progress
+
       - name: Deploy to Maven Central
         if: ${{ !inputs.dry-run }}
-        run: mvn clean deploy -Prelease --no-transfer-progress
+        run: mvn deploy -Prelease --no-transfer-progress -DskipTests
         env:
           MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
@@ -119,11 +122,7 @@ jobs:
           NEXT_PATCH=$(echo "$VERSION" | awk -F. '{print $1"."$2"."$3+1}')
           NEXT_SNAPSHOT="${NEXT_PATCH}-SNAPSHOT"
           mvn versions:set -DnewVersion="$NEXT_SNAPSHOT" -DgenerateBackupPoms=false -q
-          # Update integration test resources to next snapshot
-          sed -i "s|org.tabletest:tabletest-formatter-spotless:[^'\"<]*|org.tabletest:tabletest-formatter-spotless:$NEXT_SNAPSHOT|g" \
-            tabletest-formatter-spotless/src/test/resources/integration-test-project/build.gradle
-          sed -i '/tabletest-formatter-spotless/{n;s|<version>[^<]*</version>|<version>'"$NEXT_SNAPSHOT"'</version>|}' \
-            tabletest-formatter-spotless/src/test/resources/integration-test-project/pom.xml
+
 
       - name: Commit next development version
         run: |

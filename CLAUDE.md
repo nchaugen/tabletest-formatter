@@ -10,17 +10,15 @@ This document contains detailed implementation notes, architectural decisions, a
 
 ## Project Context
 
-A tool to format TableTest tables (CLI and Spotless integration) with consistent, readable formatting rules.
+A tool to format TableTest tables (CLI) with consistent, readable formatting rules. Spotless integration is provided natively by the official diffplug/spotless project.
 
-**Architecture**: Multi-module Maven project with hexagonal architecture (core, CLI, Spotless). See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed project structure.
+**Architecture**: Multi-module Maven project with hexagonal architecture (core, CLI). See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed project structure.
 
 ## Key Technologies & Decisions
 
 **Parser**: Uses `org:tabletest:tabletest-parser:1.0.0` from Maven Central (external dependency, not part of this project)
 
 **CLI**: Picocli-based with maven-shade-plugin creating uber JAR
-
-**Spotless Integration**: Implements `FormatterStep` for programmatic integration (Gradle via `addStep()`)
 
 ## TableTestExtractor Implementation
 
@@ -55,8 +53,7 @@ Alternative approaches (Regex, JavaParser, Tree-sitter) were evaluated and rejec
 The formatter reads configuration from `.editorconfig` files rather than accepting configuration parameters. This design provides:
 
 **Benefits:**
-- Single source of truth for formatting rules across all tools (CLI, Spotless, IntelliJ plugin)
-- Zero-maintenance Spotless integration - new formatting options don't require Spotless API changes
+- Single source of truth for formatting rules across all tools (CLI, IntelliJ plugin, Spotless)
 - Standard IDE behaviour - IDEs already support EditorConfig
 - Decouples formatting behaviour from tool integration
 
@@ -65,7 +62,6 @@ The formatter reads configuration from `.editorconfig` files rather than accepti
 **Module structure:**
 - `tabletest-formatter-core` - Core formatting logic with `Config` record and `EditorConfigProvider`
 - `tabletest-formatter-cli` - CLI tool that reads `.editorconfig`
-- `tabletest-formatter-spotless` - Spotless integration that reads `.editorconfig`
 
 **EditorConfigProvider:**
 - Uses `org.ec4j:ec4j-core:1.2.0` for parsing `.editorconfig` files
@@ -125,8 +121,7 @@ Current versions (as of 2026-01-03):
 - TableTest AGENTS.md: https://raw.githubusercontent.com/nchaugen/tabletest/refs/heads/main/AGENTS.md (format specification)
 - TableTest IntelliJ Plugin: `~/IdeaProjects/tabletest-intellij` (working reference implementation)
 - tabletest-parser API: `TableParser.parse(String)` → `Table` with `headers()`, `row(int)`, etc.
-- Spotless: https://github.com/diffplug/spotless
-- Spotless FormatterStep docs: Check contributing guide in Spotless repo
+- Spotless (has native TableTest support): https://github.com/diffplug/spotless
 
 ## Unicode Width Handling
 

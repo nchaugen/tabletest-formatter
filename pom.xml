@@ -10,7 +10,7 @@
     <inceptionYear>2025</inceptionYear>
 
     <name>TableTest Formatter</name>
-    <description>Tools to format TableTest tables (CLI and Spotless integration).</description>
+    <description>Tools to format TableTest tables.</description>
     <url>https://github.com/nchaugen/tabletest-formatter</url>
 
     <properties>
@@ -93,7 +93,6 @@
     <modules>
         <module>tabletest-formatter-core</module>
         <module>tabletest-formatter-cli</module>
-        <module>tabletest-formatter-spotless</module>
     </modules>
 
     <build>
@@ -176,7 +175,6 @@
                                 <argument>${project.basedir}/tabletest-formatter-cli/target/tabletest-formatter-cli-${project.version}.jar</argument>
                                 <argument>${project.basedir}/tabletest-formatter-core/src/test/java</argument>
                                 <argument>${project.basedir}/tabletest-formatter-cli/src/test/java</argument>
-                                <argument>${project.basedir}/tabletest-formatter-spotless/src/test/java</argument>
                             </arguments>
                             <successCodes>
                                 <successCode>0</successCode>

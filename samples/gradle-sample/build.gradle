@@ -38,6 +38,5 @@ spotless {
     }
 
     // NOTE: .table file formatting is not yet available via the official Spotless DSL.
-    // To format .table files, use tabletest-formatter-cli directly, or the addStep() API
-    // with tabletest-formatter-spotless as a buildscript dependency.
+    // To format .table files, use tabletest-formatter-cli directly.
 }
