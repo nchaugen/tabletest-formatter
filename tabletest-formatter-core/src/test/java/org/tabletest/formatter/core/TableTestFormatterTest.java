@@ -194,6 +194,8 @@ class TableTestFormatterTest {
         Format nested lists                   | "[[1,2],[3,4]]"         | "[[1, 2], [3, 4]]"
         Format empty lists                    | "[]"                    | "[]"
         Normalize spacing in maps             | "[a:1,b:2]"             | "[a: 1, b: 2]"
+        Format single-quoted keys             | "['[a]':1,'b:b':2]"     | "['[a]': 1, 'b:b': 2]"
+        Format double-quoted keys             | '[",a,":1,"b|b":2]'     | '[",a,": 1, "b|b": 2]'
         Format empty maps                     | "[:]"                   | "[:]"
         Normalize spacing in sets             | "{1,2,3}"               | "{1, 2, 3}"
         Format set with nested list           | "{[1,2]}"               | "{[1, 2]}"

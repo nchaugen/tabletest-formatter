@@ -16,7 +16,7 @@ A tool to format TableTest tables (CLI) with consistent, readable formatting rul
 
 ## Key Technologies & Decisions
 
-**Parser**: Uses `org:tabletest:tabletest-parser:1.0.0` from Maven Central (external dependency, not part of this project)
+**Parser**: Uses `org:tabletest:tabletest-parser:1.2.0` from Maven Central (external dependency, not part of this project)
 
 **CLI**: Picocli-based with maven-shade-plugin creating uber JAR
 
