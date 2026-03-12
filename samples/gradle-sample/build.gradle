@@ -30,7 +30,7 @@ tasks.named('test') {
 spotless {
     java {
         tableTestFormatter()
-        // tableTestFormatter('1.1.0') // pin a specific version
+        // tableTestFormatter('1.1.1') // pin a specific version
     }
 
     kotlin {

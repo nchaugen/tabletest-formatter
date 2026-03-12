@@ -187,7 +187,7 @@ plugins {
 spotless {
     java {
         tableTestFormatter()
-        // tableTestFormatter('1.1.0') // pin a specific version
+        // tableTestFormatter('1.1.1') // pin a specific version
     }
     kotlin {
         tableTestFormatter()
@@ -298,13 +298,13 @@ Java developers can fetch the CLI JAR using Maven:
 
 ```bash
 mvn dependency:get \
-  -Dartifact=org.tabletest:tabletest-formatter-cli:1.1.0:jar:shaded \
+  -Dartifact=org.tabletest:tabletest-formatter-cli:1.1.1:jar:shaded \
   -Dtransitive=false
 ```
 
 The JAR will be downloaded to your local Maven repository:
 ```
-~/.m2/repository/org/tabletest/tabletest-formatter-cli/1.1.0/
+~/.m2/repository/org/tabletest/tabletest-formatter-cli/1.1.1/
 ```
 
 **Option 2: Download from GitHub Releases**
@@ -321,7 +321,7 @@ mvn clean install
 
 The executable JAR will be at:
 ```
-tabletest-formatter-cli/target/tabletest-formatter-cli-1.1.0.jar
+tabletest-formatter-cli/target/tabletest-formatter-cli-1.1.1.jar
 ```
 
 #### Usage
