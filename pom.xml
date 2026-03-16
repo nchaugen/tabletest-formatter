@@ -43,7 +43,7 @@
         <version.plugin.release>3.3.1</version.plugin.release>
         <version.plugin.spotless>3.3.0</version.plugin.spotless>
         <version.plugin.versions>2.21.0</version.plugin.versions>
-        <version.tabletest>1.2.0</version.tabletest>
+        <version.tabletest>1.2.1</version.tabletest>
         <version.tabletest.parser>1.2.0</version.tabletest.parser>
         <version.junit>6.0.3</version.junit>
         <version.assertj>3.27.7</version.assertj>
