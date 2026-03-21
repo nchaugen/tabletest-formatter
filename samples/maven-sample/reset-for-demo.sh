@@ -7,5 +7,6 @@ set -euo pipefail
 if [[ "$OSTYPE" == darwin* ]]; then SED=(sed -i ''); else SED=(sed -i); fi
 "${SED[@]}" 's/ | /|/g' src/test/java/com/example/CalculatorTest.java
 "${SED[@]}" 's/ | /|/g' src/test/kotlin/com/example/StringUtilsTest.kt
+"${SED[@]}" 's/ | /|/g' src/test/resources/calculator.table
 
 echo "Done. Tables are now unformatted — run spotless:check to detect violations."

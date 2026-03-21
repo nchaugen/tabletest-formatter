@@ -9,17 +9,14 @@ These projects use the **native Spotless DSL** (`tableTestFormatter()` / `<table
 
 | Sample | Spotless version |
 |--------|-----------------|
-| [`gradle-sample/`](gradle-sample/) | Gradle plugin 8.3.0 |
-| [`maven-sample/`](maven-sample/) | Maven plugin 3.3.0 |
+| [`gradle-sample/`](gradle-sample/) | Gradle plugin 8.4.0 |
+| [`maven-sample/`](maven-sample/) | Maven plugin 3.4.0 |
 
-Both samples include Java and Kotlin test files with `@TableTest` annotations.
-
-> **Note:** The official Spotless integration supports `.java` and `.kt` files only.
-> Standalone `.table` file support is not yet included in Spotless.
+Both samples include Java and Kotlin test files with `@TableTest` annotations, and standalone `.table` files.
 
 ## Prerequisites
 
-- Java 21+
+- Java 17+
 - For Gradle sample: Gradle 8.x (or use the wrapper — see below)
 - For Maven sample: Maven 3.6+
 

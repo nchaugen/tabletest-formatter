@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'org.jetbrains.kotlin.jvm' version '2.1.0'
-    id 'com.diffplug.spotless' version '8.3.0'
+    id 'com.diffplug.spotless' version '8.4.0'
 }
 
 group = 'com.example'
@@ -9,7 +9,7 @@ version = '1.0.0-SNAPSHOT'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
@@ -37,6 +37,8 @@ spotless {
         tableTestFormatter()
     }
 
-    // NOTE: .table file formatting is not yet available via the official Spotless DSL.
-    // To format .table files, use tabletest-formatter-cli directly.
+    tableTest {
+        target 'src/**/*.table'
+        tableTestFormatter()
+    }
 }

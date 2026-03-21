@@ -30,7 +30,7 @@ expect_failure() {
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
-printf '\nGradle sample (plugin 8.3.0)\n'
+printf '\nGradle sample (plugin 8.4.0)\n'
 printf '%.0s─' {1..40}; echo
 cd "$SCRIPT_DIR/gradle-sample"
 
@@ -54,7 +54,7 @@ expect_success "spotlessCheck passes after apply (idempotent)" \
     ./gradlew spotlessCheck --no-daemon -q
 
 # ──────────────────────────────────────────────────────────────────────────────
-printf '\nMaven sample (plugin 3.3.0)\n'
+printf '\nMaven sample (plugin 3.4.0)\n'
 printf '%.0s─' {1..40}; echo
 cd "$SCRIPT_DIR/maven-sample"
 

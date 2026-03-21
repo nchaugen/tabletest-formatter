@@ -1,6 +1,7 @@
 > [!NOTE]
-> **TableTest Formatter is now natively supported in Spotless!**
-> Use `tableTestFormatter()` in Spotless Gradle plugin 8.3.0+ or `<tableTestFormatter>` in Maven plugin 3.3.0+.
+> **TableTest Formatter is natively supported in Spotless!**
+> Spotless Gradle 8.3.0+ / Maven 3.3.0+ support Java and Kotlin files (requires Java 21+ build).
+> Spotless Gradle 8.4.0+ / Maven 3.4.0+ also support `.table` files and Java 17+ builds.
 > No extra dependencies needed — see [Gradle](#gradle-spotless) and [Maven](#maven-spotless) below.
 
 # TableTest Formatter
@@ -175,13 +176,13 @@ indent_size = 2
 
 ### Gradle (Spotless)
 
-TableTest formatter is natively supported in [Spotless](https://github.com/diffplug/spotless) from plugin version 8.3.0 — no extra dependencies required.
+TableTest formatter is natively supported in [Spotless](https://github.com/diffplug/spotless) — no extra dependencies required. Plugin version 8.3.0+ supports Java and Kotlin files (requires Java 21+ build). Version 8.4.0+ adds `.table` file support and works with Java 17+ builds.
 
 #### Setup
 
 ```groovy
 plugins {
-    id 'com.diffplug.spotless' version '8.3.0'
+    id 'com.diffplug.spotless' version '8.4.0'
 }
 
 spotless {
@@ -192,11 +193,12 @@ spotless {
     kotlin {
         tableTestFormatter()
     }
+    tableTest {
+        target 'src/**/*.table'
+        tableTestFormatter()
+    }
 }
 ```
-
-> **Note:** Standalone `.table` files are not yet supported by the official Spotless DSL.
-> Use the [CLI tool](#cli--manual) to format them.
 
 #### Configuration
 
@@ -230,7 +232,7 @@ The formatter searches up the directory tree to find the applicable configuratio
 
 ### Maven (Spotless)
 
-TableTest formatter is natively supported in the [Spotless Maven plugin](https://github.com/diffplug/spotless/tree/main/plugin-maven) from version 3.3.0 — no extra dependencies required.
+TableTest formatter is natively supported in the [Spotless Maven plugin](https://github.com/diffplug/spotless/tree/main/plugin-maven) — no extra dependencies required. Plugin version 3.3.0+ supports Java and Kotlin files (requires Java 21+ build). Version 3.4.0+ adds `.table` file support and works with Java 17+ builds.
 
 #### Setup
 
@@ -240,21 +242,24 @@ Add the Spotless Maven plugin to your `pom.xml`:
 <plugin>
     <groupId>com.diffplug.spotless</groupId>
     <artifactId>spotless-maven-plugin</artifactId>
-    <version>3.3.0</version>
+    <version>3.4.0</version>
     <configuration>
         <java>
             <tableTestFormatter/>
-            <!-- <tableTestFormatter><version>1.0.1</version></tableTestFormatter> pin a specific version -->
+            <!-- <tableTestFormatter><version>1.1.1</version></tableTestFormatter> pin a specific version -->
         </java>
         <kotlin>
             <tableTestFormatter/>
         </kotlin>
+        <tableTest>
+            <includes>
+                <include>src/**/*.table</include>
+            </includes>
+            <tableTestFormatter/>
+        </tableTest>
     </configuration>
 </plugin>
 ```
-
-> **Note:** Standalone `.table` files are not yet supported by the official Spotless DSL.
-> Use the [CLI tool](#cli--manual) to format them.
 
 #### Configuration
 
@@ -407,12 +412,12 @@ java -jar tabletest-formatter-cli.jar --verbose \
 **Tested with:**
 - **Gradle:** 8.12
 - **Maven:** 3.9.9
-- **Spotless Gradle Plugin:** 8.3.0
-- **Spotless Maven Plugin:** 3.3.0
+- **Spotless Gradle Plugin:** 8.4.0
+- **Spotless Maven Plugin:** 3.4.0
 
 **Minimum Spotless versions** for native `tableTestFormatter` support:
-- **Spotless Gradle Plugin:** 8.3.0+
-- **Spotless Maven Plugin:** 3.3.0+
+- **Spotless Gradle 8.3.0+ / Maven 3.3.0+** — Java and Kotlin files (requires Java 21+ build)
+- **Spotless Gradle 8.4.0+ / Maven 3.4.0+** — Java 17+ build support and `.table` file formatting
 
 The formatter runs on any platform with Java 17+: Linux, macOS, Windows.
 

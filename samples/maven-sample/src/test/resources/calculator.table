@@ -1,0 +1,4 @@
+Scenario          | a  | b  | sum?
+two positives     | 3  | 5  | 8
+negative and zero | -1 | 0  | -1
+two negatives     | -2 | -3 | -5
