@@ -165,6 +165,7 @@ indent_size = 2
 - Place `.editorconfig` in your project root or source directories
 - The formatter searches up the directory tree to find the applicable configuration
 - Settings cascade: more specific `.editorconfig` files override parent directories
+- Properties under `[*]` apply to all file types — you don't need file-specific sections unless you want different settings per type
 - If no `.editorconfig` is found, defaults to 4 spaces
 - Base indentation from source files is always preserved
 
