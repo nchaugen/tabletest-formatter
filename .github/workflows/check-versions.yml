@@ -117,6 +117,7 @@ jobs:
         if: steps.update.outputs.updated == 'true'
         uses: peter-evans/create-pull-request@v8
         with:
+          token: ${{ secrets.TABLETEST_FORMATTER_PAT }}
           branch: chore/update-sample-versions
           title: 'chore: update sample dependency versions'
           body: |
