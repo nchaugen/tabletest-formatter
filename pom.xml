@@ -30,7 +30,7 @@
         <version.plugin.jar>3.5.0</version.plugin.jar>
         <version.plugin.install>3.1.4</version.plugin.install>
         <version.plugin.deploy>3.1.4</version.plugin.deploy>
-        <version.plugin.site>3.21.0</version.plugin.site>
+        <version.plugin.site>3.22.0</version.plugin.site>
         <version.plugin.help>3.5.1</version.plugin.help>
         <version.plugin.assembly>3.8.0</version.plugin.assembly>
         <version.plugin.dependency>3.10.0</version.plugin.dependency>
@@ -45,7 +45,7 @@
         <version.plugin.versions>2.21.0</version.plugin.versions>
         <version.tabletest>1.2.1</version.tabletest>
         <version.tabletest.parser>1.2.0</version.tabletest.parser>
-        <version.junit>6.0.3</version.junit>
+        <version.junit>6.1.0</version.junit>
         <version.assertj>3.27.7</version.assertj>
         <surefire.arguments />
     </properties>
