@@ -26,14 +26,14 @@
         <version.plugin.clean>3.5.0</version.plugin.clean>
         <version.plugin.resources>3.5.0</version.plugin.resources>
         <version.plugin.compiler>3.15.0</version.plugin.compiler>
-        <version.plugin.surefire>3.5.5</version.plugin.surefire>
+        <version.plugin.surefire>3.5.6</version.plugin.surefire>
         <version.plugin.jar>3.5.0</version.plugin.jar>
         <version.plugin.install>3.1.4</version.plugin.install>
         <version.plugin.deploy>3.1.4</version.plugin.deploy>
         <version.plugin.site>3.22.0</version.plugin.site>
         <version.plugin.help>3.5.1</version.plugin.help>
         <version.plugin.assembly>3.8.0</version.plugin.assembly>
-        <version.plugin.dependency>3.10.0</version.plugin.dependency>
+        <version.plugin.dependency>3.11.0</version.plugin.dependency>
         <version.plugin.javadoc>3.12.0</version.plugin.javadoc>
         <version.plugin.source>3.4.0</version.plugin.source>
         <version.plugin.reports>3.9.0</version.plugin.reports>
@@ -41,7 +41,7 @@
         <version.plugin.gpg>3.2.8</version.plugin.gpg>
         <version.plugin.publishing>0.10.0</version.plugin.publishing>
         <version.plugin.release>3.3.1</version.plugin.release>
-        <version.plugin.spotless>3.5.1</version.plugin.spotless>
+        <version.plugin.spotless>3.6.0</version.plugin.spotless>
         <version.plugin.versions>2.21.0</version.plugin.versions>
         <version.tabletest>1.2.1</version.tabletest>
         <version.tabletest.parser>1.2.0</version.tabletest.parser>
