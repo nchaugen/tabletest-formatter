@@ -779,6 +779,29 @@ class SourceFileFormatterTest {
     }
 
     @Test
+    void shouldAlignClosingQuotesByDisplayWidthInStringArray() {
+        String input = """
+                class Test {
+                    @TableTest({"name|width","你好|4","hello|5"})
+                    void test() {}
+                }
+                """;
+
+        String result = formatter.format(input, Config.SPACES_4);
+
+        assertThat(result).isEqualTo("""
+                class Test {
+                    @TableTest({
+                        "name  | width",
+                        "你好  | 4    ",
+                        "hello | 5    "
+                    })
+                    void test() {}
+                }
+                """);
+    }
+
+    @Test
     void shouldLeaveCommentsOnlyStringArrayUnchanged() {
         String input = """
                 class Test {

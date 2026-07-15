@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI: a file that cannot be read (missing, unreadable, non-UTF-8) is now reported and skipped instead of aborting the whole run; directory walk errors report a friendly message instead of a stack trace
 - CLI: file permissions (e.g. executable bit) are preserved when a file is rewritten
 - CLI: `--version` now reports the actual build version instead of a stale hardcoded 0.1.0-SNAPSHOT
+- String arrays: closing-quote alignment now accounts for wide characters (CJK, emoji), consistent with cell alignment
 
 ## [1.1.1] - 2026-03-12
 ### Added

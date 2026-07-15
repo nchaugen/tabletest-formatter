@@ -131,7 +131,8 @@ public class SourceFileFormatter {
      * line when they did not start their source line.
      */
     private String renderArrayLines(List<StringArrayItem> items, List<String> formattedEntries, String indent) {
-        int maxWidth = formattedEntries.stream().mapToInt(String::length).max().orElse(0);
+        int maxWidth =
+                formattedEntries.stream().mapToInt(DisplayWidth::of).max().orElse(0);
 
         List<String> lines = new ArrayList<>();
         int entryIndex = 0;
@@ -152,7 +153,7 @@ public class SourceFileFormatter {
     }
 
     private String padRight(String value, int width) {
-        int padding = width - value.length();
+        int padding = width - DisplayWidth.of(value);
         return padding > 0 ? value + " ".repeat(padding) : value;
     }
 }
