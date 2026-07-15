@@ -146,10 +146,19 @@ public class TableTestFormatterCli implements Callable<Integer> {
         Path tempFile = Files.createTempFile(file.toAbsolutePath().getParent(), ".tabletest-format-", ".tmp");
         try {
             Files.writeString(tempFile, content);
+            copyPermissions(file, tempFile);
             Files.move(tempFile, file, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
         } catch (IOException e) {
             Files.deleteIfExists(tempFile);
             throw new IOException("Failed to write formatted content to " + file, e);
+        }
+    }
+
+    private void copyPermissions(Path source, Path target) throws IOException {
+        try {
+            Files.setPosixFilePermissions(target, Files.getPosixFilePermissions(source));
+        } catch (UnsupportedOperationException e) {
+            // Non-POSIX filesystem (e.g. Windows): temp file keeps its default permissions
         }
     }
 

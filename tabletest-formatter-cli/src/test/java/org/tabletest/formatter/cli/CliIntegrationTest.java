@@ -6,12 +6,17 @@ import picocli.CommandLine;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Objects;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
  * End-to-end integration tests for the CLI.
@@ -235,6 +240,25 @@ class CliIntegrationTest {
         // Then: the run continues past the unreadable file and reports failure
         assertThat(exitCode).isEqualTo(1);
         assertThat(actualContent(goodFile)).isEqualTo(expectedContent(goodFile));
+    }
+
+    @Test
+    void shouldPreserveFilePermissionsWhenFormatting(@TempDir Path tempDir) throws IOException, URISyntaxException {
+        assumeTrue(FileSystems.getDefault().supportedFileAttributeViews().contains("posix"));
+
+        // Given: an unformatted executable file
+        Path testFile = tempDir.resolve("SimpleTest.java");
+        copyUnformattedFile(testFile);
+        Set<PosixFilePermission> originalPermissions = PosixFilePermissions.fromString("rwxr-xr-x");
+        Files.setPosixFilePermissions(testFile, originalPermissions);
+
+        // When: applying formatting
+        int exitCode = executeCliApplyMode(tempDir);
+
+        // Then: content is formatted and permissions survive the rewrite
+        assertThat(exitCode).isZero();
+        assertThat(actualContent(testFile)).isEqualTo(expectedContent(testFile));
+        assertThat(Files.getPosixFilePermissions(testFile)).isEqualTo(originalPermissions);
     }
 
     @Test

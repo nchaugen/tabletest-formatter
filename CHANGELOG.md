@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - String arrays: comments between entries are now preserved — commented-out rows were previously reinserted as live table rows and descriptive comments deleted
 - String arrays: empty-string entries are now kept as blank rows instead of being dropped
+- CLI: crash (NullPointerException) when a file was given as a bare relative path like `tabletest-format Foo.java`
+- CLI: a file that cannot be read (missing, unreadable, non-UTF-8) is now reported and skipped instead of aborting the whole run; directory walk errors report a friendly message instead of a stack trace
+- CLI: file permissions (e.g. executable bit) are preserved when a file is rewritten
 
 ## [1.1.1] - 2026-03-12
 ### Added
