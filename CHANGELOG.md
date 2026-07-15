@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI: file permissions (e.g. executable bit) are preserved when a file is rewritten
 - CLI: `--version` now reports the actual build version instead of a stale hardcoded 0.1.0-SNAPSHOT
 - String arrays: closing-quote alignment now accounts for wide characters (CJK, emoji), consistent with cell alignment
+- Blank lines inside indented tables no longer get trailing whitespace, so the formatter stops fighting whitespace-trimming editors and hooks
 
 ## [1.1.1] - 2026-03-12
 ### Added

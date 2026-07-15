@@ -640,7 +640,7 @@ class TableTestFormatterTest {
     }
 
     @Test
-    void shouldIndentBlankLines() {
+    void shouldLeaveBlankLinesEmptyWhenIndenting() {
         var input = """
             name|age
             Alice|30
@@ -650,16 +650,11 @@ class TableTestFormatterTest {
 
         var result = formatter.format(input, "", new Config(IndentStyle.SPACE, 2));
 
-        assertThat(result).isEqualTo("""
-            name  | age
-            Alice | 30
-
-            Bob   | 25
-            """.indent(2) + " ".repeat(2));
+        assertThat(result).isEqualTo("  name  | age\n" + "  Alice | 30\n" + "\n" + "  Bob   | 25\n" + "  ");
     }
 
     @Test
-    void shouldIndentCommentsAndBlankLinesTogether() {
+    void shouldIndentCommentsButLeaveBlankLinesEmpty() {
         var input = """
             name|age
             // First group
@@ -671,14 +666,14 @@ class TableTestFormatterTest {
 
         var result = formatter.format(input, "", new Config(IndentStyle.SPACE, 4));
 
-        assertThat(result).isEqualTo("""
-            name  | age
-            // First group
-            Alice | 30
-
-            // Second group
-            Bob   | 25
-            """.indent(4) + " ".repeat(4));
+        assertThat(result)
+                .isEqualTo("    name  | age\n"
+                        + "    // First group\n"
+                        + "    Alice | 30\n"
+                        + "\n"
+                        + "    // Second group\n"
+                        + "    Bob   | 25\n"
+                        + "    ");
     }
 
     // ========== Input Validation Tests ==========

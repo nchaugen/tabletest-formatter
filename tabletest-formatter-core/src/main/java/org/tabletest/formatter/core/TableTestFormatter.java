@@ -164,8 +164,12 @@ public class TableTestFormatter {
         String indent = baseIndentString + config.indentStyle().repeat(config.indentSize());
         String[] lines = formatted.split("\n", -1);
 
-        // Apply indent to each line and add trailing indent for closing quote alignment
-        return Arrays.stream(lines).map(line -> indent + line).collect(joining("\n")) + "\n" + indent;
+        // Indent each line (blank lines stay empty to avoid trailing whitespace)
+        // and add trailing indent for closing quote alignment
+        return Arrays.stream(lines)
+                        .map(line -> line.isEmpty() ? line : indent + line)
+                        .collect(joining("\n"))
+                + "\n" + indent;
     }
 
     /**
