@@ -73,8 +73,9 @@ public class SourceFileFormatter {
             return result;
         }
 
-        // Ensure at least one newline after opening quotes (""") for @TableTest annotations.
-        // Preserves multiple newlines if present. Improves readability (Kotlin) and syntax correctness (Java).
+        // Ensure at least one newline after the opening quotes ("""): required syntax in Java,
+        // better readability in Kotlin. Indented formatting normalises to exactly one newline;
+        // without indentation, existing leading newlines pass through unchanged.
         String replacement = formattedTable.startsWith("\n") ? formattedTable : "\n" + formattedTable;
         return result.substring(0, match.tableContentStart()) + replacement + result.substring(match.tableContentEnd());
     }
