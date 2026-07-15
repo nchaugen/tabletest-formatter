@@ -16,8 +16,10 @@
 package org.tabletest.formatter.cli;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -42,24 +44,22 @@ public class FileDiscovery {
      * @throws IOException if an I/O error occurs during discovery
      */
     public List<Path> discover(List<Path> inputPaths) throws IOException {
-        return inputPaths.stream()
-                .flatMap(this::discoverFromPath)
-                .filter(this::hasSupportedExtension)
-                .sorted()
-                .collect(toList());
-    }
-
-    private Stream<Path> discoverFromPath(Path path) {
-        try {
-            return Files.isDirectory(path) ? walkDirectory(path) : Stream.of(path);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to discover files from: " + path, e);
+        List<Path> candidates = new ArrayList<>();
+        for (Path path : inputPaths) {
+            candidates.addAll(discoverFromPath(path));
         }
+        return candidates.stream().filter(this::hasSupportedExtension).sorted().collect(toList());
     }
 
-    private Stream<Path> walkDirectory(Path directory) throws IOException {
+    private List<Path> discoverFromPath(Path path) throws IOException {
+        return Files.isDirectory(path) ? walkDirectory(path) : List.of(path);
+    }
+
+    private List<Path> walkDirectory(Path directory) throws IOException {
         try (Stream<Path> paths = Files.walk(directory)) {
-            return paths.filter(Files::isRegularFile).toList().stream();
+            return paths.filter(Files::isRegularFile).toList();
+        } catch (UncheckedIOException e) {
+            throw e.getCause();
         }
     }
 

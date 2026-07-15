@@ -41,6 +41,19 @@ class FormattingStatusTest {
     }
 
     @Test
+    void shouldTrackFailedFiles() {
+        FormattingStatus status = new FormattingStatus();
+
+        Path failed = Path.of("broken.java");
+        status.addResult(new FormattingResult(Path.of("ok.table"), false, "unchanged"));
+        status.addFailure(failed);
+
+        assertThat(status.filesFailed()).isEqualTo(1);
+        assertThat(status.failedFiles()).containsExactly(failed);
+        assertThat(status.hasFailures()).isTrue();
+    }
+
+    @Test
     void shouldTrackNoChanges() {
         FormattingStatus status = new FormattingStatus();
 

@@ -21,6 +21,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -112,19 +113,24 @@ public class TableTestFormatterCli implements Callable<Integer> {
         }
     }
 
-    private FormattingStatus formatFiles(List<Path> files) throws IOException {
+    private FormattingStatus formatFiles(List<Path> files) {
         FormattingStatus status = new FormattingStatus();
 
         for (Path file : files) {
-            FormattingResult result = fileFormatter.format(file);
-            status.addResult(result);
+            try {
+                FormattingResult result = fileFormatter.format(file);
+                status.addResult(result);
 
-            if (verbose) {
-                printFileStatus(result);
-            }
+                if (verbose) {
+                    printFileStatus(result);
+                }
 
-            if (!checkMode && result.changed()) {
-                writeFormattedContent(file, result.formattedContent());
+                if (!checkMode && result.changed()) {
+                    writeFormattedContent(file, result.formattedContent());
+                }
+            } catch (IOException | UncheckedIOException e) {
+                status.addFailure(file);
+                System.err.println("Error formatting " + file + ": " + e.getMessage());
             }
         }
 
@@ -161,10 +167,15 @@ public class TableTestFormatterCli implements Callable<Integer> {
         } else {
             System.out.println("All files are already formatted");
         }
+
+        if (status.hasFailures()) {
+            System.err.println(status.filesFailed() + " files could not be formatted:");
+            status.failedFiles().forEach(file -> System.err.println("  " + file));
+        }
     }
 
     private int determineExitCode(FormattingStatus status) {
-        return status.hasChanges() && checkMode ? 1 : 0;
+        return status.hasFailures() || (status.hasChanges() && checkMode) ? 1 : 0;
     }
 
     public static void main(String[] args) {

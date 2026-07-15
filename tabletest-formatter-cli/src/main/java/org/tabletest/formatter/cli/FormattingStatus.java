@@ -21,13 +21,14 @@ import java.util.List;
 
 /**
  * Aggregates formatting results across multiple files.
- * Tracks how many files were checked, how many were changed, and which files were changed.
+ * Tracks how many files were checked, which files were changed, and which files failed.
  */
 public class FormattingStatus {
 
     private int filesChecked = 0;
     private int filesChanged = 0;
     private final List<Path> changedFiles = new ArrayList<>();
+    private final List<Path> failedFiles = new ArrayList<>();
 
     /**
      * Adds a formatting result to this status.
@@ -40,6 +41,16 @@ public class FormattingStatus {
             filesChanged++;
             changedFiles.add(result.file());
         }
+    }
+
+    /**
+     * Records a file that could not be formatted.
+     *
+     * @param file the file that failed
+     */
+    public void addFailure(Path file) {
+        filesChecked++;
+        failedFiles.add(file);
     }
 
     /**
@@ -76,5 +87,32 @@ public class FormattingStatus {
      */
     public List<Path> changedFiles() {
         return List.copyOf(changedFiles);
+    }
+
+    /**
+     * Returns whether any files failed to format.
+     *
+     * @return true if at least one file failed
+     */
+    public boolean hasFailures() {
+        return !failedFiles.isEmpty();
+    }
+
+    /**
+     * Returns the number of files that failed to format.
+     *
+     * @return the number of failed files
+     */
+    public int filesFailed() {
+        return failedFiles.size();
+    }
+
+    /**
+     * Returns the list of files that failed to format.
+     *
+     * @return immutable list of failed files
+     */
+    public List<Path> failedFiles() {
+        return List.copyOf(failedFiles);
     }
 }

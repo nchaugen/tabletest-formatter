@@ -4,11 +4,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class FileDiscoveryTest {
 
@@ -111,6 +115,21 @@ class FileDiscoveryTest {
         List<Path> discovered = discovery.discover(List.of(dir1, dir2));
 
         assertThat(discovered).hasSize(2).containsExactlyInAnyOrder(file1, file2);
+    }
+
+    @Test
+    void shouldTranslateWalkErrorsToIOException(@TempDir Path tempDir) throws IOException {
+        assumeTrue(FileSystems.getDefault().supportedFileAttributeViews().contains("posix"));
+        Path lockedDir = tempDir.resolve("locked");
+        Files.createDirectory(lockedDir);
+        Files.setPosixFilePermissions(lockedDir, PosixFilePermissions.fromString("---------"));
+
+        FileDiscovery discovery = new FileDiscovery();
+        try {
+            assertThatThrownBy(() -> discovery.discover(List.of(tempDir))).isInstanceOf(IOException.class);
+        } finally {
+            Files.setPosixFilePermissions(lockedDir, PosixFilePermissions.fromString("rwxr-xr-x"));
+        }
     }
 
     @Test

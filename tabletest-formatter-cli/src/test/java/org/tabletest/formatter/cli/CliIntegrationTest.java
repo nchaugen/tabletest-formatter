@@ -221,6 +221,23 @@ class CliIntegrationTest {
     }
 
     @Test
+    void shouldReportAndSkipUnreadableFileAndFormatTheRest(@TempDir Path tempDir)
+            throws IOException, URISyntaxException {
+        // Given: a non-UTF-8 file (sorted first) alongside a valid unformatted file
+        Path badFile = tempDir.resolve("Broken.java");
+        Files.write(badFile, new byte[] {(byte) 0xC3, (byte) 0x28});
+        Path goodFile = tempDir.resolve("SimpleTest.java");
+        copyUnformattedFile(goodFile);
+
+        // When: applying formatting
+        int exitCode = executeCliApplyMode(tempDir);
+
+        // Then: the run continues past the unreadable file and reports failure
+        assertThat(exitCode).isEqualTo(1);
+        assertThat(actualContent(goodFile)).isEqualTo(expectedContent(goodFile));
+    }
+
+    @Test
     void shouldFormatFileGivenAsBareRelativePath() throws IOException, URISyntaxException {
         // Given: an unformatted file addressed by a single-segment relative path
         Path bareFile = Paths.get("BareRelativePathTest-" + System.nanoTime() + ".java");
