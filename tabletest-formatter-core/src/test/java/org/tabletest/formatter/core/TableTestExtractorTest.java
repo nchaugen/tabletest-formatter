@@ -48,6 +48,25 @@ class TableTestExtractorTest {
     }
 
     @Test
+    void shouldExtractKotlinRawStringWithContentOnOpeningLine() {
+        // Kotlin raw strings may start content right after the opening delimiter,
+        // even with quote characters: """""|b is the delimiter followed by ""|b
+        String sourceCode = "class T {\n"
+                + "    @TableTest(\"\"\"\"\"|b\n"
+                + "        1|2\n"
+                + "        \"\"\")\n"
+                + "    fun test() {}\n"
+                + "}\n";
+
+        List<TableMatch> matches = extractor.findAll(sourceCode);
+
+        assertThat(matches).hasSize(1);
+        TableMatch match = matches.get(0);
+        String extracted = sourceCode.substring(match.tableContentStart(), match.tableContentEnd());
+        assertThat(extracted).isEqualTo("\"\"|b\n        1|2\n        ");
+    }
+
+    @Test
     void shouldIgnoreTableTestInStringLiteral() {
         String sourceCode = """
                 package com.example;

@@ -127,10 +127,10 @@ public class TableTestExtractor {
 
                     // Check for string/char literals (skip them)
                     if (c == '"' && next == '"' && nextNext == '"') {
-                        // Found opening """ - start extracting
+                        // Found opening """ - start extracting at the first content character
                         tableContentStart = tableContentEnd + 3;
                         state = State.TEXT_BLOCK;
-                        tableContentEnd += 2; // Will increment by 1 at end of loop = +3 total
+                        tableContentEnd += 3;
                         continue;
                     }
                     if (c == '"') {
