@@ -61,7 +61,7 @@ import java.util.concurrent.Callable;
         name = "tabletest-format",
         description = "Format TableTest tables in Java/Kotlin/.table files",
         mixinStandardHelpOptions = true,
-        version = "0.1.0-SNAPSHOT")
+        versionProvider = VersionProvider.class)
 public class TableTestFormatterCli implements Callable<Integer> {
 
     @Parameters(paramLabel = "PATH", arity = "1..*", description = "Files or directories to format")

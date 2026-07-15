@@ -50,6 +50,13 @@
     </dependencies>
 
     <build>
+        <resources>
+            <!-- Filtered so version.properties carries the project version -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

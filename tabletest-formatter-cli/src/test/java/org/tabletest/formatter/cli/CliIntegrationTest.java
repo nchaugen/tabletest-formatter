@@ -5,6 +5,8 @@ import org.junit.jupiter.api.io.TempDir;
 import picocli.CommandLine;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -277,6 +279,20 @@ class CliIntegrationTest {
         } finally {
             Files.deleteIfExists(bareFile);
         }
+    }
+
+    @Test
+    void shouldReportVersionFromBuild() {
+        StringWriter output = new StringWriter();
+        CommandLine commandLine = new CommandLine(new TableTestFormatterCli());
+        commandLine.setOut(new PrintWriter(output));
+
+        int exitCode = commandLine.execute("--version");
+
+        assertThat(exitCode).isZero();
+        assertThat(output.toString().trim())
+                .matches("\\d+\\.\\d+\\.\\d+(-[A-Za-z0-9.]+)?")
+                .isNotEqualTo("0.1.0-SNAPSHOT");
     }
 
     private int executeCliApplyMode(Path path) {
