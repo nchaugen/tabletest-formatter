@@ -137,7 +137,7 @@ public class TableTestFormatterCli implements Callable<Integer> {
     }
 
     private void writeFormattedContent(Path file, String content) throws IOException {
-        Path tempFile = Files.createTempFile(file.getParent(), ".tabletest-format-", ".tmp");
+        Path tempFile = Files.createTempFile(file.toAbsolutePath().getParent(), ".tabletest-format-", ".tmp");
         try {
             Files.writeString(tempFile, content);
             Files.move(tempFile, file, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);

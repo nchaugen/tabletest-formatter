@@ -220,6 +220,24 @@ class CliIntegrationTest {
         assertThat(actualContent(testFile)).isEqualTo(expectedContent(testFile));
     }
 
+    @Test
+    void shouldFormatFileGivenAsBareRelativePath() throws IOException, URISyntaxException {
+        // Given: an unformatted file addressed by a single-segment relative path
+        Path bareFile = Paths.get("BareRelativePathTest-" + System.nanoTime() + ".java");
+        try {
+            copyTestFile(UNFORMATTED_DIR, "SimpleTest.java", bareFile);
+
+            // When: applying formatting
+            int exitCode = executeCliApplyMode(bareFile);
+
+            // Then: file is formatted and exit code is 0
+            assertThat(exitCode).isZero();
+            assertThat(actualContent(bareFile)).isEqualTo(readTestFile(FORMATTED_DIR, "SimpleTest.java"));
+        } finally {
+            Files.deleteIfExists(bareFile);
+        }
+    }
+
     private int executeCliApplyMode(Path path) {
         return new CommandLine(new TableTestFormatterCli()).execute(path.toString());
     }
