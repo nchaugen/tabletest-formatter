@@ -649,6 +649,168 @@ class SourceFileFormatterTest {
                 """);
     }
 
+    @Test
+    void shouldPreserveCommentedOutEntryInStringArray() {
+        String input = """
+                class Test {
+                    @TableTest({
+                        "a|b",
+                        // "9 | 9",
+                        "10|2"
+                    })
+                    void test() {}
+                }
+                """;
+
+        String result = formatter.format(input, Config.SPACES_4);
+
+        assertThat(result).isEqualTo("""
+                class Test {
+                    @TableTest({
+                        "a  | b",
+                        // "9 | 9",
+                        "10 | 2"
+                    })
+                    void test() {}
+                }
+                """);
+    }
+
+    @Test
+    void shouldPreserveBlockCommentedEntryInStringArray() {
+        String input = """
+                class Test {
+                    @TableTest({
+                        "a|b",
+                        /* "9 | 9", */
+                        "10|2"
+                    })
+                    void test() {}
+                }
+                """;
+
+        String result = formatter.format(input, Config.SPACES_4);
+
+        assertThat(result).isEqualTo("""
+                class Test {
+                    @TableTest({
+                        "a  | b",
+                        /* "9 | 9", */
+                        "10 | 2"
+                    })
+                    void test() {}
+                }
+                """);
+    }
+
+    @Test
+    void shouldPreserveStandaloneCommentInStringArray() {
+        String input = """
+                class Test {
+                    @TableTest({
+                        "name|age",
+                        // boundary cases below
+                        "Alice|30"
+                    })
+                    void test() {}
+                }
+                """;
+
+        String result = formatter.format(input, Config.SPACES_4);
+
+        assertThat(result).isEqualTo("""
+                class Test {
+                    @TableTest({
+                        "name  | age",
+                        // boundary cases below
+                        "Alice | 30 "
+                    })
+                    void test() {}
+                }
+                """);
+    }
+
+    @Test
+    void shouldKeepInlineCommentAttachedToEntryInStringArray() {
+        String input = """
+                class Test {
+                    @TableTest({
+                        "name|age", // header
+                        "Alice|30" // adult
+                    })
+                    void test() {}
+                }
+                """;
+
+        String result = formatter.format(input, Config.SPACES_4);
+
+        assertThat(result).isEqualTo("""
+                class Test {
+                    @TableTest({
+                        "name  | age", // header
+                        "Alice | 30 " // adult
+                    })
+                    void test() {}
+                }
+                """);
+    }
+
+    @Test
+    void shouldPreserveEmptyEntryInStringArrayAsBlankRow() {
+        String input = """
+                class Test {
+                    @TableTest({"a|b", "", "1|2"})
+                    void test() {}
+                }
+                """;
+
+        String result = formatter.format(input, Config.SPACES_4);
+
+        assertThat(result).isEqualTo("""
+                class Test {
+                    @TableTest({
+                        "a | b",
+                        "     ",
+                        "1 | 2"
+                    })
+                    void test() {}
+                }
+                """);
+    }
+
+    @Test
+    void shouldLeaveCommentsOnlyStringArrayUnchanged() {
+        String input = """
+                class Test {
+                    @TableTest({ /* "a|b" */ })
+                    void test() {}
+                }
+                """;
+
+        String result = formatter.format(input, Config.SPACES_4);
+
+        assertThat(result).isEqualTo(input);
+    }
+
+    @Test
+    void shouldFormatStringArrayWithCommentsIdempotently() {
+        String input = """
+                class Test {
+                    @TableTest({
+                        "a  | b",
+                        // "9 | 9",
+                        "10 | 2", // inline note
+                        "3  | 4"
+                    })
+                    void test() {}
+                }
+                """;
+
+        String result = formatter.format(input, Config.SPACES_4);
+
+        assertThat(result).isEqualTo(input);
+    }
+
     // ========== Text Block Tests (continued) ==========
 
     @Test

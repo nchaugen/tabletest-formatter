@@ -17,13 +17,10 @@ package org.tabletest.formatter.core;
 
 import org.tabletest.formatter.config.Config;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static java.util.stream.Collectors.joining;
 
 /**
  * Formats source files containing @TableTest annotations.
@@ -33,10 +30,12 @@ public class SourceFileFormatter {
 
     private final TableTestFormatter formatter;
     private final TableTestExtractor extractor;
+    private final StringArrayContentParser arrayContentParser;
 
     public SourceFileFormatter() {
         this.formatter = new TableTestFormatter();
         this.extractor = new TableTestExtractor();
+        this.arrayContentParser = new StringArrayContentParser();
     }
 
     /**
@@ -84,51 +83,72 @@ public class SourceFileFormatter {
         String arrayContent = originalContent.substring(match.tableContentStart(), match.tableContentEnd());
         String baseIndentString = originalContent.substring(match.baseIndentStart(), match.baseIndentEnd());
 
-        // Extract string values from array content
-        List<String> entries = extractStringEntries(arrayContent);
-        if (entries.isEmpty()) {
+        List<StringArrayItem> items = arrayContentParser.parse(arrayContent);
+        List<String> entryValues = items.stream()
+                .filter(StringArrayItem.Entry.class::isInstance)
+                .map(item -> ((StringArrayItem.Entry) item).value())
+                .toList();
+        if (entryValues.isEmpty()) {
             return result;
         }
 
         // Format as plain table text using existing formatter logic
-        String tableText = String.join("\n", entries);
+        String tableText = String.join("\n", entryValues);
         String formattedTable = formatter.format(tableText, "", Config.NO_INDENT);
 
-        // Split into lines and pad for aligned closing quotes
-        String[] formattedLines = formattedTable.split("\n", -1);
-        // Remove trailing empty element from split
-        String[] lines = Arrays.stream(formattedLines).filter(l -> !l.isEmpty()).toArray(String[]::new);
-
-        int maxWidth = Arrays.stream(lines).mapToInt(String::length).max().orElse(0);
+        List<String> formattedEntries = splitIntoEntryLines(formattedTable);
+        if (formattedEntries.size() != entryValues.size()) {
+            // Graceful degradation: formatted lines no longer map one-to-one onto entries
+            return result;
+        }
 
         // Build indented string array
         String indent = config.indentSize() > 0
                 ? baseIndentString + config.indentStyle().repeat(config.indentSize())
                 : baseIndentString;
 
-        String replacement = Arrays.stream(lines)
-                .map(line -> indent + "\"" + padRight(line, maxWidth) + "\"")
-                .collect(joining(",\n"));
+        String formatted = "\n" + renderArrayLines(items, formattedEntries, indent) + "\n" + baseIndentString;
 
-        String formatted = "\n" + replacement + "\n" + baseIndentString;
-
-        String original = arrayContent;
-        if (formatted.equals(original)) {
+        if (formatted.equals(arrayContent)) {
             return result;
         }
 
         return result.substring(0, match.tableContentStart()) + formatted + result.substring(match.tableContentEnd());
     }
 
-    private static final Pattern STRING_ENTRY_PATTERN = Pattern.compile("\"((?:[^\"\\\\]|\\\\.)*)\"");
-
-    private List<String> extractStringEntries(String arrayContent) {
-        Matcher matcher = STRING_ENTRY_PATTERN.matcher(arrayContent);
-        List<String> entries = new java.util.ArrayList<>();
-        while (matcher.find()) {
-            entries.add(matcher.group(1));
+    private List<String> splitIntoEntryLines(String formattedTable) {
+        List<String> lines = new ArrayList<>(Arrays.asList(formattedTable.split("\n", -1)));
+        // Remove trailing empty element from split (artifact of the trailing newline)
+        if (!lines.isEmpty() && lines.get(lines.size() - 1).isEmpty()) {
+            lines.remove(lines.size() - 1);
         }
-        return entries;
+        return lines;
+    }
+
+    /**
+     * Rebuilds the array lines in source order: each entry padded for aligned closing
+     * quotes, comments kept in place — on their own line, or appended to the preceding
+     * line when they did not start their source line.
+     */
+    private String renderArrayLines(List<StringArrayItem> items, List<String> formattedEntries, String indent) {
+        int maxWidth = formattedEntries.stream().mapToInt(String::length).max().orElse(0);
+
+        List<String> lines = new ArrayList<>();
+        int entryIndex = 0;
+        for (StringArrayItem item : items) {
+            if (item instanceof StringArrayItem.Entry) {
+                String cell = "\"" + padRight(formattedEntries.get(entryIndex), maxWidth) + "\"";
+                entryIndex++;
+                lines.add(indent + cell + (entryIndex < formattedEntries.size() ? "," : ""));
+            } else if (item instanceof StringArrayItem.Comment comment) {
+                if (comment.startsLine() || lines.isEmpty()) {
+                    lines.add(indent + comment.text());
+                } else {
+                    lines.set(lines.size() - 1, lines.get(lines.size() - 1) + " " + comment.text());
+                }
+            }
+        }
+        return String.join("\n", lines);
     }
 
     private String padRight(String value, int width) {
