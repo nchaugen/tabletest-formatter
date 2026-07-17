@@ -44,6 +44,20 @@ Run all tests:
 mvn test
 ```
 
+### Living documentation
+
+The core module's `@TableTest` classes double as the formatter's specification. The
+opt-in `report` profile runs them with the TableTest reporter extension and generates an
+HTML report:
+
+```bash
+mvn -Preport -pl tabletest-formatter-core test org.tabletest:tabletest-reporter-maven-plugin:report
+```
+
+The report lands in `tabletest-formatter-core/target/generated-docs/tabletest/`. Until
+tabletest-reporter 1.1.1 is released, the profile needs the reporter installed locally
+(`mvn install` in the tabletest-reporter repo); the default build is unaffected.
+
 ## Setting Up Your Development Environment
 
 ### Git Hooks

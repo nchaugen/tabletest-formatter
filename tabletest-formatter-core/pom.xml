@@ -52,4 +52,33 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <!-- Living documentation: run tests with the reporter extension and generate
+             the HTML report with `mvn -Preport test org.tabletest:tabletest-reporter-maven-plugin:report`.
+             Needs a locally installed reporter until 1.1.1 is released. -->
+        <profile>
+            <id>report</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.tabletest</groupId>
+                    <artifactId>tabletest-reporter-junit</artifactId>
+                    <version>${version.tabletest.reporter}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.tabletest</groupId>
+                        <artifactId>tabletest-reporter-maven-plugin</artifactId>
+                        <version>${version.tabletest.reporter}</version>
+                        <configuration>
+                            <format>html</format>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
