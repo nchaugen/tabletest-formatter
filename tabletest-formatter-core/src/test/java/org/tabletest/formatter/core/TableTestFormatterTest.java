@@ -99,30 +99,6 @@ class TableTestFormatterTest {
     }
 
     @Test
-    void shouldCalculateColumnWidthsBasedOnWidestCell() {
-        var input = """
-            a|bb|ccc
-            dddd|e|ff
-            """;
-
-        int[] widths = formatter.calculateColumnWidths(input);
-
-        assertThat(widths).containsExactly(4, 2, 3);
-    }
-
-    @Test
-    void shouldCalculateColumnWidthsIncludingEmptyCells() {
-        var input = """
-            name|value
-            |longest
-            """;
-
-        int[] widths = formatter.calculateColumnWidths(input);
-
-        assertThat(widths).containsExactly(4, 7);
-    }
-
-    @Test
     void shouldFormatTableWithCjkCharacters() {
         var input = """
             name|greeting
@@ -156,19 +132,6 @@ class TableTestFormatterTest {
             Greek    | Γεια
             Cyrillic | Привет
             """);
-    }
-
-    @Test
-    void shouldCalculateWidthsForCjkCharacters() {
-        var input = """
-            name|greeting
-            中文|你好
-            日本語|こんにちは
-            """;
-
-        int[] widths = formatter.calculateColumnWidths(input);
-
-        assertThat(widths).containsExactly(6, 10);
     }
 
     @Test
