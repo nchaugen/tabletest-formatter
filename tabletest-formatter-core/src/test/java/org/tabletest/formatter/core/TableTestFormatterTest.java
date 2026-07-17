@@ -1,28 +1,37 @@
 package org.tabletest.formatter.core;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.tabletest.formatter.config.Config;
 import org.tabletest.formatter.config.IndentStyle;
+import org.tabletest.junit.Description;
+import org.tabletest.junit.TableTest;
+import org.tabletest.junit.TypeConverterSources;
 
-import java.util.Objects;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+/**
+ * End-to-end assembly checks for {@link TableTestFormatter}. The individual formatting
+ * rules are specified in ColumnWidthTest, RowLayoutTest, CellFormattingTest,
+ * CommentAndBlankLineTest and IndentationTest.
+ */
+@TypeConverterSources(IndentationTest.class)
 class TableTestFormatterTest {
 
     private final TableTestFormatter formatter = new TableTestFormatter();
 
     @Test
     void shouldFormatTableWithColumnAlignment() {
-        var input = """
+        String input = """
             name|age
             Alice|30
             Bob|25
             """;
 
-        Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", Config.NO_INDENT);
+        String result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             name  | age
@@ -32,88 +41,37 @@ class TableTestFormatterTest {
     }
 
     @Test
-    void shouldReturnUnchangedWhenMismatchedColumnCounts() {
-        var input = """
-            name|age
-            Alice|30
-            Bob|25|London
-            """;
-
-        Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", Config.NO_INDENT);
-
-        assertThat(result).isEqualTo(input);
-    }
-
-    @Test
-    void shouldReturnUnchangedWhenFewerColumnsInDataRow() {
-        var input = """
-            name|age|city
-            Alice|30
-            Bob|25|London
-            """;
-
-        Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", Config.NO_INDENT);
-
-        assertThat(result).isEqualTo(input);
-    }
-
-    @Test
-    void shouldReturnUnchangedWhenEmpty() {
-        var input = "";
-
-        Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", Config.NO_INDENT);
-
-        assertThat(result).isEqualTo(input);
-    }
-
-    @Test
-    void shouldReturnUnchangedWhenOnlyWhitespace() {
-        var input = "   \n  \n   ";
-
-        Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", Config.NO_INDENT);
-
-        assertThat(result).isEqualTo(input);
-    }
-
-    @Test
-    void shouldFormatHeaderOnlyTableWithoutIndentation() {
-        var input = """
+    void shouldFormatHeaderOnlyTable() {
+        String input = """
             name|age
             """;
 
-        Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", Config.NO_INDENT);
+        String result = formatter.format(input, "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo("""
             name | age
             """);
     }
 
-    @Test
-    void shouldReturnUnchangedWhenEscapedQuotesInValue() {
-        var input = """
-            name|message
-            test|"He said \\"hello\\""
-            """;
+    @DisplayName("Inputs the formatter leaves untouched")
+    @Description("""
+            Formatting must never break a build: input that cannot be parsed as a
+            well-formed table is returned exactly as it was, whatever indent is
+            configured. Escaped quotes are not part of the table grammar, so tables
+            containing them are left alone.
+            """)
+    @TableTest("""
+            Scenario                     | Table lines                                    | Configured indent
+            Extra column in a data row   | ["name|age", "Alice|30", "Bob|25|London"]      | {'space:0', 'space:4'}
+            Missing column in a data row | ["name|age|city", "Alice|30", "Bob|25|London"] | {'space:0', 'space:4'}
+            Escaped quotes in a value    | ["name|message", 'test|"He said \\"hello\\""'] | {'space:0', 'space:4'}
+            Empty input                  | []                                             | {'space:0', 'space:4'}
+            Whitespace-only input        | ["   ", "  ", "   "]                           | {'space:0', 'space:4'}
+            """)
+    void leavesInputUntouched(List<String> tableLines, Config indent) {
+        String input = String.join("\n", tableLines);
 
-        Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", Config.NO_INDENT);
-
-        // Parser cannot handle escaped quotes, returns unchanged
-        assertThat(result).isEqualTo(input);
-    }
-
-    @Test
-    void shouldReturnEmptyTableUnchangedWithIndentation() {
-        var input = "";
-
-        var result = formatter.format(input, "", new Config(IndentStyle.SPACE, 4));
-
-        assertThat(result).isEmpty();
+        assertThat(formatter.format(input, "", indent)).isEqualTo(input);
     }
 
     // ========== Input Validation Tests ==========
