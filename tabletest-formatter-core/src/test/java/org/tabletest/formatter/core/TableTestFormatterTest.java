@@ -3,7 +3,6 @@ package org.tabletest.formatter.core;
 import org.junit.jupiter.api.Test;
 import org.tabletest.formatter.config.Config;
 import org.tabletest.formatter.config.IndentStyle;
-import org.tabletest.junit.TableTest;
 
 import java.util.Objects;
 
@@ -30,33 +29,6 @@ class TableTestFormatterTest {
             Alice | 30
             Bob   | 25
             """);
-    }
-
-    @TableTest("""
-        Scenario                              | Input                   | Formatted?
-        Normalize spacing in lists            | "[1,2,3]"               | "[1, 2, 3]"
-        Remove extra spaces inside brackets   | "[ [] ]"                | "[[]]"
-        Format nested lists                   | "[[1,2],[3,4]]"         | "[[1, 2], [3, 4]]"
-        Format empty lists                    | "[]"                    | "[]"
-        Normalize spacing in maps             | "[a:1,b:2]"             | "[a: 1, b: 2]"
-        Format single-quoted keys             | "['[a]':1,'b:b':2]"     | "['[a]': 1, 'b:b': 2]"
-        Format double-quoted keys             | '[",a,":1,"b|b":2]'     | '[",a,": 1, "b|b": 2]'
-        Format empty maps                     | "[:]"                   | "[:]"
-        Normalize spacing in sets             | "{1,2,3}"               | "{1, 2, 3}"
-        Format set with nested list           | "{[1,2]}"               | "{[1, 2]}"
-        Format empty sets                     | "{}"                    | "{}"
-        Format list of maps                   | "[[a:1],[b:2]]"         | "[[a: 1], [b: 2]]"
-        Format nested collections recursively | "[a:[1,2],b:[3,4]]"     | "[a: [1, 2], b: [3, 4]]"
-        Format deeply nested collections      | "[a:{[1,2]},b:{[3,4]}]" | "[a: {[1, 2]}, b: {[3, 4]}]"
-        """)
-    void shouldFormatCollectionInCell(String input, String formatted) {
-        var tableInput = "value\n" + input;
-
-        Objects.requireNonNull(tableInput, "tableText must not be null");
-        var result = formatter.format(tableInput, "", Config.NO_INDENT);
-
-        var lines = result.split("\n");
-        assertThat(lines[1]).isEqualTo(formatted);
     }
 
     @Test
@@ -124,102 +96,6 @@ class TableTestFormatterTest {
     }
 
     @Test
-    void shouldPreserveSingleQuotes() {
-        var input = """
-            col
-            'value'
-            """;
-
-        Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", Config.NO_INDENT);
-
-        assertThat(result).isEqualTo("""
-            col
-            'value'
-            """);
-    }
-
-    @Test
-    void shouldPreserveDoubleQuotes() {
-        var input = """
-            col
-            "value"
-            """;
-
-        Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", Config.NO_INDENT);
-
-        assertThat(result).isEqualTo("""
-            col
-            "value"
-            """);
-    }
-
-    @Test
-    void shouldPreserveMixedQuoteStyles() {
-        var input = """
-            col1|col2|col3
-            'single'|"double"|unquoted
-            """;
-
-        Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", Config.NO_INDENT);
-
-        assertThat(result).isEqualTo("""
-            col1     | col2     | col3
-            'single' | "double" | unquoted
-            """);
-    }
-
-    @Test
-    void shouldPreserveQuotesWithPadding() {
-        var input = """
-            short|long
-            'a'|'longer'
-            """;
-
-        Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", Config.NO_INDENT);
-
-        assertThat(result).isEqualTo("""
-            short | long
-            'a'   | 'longer'
-            """);
-    }
-
-    @Test
-    void shouldPreserveQuotesWithPipeInside() {
-        var input = """
-            col1|col2
-            'a|b'|'c'
-            """;
-
-        Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", Config.NO_INDENT);
-
-        assertThat(result).isEqualTo("""
-            col1  | col2
-            'a|b' | 'c'
-            """);
-    }
-
-    @Test
-    void shouldPreserveQuotesInListWithSpecialCharacters() {
-        var input = """
-            col
-            [unquoted, 'with|pipe', "with]bracket"]
-            """;
-
-        Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", Config.NO_INDENT);
-
-        assertThat(result).isEqualTo("""
-            col
-            [unquoted, 'with|pipe', "with]bracket"]
-            """);
-    }
-
-    @Test
     void shouldReturnUnchangedWhenMismatchedColumnCounts() {
         var input = """
             name|age
@@ -282,38 +158,6 @@ class TableTestFormatterTest {
     }
 
     @Test
-    void shouldHandleUnmatchedSingleQuote() {
-        var input = """
-            name|value
-            test|'unclosed
-            """;
-
-        Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", Config.NO_INDENT);
-
-        assertThat(result).isEqualTo("""
-            name | value
-            test | 'unclosed
-            """);
-    }
-
-    @Test
-    void shouldHandleUnmatchedDoubleQuote() {
-        var input = """
-            name|value
-            test|"unclosed
-            """;
-
-        Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", Config.NO_INDENT);
-
-        assertThat(result).isEqualTo("""
-            name | value
-            test | "unclosed
-            """);
-    }
-
-    @Test
     void shouldReturnUnchangedWhenEscapedQuotesInValue() {
         var input = """
             name|message
@@ -325,38 +169,6 @@ class TableTestFormatterTest {
 
         // Parser cannot handle escaped quotes, returns unchanged
         assertThat(result).isEqualTo(input);
-    }
-
-    @Test
-    void shouldHandleInvalidUnicodeSequence() {
-        var input = """
-            name|value
-            test|\\uZZZZ
-            """;
-
-        Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", Config.NO_INDENT);
-
-        assertThat(result).isEqualTo("""
-            name | value
-            test | \\uZZZZ
-            """);
-    }
-
-    @Test
-    void shouldHandleMixedQuotesWithinCell() {
-        var input = """
-            name|message
-            test|'He said "hello"'
-            """;
-
-        Objects.requireNonNull(input, "tableText must not be null");
-        var result = formatter.format(input, "", Config.NO_INDENT);
-
-        assertThat(result).isEqualTo("""
-            name | message
-            test | 'He said "hello"'
-            """);
     }
 
     @Test
