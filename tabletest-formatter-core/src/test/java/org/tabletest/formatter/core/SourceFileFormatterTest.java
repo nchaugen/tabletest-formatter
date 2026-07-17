@@ -6,6 +6,12 @@ import org.tabletest.formatter.config.IndentStyle;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * End-to-end assembly checks for {@link SourceFileFormatter}: annotation extraction,
+ * splicing, idempotence, Java/Kotlin text-block forms and the string-array form. The
+ * table formatting rules themselves are specified in ColumnWidthTest, RowLayoutTest,
+ * CellFormattingTest, CommentAndBlankLineTest and IndentationTest.
+ */
 class SourceFileFormatterTest {
 
     private final SourceFileFormatter formatter = new SourceFileFormatter();
@@ -130,31 +136,6 @@ class SourceFileFormatterTest {
     }
 
     @Test
-    void shouldHandleTablesWithDifferentWidths() {
-        String input = """
-                class Test {
-                    @TableTest(\"""
-                    a|bb|ccc
-                    dddd|e|ff
-                    \""")
-                    void test() {}
-                }
-                """;
-
-        String result = formatter.format(input, Config.NO_INDENT);
-
-        assertThat(result).isEqualTo("""
-                class Test {
-                    @TableTest(\"""
-                a    | bb | ccc
-                dddd | e  | ff
-                    \""")
-                    void test() {}
-                }
-                """);
-    }
-
-    @Test
     void shouldFormatWithIndentation() {
         String input = """
                 class Test {
@@ -258,105 +239,6 @@ class SourceFileFormatterTest {
                             \""")
                         void test() {}
                     }
-                }
-                """);
-    }
-
-    @Test
-    void shouldFormatMultipleTablesWithDifferentIndentationLevels() {
-        String input = """
-                class Test {
-                    @TableTest(\"""
-                    name|age
-                    Alice|30
-                    \""")
-                    void test1() {}
-
-                    class Nested {
-                        @TableTest(\"""
-                        city|country
-                        London|UK
-                        \""")
-                        void test2() {}
-                    }
-                }
-                """;
-
-        String result = formatter.format(input, Config.SPACES_4);
-
-        assertThat(result).isEqualTo("""
-                class Test {
-                    @TableTest(\"""
-                        name  | age
-                        Alice | 30
-                        \""")
-                    void test1() {}
-
-                    class Nested {
-                        @TableTest(\"""
-                            city   | country
-                            London | UK
-                            \""")
-                        void test2() {}
-                    }
-                }
-                """);
-    }
-
-    @Test
-    void shouldFormatDeeplyNestedStructure() {
-        String input = """
-                class Level1 {
-                    class Level2 {
-                        class Level3 {
-                            @TableTest(\"""
-                            x|y
-                            1|2
-                            \""")
-                            void test() {}
-                        }
-                    }
-                }
-                """;
-
-        String result = formatter.format(input, Config.SPACES_4);
-
-        assertThat(result).isEqualTo("""
-                class Level1 {
-                    class Level2 {
-                        class Level3 {
-                            @TableTest(\"""
-                                x | y
-                                1 | 2
-                                \""")
-                            void test() {}
-                        }
-                    }
-                }
-                """);
-    }
-
-    @Test
-    void shouldFormatWithTwoSpaceIndentation() {
-        String input = """
-                class Test {
-                  @TableTest(\"""
-                  name|age
-                  Alice|30
-                  \""")
-                  void test() {}
-                }
-                """;
-
-        String result = formatter.format(input, new Config(IndentStyle.SPACE, 2));
-
-        assertThat(result).isEqualTo("""
-                class Test {
-                  @TableTest(\"""
-                    name  | age
-                    Alice | 30
-                    \""")
-                  void test() {}
                 }
                 """);
     }
