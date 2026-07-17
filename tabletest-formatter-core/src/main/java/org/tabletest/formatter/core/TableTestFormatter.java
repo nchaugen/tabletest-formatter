@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
 
@@ -122,11 +123,11 @@ public class TableTestFormatter {
         }
     }
 
-    private boolean isCommentLine(String line) {
+    boolean isCommentLine(String line) {
         return line.trim().startsWith("//");
     }
 
-    private boolean isBlankLine(String line) {
+    boolean isBlankLine(String line) {
         return line.trim().isEmpty();
     }
 
@@ -207,21 +208,30 @@ public class TableTestFormatter {
     }
 
     private int calculateColumnWidth(Table table, int columnIndex) {
-        int headerWidth = cellWidth(table.header(columnIndex));
+        List<Object> cells = Stream.concat(
+                        Stream.of(table.header(columnIndex)),
+                        table.rows().stream().map(row -> row.value(columnIndex)))
+                .toList();
+        return columnWidth(cells);
+    }
 
-        int maxDataWidth = table.rows().stream()
-                .mapToInt(row -> cellWidth(row.value(columnIndex)))
-                .max()
-                .orElse(0);
-
-        return Math.max(headerWidth, maxDataWidth);
+    /**
+     * Calculates the display width of a column from all its cells, header included:
+     * the width of the widest cell.
+     */
+    int columnWidth(List<?> cellsIncludingHeader) {
+        return cellsIncludingHeader.stream().mapToInt(this::cellWidth).max().orElse(0);
     }
 
     private int cellWidth(Object cell) {
         return DisplayWidth.of(cellFormatter.formatCell(cell));
     }
 
-    private String formatRow(List<?> cells, int[] columnWidths) {
+    /**
+     * Formats one table row: each cell rendered, padded to its column width, and
+     * joined with the {@code " | "} separator (no padding after the last column).
+     */
+    String formatRow(List<?> cells, int[] columnWidths) {
         return IntStream.range(0, cells.size())
                 .mapToObj(i -> {
                     String value = cellFormatter.formatCell(cells.get(i));
