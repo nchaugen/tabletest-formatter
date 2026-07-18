@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * rules are specified in ColumnWidthTest, RowLayoutTest, CellFormattingTest,
  * CommentAndBlankLineTest and IndentationTest.
  */
+@DisplayName("Graceful degradation")
 @TypeConverterSources(IndentationTest.class)
 class TableTestFormatterTest {
 
@@ -53,25 +54,27 @@ class TableTestFormatterTest {
             """);
     }
 
-    @DisplayName("Inputs the formatter leaves untouched")
+    @DisplayName("Unparseable input is returned unchanged")
     @Description("""
             Formatting must never break a build: input that cannot be parsed as a
             well-formed table is returned exactly as it was, whatever indent is
             configured. Escaped quotes are not part of the table grammar, so tables
-            containing them are left alone.
+            containing them are left alone. The well-formed row shows the contrast:
+            parseable input is reformatted.
             """)
     @TableTest("""
-            Scenario                     | Table lines                                    | Configured indent
-            Extra column in a data row   | ["name|age", "Alice|30", "Bob|25|London"]      | {'space:0', 'space:4'}
-            Missing column in a data row | ["name|age|city", "Alice|30", "Bob|25|London"] | {'space:0', 'space:4'}
-            Escaped quotes in a value    | ["name|message", 'test|"He said \\"hello\\""'] | {'space:0', 'space:4'}
-            Empty input                  | []                                             | {'space:0', 'space:4'}
-            Whitespace-only input        | ["   ", "  ", "   "]                           | {'space:0', 'space:4'}
+            Scenario                     | Table lines                                    | Configured indent      | Unchanged?
+            Well-formed table            | ["name|age", "Alice|30"]                       | {'space:0', 'space:4'} | false
+            Extra column in a data row   | ["name|age", "Alice|30", "Bob|25|London"]      | {'space:0', 'space:4'} | true
+            Missing column in a data row | ["name|age|city", "Alice|30", "Bob|25|London"] | {'space:0', 'space:4'} | true
+            Escaped quotes in a value    | ["name|message", 'test|"He said \\"hello\\""'] | {'space:0', 'space:4'} | true
+            Empty input                  | []                                             | {'space:0', 'space:4'} | true
+            Whitespace-only input        | ["   ", "  ", "   "]                           | {'space:0', 'space:4'} | true
             """)
-    void leavesInputUntouched(List<String> tableLines, Config indent) {
+    void leavesUnparseableInputUntouched(List<String> tableLines, Config indent, boolean unchanged) {
         String input = String.join("\n", tableLines);
 
-        assertThat(formatter.format(input, "", indent)).isEqualTo(input);
+        assertThat(formatter.format(input, "", indent).equals(input)).isEqualTo(unchanged);
     }
 
     // ========== Input Validation Tests ==========
