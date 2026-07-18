@@ -85,6 +85,8 @@ For complete format specification, see [TableTest documentation](https://github.
 
 This formatter applies consistent formatting with sensible defaults based on established patterns from the [IntelliJ IDEA plugin](https://github.com/nchaugen/tabletest-intellij).
 
+The complete formatting rules are documented as a [living specification](https://nchaugen.github.io/tabletest-formatter/) — generated from the formatter's own test suite by [TableTest Reporter](https://github.com/nchaugen/tabletest-reporter) on every push, so it always matches the current behaviour.
+
 ### Formatting Rules
 
 **Column alignment:**
