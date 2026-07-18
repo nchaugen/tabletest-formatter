@@ -55,8 +55,7 @@
 
     <profiles>
         <!-- Living documentation: run tests with the reporter extension and generate
-             the HTML report with `mvn -Preport test org.tabletest:tabletest-reporter-maven-plugin:report`.
-             Needs a locally installed reporter until 1.1.1 is released. -->
+             the HTML report with `mvn -Preport test org.tabletest:tabletest-reporter-maven-plugin:report`. -->
         <profile>
             <id>report</id>
             <dependencies>
