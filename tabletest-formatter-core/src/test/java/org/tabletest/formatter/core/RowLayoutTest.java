@@ -22,17 +22,17 @@ class RowLayoutTest {
             The header row is laid out by the same rule as data rows.
             """)
     @TableTest("""
-            Scenario                           | Cells       | Column widths | Row?
-            Cells padded to their column width | [Alice, 30] | [5, 3]        | 'Alice | 30'
-            Last column never padded           | [Bob, 7]    | [5, 3]        | 'Bob   | 7'
-            Three columns joined with pipes    | [a, bb, c]  | [1, 2, 1]     | 'a | bb | c'
-            Empty first cell filled with spaces| ['', 30]    | [5, 3]        | '      | 30'
-            Empty middle cell                  | [a, '', c]  | [1, 1, 1]     | 'a |   | c'
-            Empty last cell leaves pipe bare   | [short, ''] | [5, 3]        | 'short |'
-            Single column gets no padding      | [Alice]     | [8]           | Alice
-            CJK padded by display width        | [中文, x]   | [6, 1]        | '中文   | x'
-            Emoji padded by display width      | [😀, ok]    | [2, 2]        | '😀 | ok'
-            """)
+        Scenario                            | Cells       | Column widths | Row?
+        Cells padded to their column width  | [Alice, 30] | [5, 3]        | 'Alice | 30'
+        Last column never padded            | [Bob, 7]    | [5, 3]        | 'Bob   | 7'
+        Three columns joined with pipes     | [a, bb, c]  | [1, 2, 1]     | 'a | bb | c'
+        Empty first cell filled with spaces | ['', 30]    | [5, 3]        | '      | 30'
+        Empty middle cell                   | [a, '', c]  | [1, 1, 1]     | 'a |   | c'
+        Empty last cell leaves pipe bare    | [short, ''] | [5, 3]        | 'short |'
+        Single column gets no padding       | [Alice]     | [8]           | Alice
+        CJK padded by display width         | [中文, x]   | [6, 1]        | '中文   | x'
+        Emoji padded by display width       | [😀, ok]    | [2, 2]        | '😀 | ok'
+        """)
     void laysOutRow(List<String> cells, List<Integer> columnWidths, String row) {
         int[] widths = columnWidths.stream().mapToInt(Integer::intValue).toArray();
 

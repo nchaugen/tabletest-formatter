@@ -21,14 +21,14 @@ class CommentAndBlankLineTest {
             make the line a comment.
             """)
     @TableTest("""
-            Scenario                    | Line           | Comment line? | Blank line?
-            Comment line                | '// note'      | true          | false
-            Comment with leading spaces | '  // note'    | true          | false
-            Empty line                  | ''             | false         | true
-            Whitespace-only line        | '   '          | false         | true
-            Data row                    | 'Alice|30'     | false         | false
-            Comment marker mid-line     | 'Alice // 30'  | false         | false
-            """)
+        Scenario                    | Line          | Comment line? | Blank line?
+        Comment line                | '// note'     | true          | false
+        Comment with leading spaces | '  // note'   | true          | false
+        Empty line                  | ''            | false         | true
+        Whitespace-only line        | '   '         | false         | true
+        Data row                    | 'Alice|30'    | false         | false
+        Comment marker mid-line     | 'Alice // 30' | false         | false
+        """)
     void classifiesLine(String line, boolean commentLine, boolean blankLine) {
         assertThat(formatter.isCommentLine(line)).isEqualTo(commentLine);
         assertThat(formatter.isBlankLine(line)).isEqualTo(blankLine);
@@ -41,11 +41,11 @@ class CommentAndBlankLineTest {
             their original positions, byte for byte.
             """)
     @TableTest("""
-            Scenario                     | Table lines                                                        | Formatted?
-            Comment between rows         | ["name|age", "// note", "Alice|30"]                                | ["name  | age", "// note", "Alice | 30"]
-            Blank line between rows      | ["name|age", "Alice|30", "", "Bob|25"]                             | ["name  | age", "Alice | 30", "", "Bob   | 25"]
-            Comments and blanks together | ["name|age", "// First", "Alice|30", "", "// Second", "Bob|25"]    | ["name  | age", "// First", "Alice | 30", "", "// Second", "Bob   | 25"]
-            """)
+        Scenario                     | Table lines                                                     | Formatted?
+        Comment between rows         | ["name|age", "// note", "Alice|30"]                             | ["name  | age", "// note", "Alice | 30"]
+        Blank line between rows      | ["name|age", "Alice|30", "", "Bob|25"]                          | ["name  | age", "Alice | 30", "", "Bob   | 25"]
+        Comments and blanks together | ["name|age", "// First", "Alice|30", "", "// Second", "Bob|25"] | ["name  | age", "// First", "Alice | 30", "", "// Second", "Bob   | 25"]
+        """)
     void preservesCommentAndBlankLinesInPlace(List<String> tableLines, List<String> formattedLines) {
         String result = formatter.format(String.join("\n", tableLines) + "\n", "", Config.NO_INDENT);
 

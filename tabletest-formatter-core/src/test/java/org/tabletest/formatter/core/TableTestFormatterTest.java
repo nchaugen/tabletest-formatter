@@ -63,14 +63,14 @@ class TableTestFormatterTest {
             parseable input is reformatted.
             """)
     @TableTest("""
-            Scenario                     | Table lines                                    | Configured indent      | Unchanged?
-            Well-formed table            | ["name|age", "Alice|30"]                       | {'space:0', 'space:4'} | false
-            Extra column in a data row   | ["name|age", "Alice|30", "Bob|25|London"]      | {'space:0', 'space:4'} | true
-            Missing column in a data row | ["name|age|city", "Alice|30", "Bob|25|London"] | {'space:0', 'space:4'} | true
-            Escaped quotes in a value    | ["name|message", 'test|"He said \\"hello\\""'] | {'space:0', 'space:4'} | true
-            Empty input                  | []                                             | {'space:0', 'space:4'} | true
-            Whitespace-only input        | ["   ", "  ", "   "]                           | {'space:0', 'space:4'} | true
-            """)
+        Scenario                     | Table lines                                    | Configured indent      | Unchanged?
+        Well-formed table            | ["name|age", "Alice|30"]                       | {'space:0', 'space:4'} | false
+        Extra column in a data row   | ["name|age", "Alice|30", "Bob|25|London"]      | {'space:0', 'space:4'} | true
+        Missing column in a data row | ["name|age|city", "Alice|30", "Bob|25|London"] | {'space:0', 'space:4'} | true
+        Escaped quotes in a value    | ["name|message", 'test|"He said \\"hello\\""'] | {'space:0', 'space:4'} | true
+        Empty input                  | []                                             | {'space:0', 'space:4'} | true
+        Whitespace-only input        | ["   ", "  ", "   "]                           | {'space:0', 'space:4'} | true
+        """)
     void leavesUnparseableInputUntouched(List<String> tableLines, Config indent, boolean unchanged) {
         String input = String.join("\n", tableLines);
 

@@ -20,22 +20,22 @@ class CellFormattingTest {
             through nested collections. Quoted keys keep their quotes.
             """)
     @TableTest("""
-            Scenario                              | Value                   | Formatted?
-            Normalize spacing in lists            | "[1,2,3]"               | "[1, 2, 3]"
-            Remove extra spaces inside brackets   | "[ [] ]"                | "[[]]"
-            Format nested lists                   | "[[1,2],[3,4]]"         | "[[1, 2], [3, 4]]"
-            Format empty lists                    | "[]"                    | "[]"
-            Normalize spacing in maps             | "[a:1,b:2]"             | "[a: 1, b: 2]"
-            Format single-quoted keys             | "['[a]':1,'b:b':2]"     | "['[a]': 1, 'b:b': 2]"
-            Format double-quoted keys             | '[",a,":1,"b|b":2]'     | '[",a,": 1, "b|b": 2]'
-            Format empty maps                     | "[:]"                   | "[:]"
-            Normalize spacing in sets             | "{1,2,3}"               | "{1, 2, 3}"
-            Format set with nested list           | "{[1,2]}"               | "{[1, 2]}"
-            Format empty sets                     | "{}"                    | "{}"
-            Format list of maps                   | "[[a:1],[b:2]]"         | "[[a: 1], [b: 2]]"
-            Format nested collections recursively | "[a:[1,2],b:[3,4]]"     | "[a: [1, 2], b: [3, 4]]"
-            Format deeply nested collections      | "[a:{[1,2]},b:{[3,4]}]" | "[a: {[1, 2]}, b: {[3, 4]}]"
-            """)
+        Scenario                              | Value                   | Formatted?
+        Normalize spacing in lists            | "[1,2,3]"               | "[1, 2, 3]"
+        Remove extra spaces inside brackets   | "[ [] ]"                | "[[]]"
+        Format nested lists                   | "[[1,2],[3,4]]"         | "[[1, 2], [3, 4]]"
+        Format empty lists                    | "[]"                    | "[]"
+        Normalize spacing in maps             | "[a:1,b:2]"             | "[a: 1, b: 2]"
+        Format single-quoted keys             | "['[a]':1,'b:b':2]"     | "['[a]': 1, 'b:b': 2]"
+        Format double-quoted keys             | '[",a,":1,"b|b":2]'     | '[",a,": 1, "b|b": 2]'
+        Format empty maps                     | "[:]"                   | "[:]"
+        Normalize spacing in sets             | "{1,2,3}"               | "{1, 2, 3}"
+        Format set with nested list           | "{[1,2]}"               | "{[1, 2]}"
+        Format empty sets                     | "{}"                    | "{}"
+        Format list of maps                   | "[[a:1],[b:2]]"         | "[[a: 1], [b: 2]]"
+        Format nested collections recursively | "[a:[1,2],b:[3,4]]"     | "[a: [1, 2], b: [3, 4]]"
+        Format deeply nested collections      | "[a:{[1,2]},b:{[3,4]}]" | "[a: {[1, 2]}, b: {[3, 4]}]"
+        """)
     void normalisesCollectionValues(String value, String formatted) {
         assertThat(formatSingleCell(value)).isEqualTo(formatted);
     }
@@ -49,12 +49,12 @@ class CellFormattingTest {
             the table's own parsing) and are covered by the plain tests below.
             """)
     @TableTest("""
-            Scenario                  | Value      | Formatted?
-            Single-quoted value       | "'value'"  | "'value'"
-            Double-quoted value       | '"value"'  | '"value"'
-            Pipe inside quotes        | "'a|b'"    | "'a|b'"
-            Invalid backslash escape  | \\uZZZZ    | \\uZZZZ
-            """)
+        Scenario                 | Value     | Formatted?
+        Single-quoted value      | "'value'" | "'value'"
+        Double-quoted value      | '"value"' | '"value"'
+        Pipe inside quotes       | "'a|b'"   | "'a|b'"
+        Invalid backslash escape | \\uZZZZ   | \\uZZZZ
+        """)
     void preservesQuotedValues(String value, String formatted) {
         assertThat(formatSingleCell(value)).isEqualTo(formatted);
     }

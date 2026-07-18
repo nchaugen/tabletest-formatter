@@ -26,15 +26,15 @@ public class IndentationTest {
             when the indent size is zero.
             """)
     @TableTest("""
-            Scenario                              | Table lines                              | Base indent | Configured indent | Result lines?
-            Indent size zero leaves table flush   | ["name|age", "Alice|30"]                 | ''          | space:0           | ["name  | age", "Alice | 30", ""]
-            Every line indented one level         | ["name|age", "Alice|30"]                 | ''          | space:4           | ["    name  | age", "    Alice | 30", "    "]
-            Base indent added beneath the level   | ["name|age", "Alice|30"]                 | '    '      | space:2           | ["      name  | age", "      Alice | 30", "      "]
-            Varying input indentation normalised  | ["  name|age", "      Alice|30", "Bob|25"] | ''        | space:4           | ["    name  | age", "    Alice | 30", "    Bob   | 25", "    "]
-            Header-only table                     | ["name|age"]                             | ''          | space:4           | ["    name | age", "    "]
-            Comment lines indented too            | ["name|age", "// note", "Alice|30"]      | ''          | space:2           | ["  name  | age", "  // note", "  Alice | 30", "  "]
-            Blank lines never indented            | ["name|age", "Alice|30", "", "Bob|25"]   | ''          | space:2           | ["  name  | age", "  Alice | 30", "", "  Bob   | 25", "  "]
-            """)
+        Scenario                             | Table lines                                | Base indent | Configured indent | Result lines?
+        Indent size zero leaves table flush  | ["name|age", "Alice|30"]                   | ''          | space:0           | ["name  | age", "Alice | 30", ""]
+        Every line indented one level        | ["name|age", "Alice|30"]                   | ''          | space:4           | ["    name  | age", "    Alice | 30", "    "]
+        Base indent added beneath the level  | ["name|age", "Alice|30"]                   | '    '      | space:2           | ["      name  | age", "      Alice | 30", "      "]
+        Varying input indentation normalised | ["  name|age", "      Alice|30", "Bob|25"] | ''          | space:4           | ["    name  | age", "    Alice | 30", "    Bob   | 25", "    "]
+        Header-only table                    | ["name|age"]                               | ''          | space:4           | ["    name | age", "    "]
+        Comment lines indented too           | ["name|age", "// note", "Alice|30"]        | ''          | space:2           | ["  name  | age", "  // note", "  Alice | 30", "  "]
+        Blank lines never indented           | ["name|age", "Alice|30", "", "Bob|25"]     | ''          | space:2           | ["  name  | age", "  Alice | 30", "", "  Bob   | 25", "  "]
+        """)
     void appliesIndentation(List<String> tableLines, String baseIndent, Config indent, List<String> resultLines) {
         String result = formatter.format(String.join("\n", tableLines) + "\n", baseIndent, indent);
 
