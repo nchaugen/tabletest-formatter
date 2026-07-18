@@ -1,6 +1,8 @@
 package org.tabletest.formatter.core;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.tabletest.junit.Description;
 import org.tabletest.junit.TableTest;
 
 import java.util.List;
@@ -8,6 +10,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@DisplayName("Base indent detection")
 class TableTestExtractorTest {
 
     private final TableTestExtractor extractor = new TableTestExtractor();
@@ -921,14 +924,20 @@ class TableTestExtractorTest {
         assertThat(extractedIndent).isEqualTo("    ");
     }
 
+    @DisplayName("The annotation line's leading whitespace is the base indent")
+    @Description("""
+            The base indent is the indentation of the code surrounding the table; the
+            Indentation rules re-indent the formatted table relative to it. In the
+            Source code column, \\n stands for a line break.
+            """)
     @TableTest("""
-        Scenario                        | sourceCode                                    | indent?
-        no indentation (top-level)      | '@TableTest(\"""\\nx|y\\n1|2\\n\""")'         | ''
-        shallow indentation (2 spaces)  | '  @TableTest(\"""\\nx|y\\n1|2\\n\""")'       | '  '
-        standard indentation (4 spaces) | '    @TableTest(\"""\\nx|y\\n1|2\\n\""")'     | '    '
-        deep indentation (8 spaces)     | '        @TableTest(\"""\\nx|y\\n1|2\\n\""")' | '        '
+        Scenario                  | Source code                                   | Base indent?
+        Top-level annotation      | '@TableTest(\"""\\nx|y\\n1|2\\n\""")'         | ''
+        Two-space indented code   | '  @TableTest(\"""\\nx|y\\n1|2\\n\""")'       | '  '
+        Four-space indented code  | '    @TableTest(\"""\\nx|y\\n1|2\\n\""")'     | '    '
+        Eight-space indented code | '        @TableTest(\"""\\nx|y\\n1|2\\n\""")' | '        '
         """)
-    void shouldDetectBaseIndentationVariations(String sourceCode, String indent) {
+    void detectsBaseIndent(String sourceCode, String indent) {
         String actualSource = sourceCode.replace("\\n", "\n");
 
         List<TableMatch> matches = extractor.findAll(actualSource);
@@ -939,14 +948,20 @@ class TableTestExtractorTest {
         assertThat(extractedIndent).isEqualTo(indent);
     }
 
+    @DisplayName("Tabs and spaces in the base indent are preserved exactly")
+    @Description("""
+            The base indent is reproduced verbatim, never normalised — code indented
+            with tabs, or a mix of tabs and spaces, keeps that exact whitespace. In
+            the Source code column, \\n stands for a line break.
+            """)
     @TableTest("""
-        Scenario            | sourceCode                                | indent?
-        single tab          | '\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'   | '\t'
-        two tabs            | '\t\t@TableTest(\"""\\nx|y\\n1|2\\n\""")' | '\t\t'
-        tab plus two spaces | '\t  @TableTest(\"""\\nx|y\\n1|2\\n\""")' | '\t  '
-        two spaces plus tab | '  \t@TableTest(\"""\\nx|y\\n1|2\\n\""")' | '  \t'
+        Scenario                 | Source code                               | Base indent?
+        Single-tab indented code | '\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'   | '\t'
+        Two-tab indented code    | '\t\t@TableTest(\"""\\nx|y\\n1|2\\n\""")' | '\t\t'
+        Tab then two spaces      | '\t  @TableTest(\"""\\nx|y\\n1|2\\n\""")' | '\t  '
+        Two spaces then tab      | '  \t@TableTest(\"""\\nx|y\\n1|2\\n\""")' | '  \t'
         """)
-    void shouldPreserveTabsAndSpacesInIndentation(String sourceCode, String indent) {
+    void preservesTabsAndSpacesInBaseIndent(String sourceCode, String indent) {
         String actualSource = sourceCode.replace("\\n", "\n");
 
         List<TableMatch> matches = extractor.findAll(actualSource);
