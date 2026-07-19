@@ -23,7 +23,8 @@ public class IndentationTest {
             the surrounding code) plus one level of the configured indent. Blank lines
             stay completely empty. The final element of Result lines shows what ends the
             block: a bare indent that aligns the closing text-block quotes, or nothing
-            when the indent size is zero.
+            when the indent size is zero. The style may be spaces or tabs; with a
+            tab style each level is that many tab characters, kept as tabs.
             """)
     @TableTest("""
         Scenario                             | Table lines                                | Base indent | Configured indent | Result lines?
@@ -34,6 +35,8 @@ public class IndentationTest {
         Header-only table                    | ["name|age"]                               | ''          | space:4           | ["    name | age", "    "]
         Comment lines indented too           | ["name|age", "// note", "Alice|30"]        | ''          | space:2           | ["  name  | age", "  // note", "  Alice | 30", "  "]
         Blank lines never indented           | ["name|age", "Alice|30", "", "Bob|25"]     | ''          | space:2           | ["  name  | age", "  Alice | 30", "", "  Bob   | 25", "  "]
+        Tab style indents with a tab         | ["name|age", "Alice|30"]                   | ''          | tab:1             | ["\tname  | age", "\tAlice | 30", "\t"]
+        Tab size sets tabs per level         | ["name|age", "Alice|30"]                   | ''          | tab:2             | ["\t\tname  | age", "\t\tAlice | 30", "\t\t"]
         """)
     void appliesIndentation(List<String> tableLines, String baseIndent, Config indent, List<String> resultLines) {
         String result = formatter.format(String.join("\n", tableLines) + "\n", baseIndent, indent);
