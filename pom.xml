@@ -41,7 +41,7 @@
         <version.plugin.gpg>3.2.8</version.plugin.gpg>
         <version.plugin.publishing>0.11.0</version.plugin.publishing>
         <version.plugin.release>3.3.1</version.plugin.release>
-        <version.plugin.spotless>3.8.0</version.plugin.spotless>
+        <version.plugin.spotless>3.9.0</version.plugin.spotless>
         <version.plugin.versions>2.21.0</version.plugin.versions>
         <version.tabletest>1.2.2</version.tabletest>
         <version.tabletest.parser>1.2.1</version.tabletest.parser>
