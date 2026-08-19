@@ -1,0 +1,18 @@
+# Report-time curation for the formatter's living spec.
+#
+# Spec metadata is applied when the report is generated, not when the tests run. Nothing here
+# is a test-code concern, and nothing here is JVM-specific — the second (non-JVM)
+# implementation ships the same file. See the reporter decision spec-metadata-sidecar-file.
+#
+# No publish selection: every @TableTest in this module publishes, which is the default and
+# has been the formatter's model since before report-time selection existed.
+
+# --- Spec metadata --------------------------------------------------------------------
+# Without a title the root index is named by the deepest common package segment ("core").
+# The decided pipeline reading order is NOT set here yet — see the living-docs-coverage
+# roadmap, Track C "Formatter — feature ordering".
+title: "TableTest Formatter — Specification"
+intro: >
+  How the formatter lays out a TableTest table: which cell widths it computes, how it pads and
+  aligns each cell, and what it leaves untouched. Every rule below is executable — it is a test
+  that runs in CI, and each scenario is one row of that test's table.
