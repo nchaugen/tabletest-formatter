@@ -15,7 +15,7 @@
 # cell, size each column, lay out the row, then indent the result — with the lines that take
 # no part in alignment, and the inputs that defeat formatting altogether, at the end. Names
 # match a page by its slug; these pages are one test class each, so the slug is the class's.
-title: "TableTest Formatter — Specification"
+title: "TableTest Formatter"
 intro: >
   How the formatter lays out a TableTest table: where it finds the tables in a source file,
   what it computes for each cell and column, and what it leaves untouched. The features below
