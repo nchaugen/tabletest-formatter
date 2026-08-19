@@ -10,10 +10,84 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@DisplayName("Base indent detection")
+@DisplayName("Table extraction")
 class TableTestExtractorTest {
 
     private final TableTestExtractor extractor = new TableTestExtractor();
+
+    @DisplayName("Tables are extracted from text blocks and string arrays")
+    @Description("""
+            The formatter reads a table from either form the annotation accepts: a text block
+            (Java or Kotlin, both delimited by three quotes) or an array of string literals.
+            A source file is scanned end to end, so every annotated table in it is extracted,
+            in the order it appears. The Table forms column names the form each extracted
+            table was written in.
+            """)
+    @TableTest("""
+        Scenario                       | Source lines                                                                          | Table forms?
+        Java text block                | ['@TableTest(\"""', 'name | age', 'Alice | 30', '\""")', 'void test() {}']         | [TEXT_BLOCK]
+        Kotlin raw string              | ['@TableTest(\"""', 'name | age', 'Alice | 30', '\""")', 'fun test() {}']          | [TEXT_BLOCK]
+        String array                   | ['@TableTest({"name|age", "Alice|30"})', 'void test() {}']                             | [STRING_ARRAY]
+        String array, entries per line | ['@TableTest({', '"name|age",', '"Alice|30"', '})', 'void test() {}']                  | [STRING_ARRAY]
+        Two tables in one file         | ['@TableTest(\"""', 'a | b', '1 | 2', '\""")', '@TableTest({"x|y", "3|4"})']       | [TEXT_BLOCK, STRING_ARRAY]
+        No annotated table             | ['@Test', 'void test() {}']                                                           | []
+        """)
+    void extractsEachAnnotatedTable(List<String> sourceLines, List<TableMatch.MatchType> tableForms) {
+        assertThat(formsExtractedFrom(sourceLines)).isEqualTo(tableForms);
+    }
+
+    @DisplayName("Only a real annotation argument is extracted")
+    @Description("""
+            Text that merely looks like an annotated table is left alone: the formatter would
+            otherwise rewrite the example in a comment, or the fixture a test feeds to a tool.
+            The last row is the same table written for real, and shows the rule is about where
+            the text sits rather than how it is written.
+            """)
+    @TableTest("""
+        Scenario                      | Source lines                                                                    | Table forms?
+        Inside a line comment         | ['// @TableTest(\"""', '// name | age', '// Alice | 30', '// \""")']         | []
+        Inside a block comment        | ['/*', ' * @TableTest(\"""', ' * name | age', ' * \""")', ' */']             | []
+        String array inside a comment | ['// @TableTest({"name|age", "Alice|30"})']                                      | []
+        Inside a plain string literal | ['@TableTest("name | age\\nAlice | 30")', 'void test() {}']                   | []
+        Inside a text-block fixture   | ['var fixture = \"""', '@TableTest(\\\"""', 'name | age', '\\\""")', '\""";'] | []
+        On a different annotation     | ['@CsvSource(\"""', 'name, age', 'Alice, 30', '\""")', 'void test() {}']     | []
+        Unterminated text block       | ['@TableTest(\"""', 'name | age', 'Alice | 30']                                | []
+        The same table, for real      | ['@TableTest(\"""', 'name | age', 'Alice | 30', '\""")', 'void test() {}']   | [TEXT_BLOCK]
+        """)
+    void extractsOnlyRealAnnotations(List<String> sourceLines, List<TableMatch.MatchType> tableForms) {
+        assertThat(formsExtractedFrom(sourceLines)).isEqualTo(tableForms);
+    }
+
+    @DisplayName("The annotation is recognised however it is written")
+    @Description("""
+            Only the opening line varies below; each row is completed with the same two-row
+            text block and a method declaration. The annotation is matched on its simple name,
+            so any import style works — and, as the last row records, so does any annotation
+            whose name ends in TableTest. That is a deliberate limitation: the formatter reads
+            source text without resolving imports.
+            """)
+    @TableTest("""
+        Scenario                   | Annotation opening                                  | Table forms?
+        Simple name                | '@TableTest(\"""'                                 | [TEXT_BLOCK]
+        Named value member         | '@TableTest(value = \"""'                         | [TEXT_BLOCK]
+        Spaces around parentheses  | '@TableTest   (   \"""'                           | [TEXT_BLOCK]
+        Alongside another member   | '@TableTest(resource = "data.csv", value = \"""'  | [TEXT_BLOCK]
+        Fully qualified            | '@org.tabletest.junit.TableTest(\"""'             | [TEXT_BLOCK]
+        Pre-donation package       | '@io.github.nchaugen.tabletest.junit.TableTest(\"""' | [TEXT_BLOCK]
+        Any package ending in name | '@com.example.different.TableTest(\"""'           | [TEXT_BLOCK]
+        """)
+    void recognisesEveryAnnotationForm(String annotationOpening, List<TableMatch.MatchType> tableForms) {
+        List<String> sourceLines = List.of(annotationOpening, "name | age", "Alice | 30", "\"\"\")", "void test() {}");
+
+        assertThat(formsExtractedFrom(sourceLines)).isEqualTo(tableForms);
+    }
+
+    /** The form of each table the extractor finds in these lines of source, in source order. */
+    private List<TableMatch.MatchType> formsExtractedFrom(List<String> sourceLines) {
+        return extractor.findAll(String.join("\n", sourceLines) + "\n").stream()
+                .map(TableMatch::matchType)
+                .toList();
+    }
 
     @Test
     void shouldExtractSingleTableFromJavaFile() {
