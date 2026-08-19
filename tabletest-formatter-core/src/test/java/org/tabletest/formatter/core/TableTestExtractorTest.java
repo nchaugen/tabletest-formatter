@@ -21,16 +21,17 @@ class TableTestExtractorTest {
             (Java or Kotlin, both delimited by three quotes) or an array of string literals.
             A source file is scanned end to end, so every annotated table in it is extracted,
             in the order it appears. The Table forms column names the form each extracted
-            table was written in.
+            table was written in. How the array is laid out makes no difference to what is
+            extracted, so both layouts share one row; laying it back out is the String array
+            layout feature.
             """)
     @TableTest("""
-        Scenario                       | Source lines                                                                          | Table forms?
-        Java text block                | ['@TableTest(\"""', 'name | age', 'Alice | 30', '\""")', 'void test() {}']         | [TEXT_BLOCK]
-        Kotlin raw string              | ['@TableTest(\"""', 'name | age', 'Alice | 30', '\""")', 'fun test() {}']          | [TEXT_BLOCK]
-        String array                   | ['@TableTest({"name|age", "Alice|30"})', 'void test() {}']                             | [STRING_ARRAY]
-        String array, entries per line | ['@TableTest({', '"name|age",', '"Alice|30"', '})', 'void test() {}']                  | [STRING_ARRAY]
-        Two tables in one file         | ['@TableTest(\"""', 'a | b', '1 | 2', '\""")', '@TableTest({"x|y", "3|4"})']       | [TEXT_BLOCK, STRING_ARRAY]
-        No annotated table             | ['@Test', 'void test() {}']                                                           | []
+        Scenario                                       | Source lines                                                                                                                        | Table forms?
+        Java text block                                | ['@TableTest(\"""', 'name | age', 'Alice | 30', '\""")', 'void test() {}']                                                          | [TEXT_BLOCK]
+        Kotlin raw string, content on the opening line | ['@TableTest(\"\"\"\"\"|b', '1|2', '\""")', 'fun test() {}']                                                                        | [TEXT_BLOCK]
+        String array, either layout                    | {['@TableTest({"name|age", "Alice|30"})', 'void test() {}'], ['@TableTest({', '"name|age",', '"Alice|30"', '})', 'void test() {}']} | [STRING_ARRAY]
+        Two tables in one file                         | ['@TableTest(\"""', 'a | b', '1 | 2', '\""")', '@TableTest({"x|y", "3|4"})']                                                        | [TEXT_BLOCK, STRING_ARRAY]
+        No annotated table                             | ['@Test', 'void test() {}']                                                                                                         | []
         """)
     void extractsEachAnnotatedTable(List<String> sourceLines, List<TableMatch.MatchType> tableForms) {
         assertThat(formsExtractedFrom(sourceLines)).isEqualTo(tableForms);
@@ -44,15 +45,15 @@ class TableTestExtractorTest {
             the text sits rather than how it is written.
             """)
     @TableTest("""
-        Scenario                      | Source lines                                                                    | Table forms?
-        Inside a line comment         | ['// @TableTest(\"""', '// name | age', '// Alice | 30', '// \""")']         | []
-        Inside a block comment        | ['/*', ' * @TableTest(\"""', ' * name | age', ' * \""")', ' */']             | []
-        String array inside a comment | ['// @TableTest({"name|age", "Alice|30"})']                                      | []
+        Scenario                      | Source lines                                                                  | Table forms?
+        Inside a line comment         | ['// @TableTest(\"""', '// name | age', '// Alice | 30', '// \""")']          | []
+        Inside a block comment        | ['/*', ' * @TableTest(\"""', ' * name | age', ' * \""")', ' */']              | []
+        String array inside a comment | ['// @TableTest({"name|age", "Alice|30"})']                                   | []
         Inside a plain string literal | ['@TableTest("name | age\\nAlice | 30")', 'void test() {}']                   | []
         Inside a text-block fixture   | ['var fixture = \"""', '@TableTest(\\\"""', 'name | age', '\\\""")', '\""";'] | []
-        On a different annotation     | ['@CsvSource(\"""', 'name, age', 'Alice, 30', '\""")', 'void test() {}']     | []
-        Unterminated text block       | ['@TableTest(\"""', 'name | age', 'Alice | 30']                                | []
-        The same table, for real      | ['@TableTest(\"""', 'name | age', 'Alice | 30', '\""")', 'void test() {}']   | [TEXT_BLOCK]
+        On a different annotation     | ['@CsvSource(\"""', 'name, age', 'Alice, 30', '\""")', 'void test() {}']      | []
+        Unterminated text block       | ['@TableTest(\"""', 'name | age', 'Alice | 30']                               | []
+        The same table, for real      | ['@TableTest(\"""', 'name | age', 'Alice | 30', '\""")', 'void test() {}']    | [TEXT_BLOCK]
         """)
     void extractsOnlyRealAnnotations(List<String> sourceLines, List<TableMatch.MatchType> tableForms) {
         assertThat(formsExtractedFrom(sourceLines)).isEqualTo(tableForms);
@@ -62,19 +63,22 @@ class TableTestExtractorTest {
     @Description("""
             Only the opening line varies below; each row is completed with the same two-row
             text block and a method declaration. The annotation is matched on its simple name,
-            so any import style works — and, as the last row records, so does any annotation
-            whose name ends in TableTest. That is a deliberate limitation: the formatter reads
-            source text without resolving imports.
+            so any import style works — and so does any annotation whose simple name is
+            exactly TableTest, whatever package it came from. That is a deliberate
+            limitation: the formatter reads source text without resolving imports. The last
+            two rows are where it stops — a different package still matches, a longer name
+            does not.
             """)
     @TableTest("""
-        Scenario                   | Annotation opening                                  | Table forms?
-        Simple name                | '@TableTest(\"""'                                 | [TEXT_BLOCK]
-        Named value member         | '@TableTest(value = \"""'                         | [TEXT_BLOCK]
-        Spaces around parentheses  | '@TableTest   (   \"""'                           | [TEXT_BLOCK]
-        Alongside another member   | '@TableTest(resource = "data.csv", value = \"""'  | [TEXT_BLOCK]
-        Fully qualified            | '@org.tabletest.junit.TableTest(\"""'             | [TEXT_BLOCK]
+        Scenario                   | Annotation opening                                   | Table forms?
+        Simple name                | '@TableTest(\"""'                                    | [TEXT_BLOCK]
+        Named value member         | '@TableTest(value = \"""'                            | [TEXT_BLOCK]
+        Spaces around parentheses  | '@TableTest   (   \"""'                              | [TEXT_BLOCK]
+        Alongside another member   | '@TableTest(resource = "data.csv", value = \"""'     | [TEXT_BLOCK]
+        Fully qualified            | '@org.tabletest.junit.TableTest(\"""'                | [TEXT_BLOCK]
         Pre-donation package       | '@io.github.nchaugen.tabletest.junit.TableTest(\"""' | [TEXT_BLOCK]
-        Any package ending in name | '@com.example.different.TableTest(\"""'           | [TEXT_BLOCK]
+        Any package ending in name | '@com.example.different.TableTest(\"""'              | [TEXT_BLOCK]
+        A longer annotation name   | '@TableTestSource(\"""'                              | []
         """)
     void recognisesEveryAnnotationForm(String annotationOpening, List<TableMatch.MatchType> tableForms) {
         List<String> sourceLines = List.of(annotationOpening, "name | age", "Alice | 30", "\"\"\")", "void test() {}");

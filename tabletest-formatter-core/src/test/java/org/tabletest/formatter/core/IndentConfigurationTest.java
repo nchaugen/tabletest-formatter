@@ -38,20 +38,22 @@ public class IndentConfigurationTest {
             convention the surrounding project already states. The search starts in the source
             file's own directory and walks up, and the indent_style and indent_size it finds
             become the style and size the Indentation rules apply. Anything the search cannot
-            use — no file, a file it cannot read, or one whose sections do not cover this kind
-            of file — leaves the caller's default in force, so a broken .editorconfig never
-            fails a build. Each row writes the file it shows into a temporary project holding
-            one Java source file. An indent is written style:size.
+            use — no file, a file it cannot read, one whose sections do not cover this kind of
+            file, or one that ends the search without setting an indent — leaves the caller's
+            default in force, so a broken .editorconfig never fails a build. Each row writes
+            the file it shows into a temporary project holding one Java source file. An
+            indent is written style:size.
             """)
     @TableTest("""
-        Scenario                    | Config file lines                                                     | Sits     | Caller's default | Indent used?
+        Scenario                    | Config file lines                                                      | Sits     | Caller's default | Indent used?
         Two-space Java indent       | ['root = true', '[*.java]', 'indent_style = space', 'indent_size = 2'] | BESIDE   | space:4          | space:2
         Tabs, one per level         | ['root = true', '[*.java]', 'indent_style = tab', 'indent_size = 1']   | BESIDE   | space:4          | tab:1
         Setting from a parent       | ['root = true', '[*.java]', 'indent_style = tab', 'indent_size = 1']   | ANCESTOR | space:4          | tab:1
+        A file that ends the search | ['root = true']                                                        | BESIDE   | space:4          | space:4
         A section for other files   | ['root = true', '[*.kt]', 'indent_style = tab', 'indent_size = 1']     | BESIDE   | space:4          | space:4
-        No .editorconfig at all     | []                                                                    | NOWHERE  | space:4          | space:4
-        A file that cannot be read  | ['this is not valid editorconfig', '[unclosed section']               | BESIDE   | space:4          | space:4
-        Caller asking for no indent | []                                                                    | NOWHERE  | space:0          | space:0
+        No .editorconfig at all     | []                                                                     | NOWHERE  | space:4          | space:4
+        A file that cannot be read  | ['this is not valid editorconfig', '[unclosed section']                | BESIDE   | space:4          | space:4
+        Caller asking for no indent | []                                                                     | NOWHERE  | space:0          | space:0
         """)
     void resolvesTheIndentForASourceFile(
             List<String> configFileLines, ConfigFileLocation sits, Config callersDefault, Config indentUsed)
