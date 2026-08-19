@@ -17,18 +17,14 @@ class DisplayWidthTest {
     @DisplayName("Each code point is zero, one or two columns wide")
     @Description("""
             Typical Latin characters occupy one display column. CJK characters occupy
-            two. Control characters (null, newline, tab) occupy none.
+            two. Control characters occupy none. Each row carries every code point
+            that width applies to: A, z and 0; 中 and 你; null, newline and tab.
             """)
     @TableTest("""
-        Scenario          | Code point | Width?
-        ASCII letter A    | 65         | 1
-        ASCII letter z    | 122        | 1
-        ASCII digit 0     | 48         | 1
-        CJK character 中  | 20013      | 2
-        CJK character 你  | 20320      | 2
-        Null character    | 0          | 0
-        Newline character | 10         | 0
-        Tab character     | 9          | 0
+        Scenario                          | Code point     | Width?
+        A letter or digit in Latin script | {65, 122, 48}  | 1
+        A CJK character                   | {20013, 20320} | 2
+        A control character               | {0, 10, 9}     | 0
         """)
     void measuresCodePointWidth(int codePoint, int width) {
         assertThat(DisplayWidth.ofCodePoint(codePoint)).isEqualTo(width);
@@ -51,14 +47,11 @@ class DisplayWidthTest {
         Japanese hiragana with kanji | こんにちは世界      | 14
         Korean short greeting        | 안녕                | 4
         Korean greeting              | 안녕하세요          | 10
-        Emoji grinning face          | 😀                  | 2
-        Emoji waving hand            | 👋                  | 2
-        Emoji coffee                 | ☕                  | 2
+        A single emoji               | {😀, 👋, ☕}        | 2
         Mixed ASCII and emoji        | Hello 👋 World      | 14
         Mixed text with emoji        | Café ☕ tastes good | 19
         Scandinavian æ               | æ                   | 1
-        Scandinavian ø repeated      | øøø                 | 3
-        Scandinavian å repeated      | ååå                 | 3
+        Scandinavian letter repeated | {øøø, ååå}          | 3
         Accented word naïve          | naïve               | 5
         Accented word résumé         | résumé              | 6
         Greek letters with spaces    | α β γ               | 5
