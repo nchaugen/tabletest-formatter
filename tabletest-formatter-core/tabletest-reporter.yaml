@@ -30,5 +30,6 @@ features:
   - name: cell-padding-and-alignment  # laying the padded cells out as a row
   - name: string-array-layout        # writing a laid-out table back as an array of literals
   - name: comment-and-blank-line-rules # the lines that take no part in alignment
+  - name: indent-configuration       # where the indent setting comes from
   - name: indentation-rules           # placing the finished table back in its source
   - name: graceful-degradation        # input the formatter cannot lay out
