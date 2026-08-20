@@ -6,19 +6,19 @@ import org.tabletest.junit.TableTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("Display width rules")
+@DisplayName("Display width")
 @Description("""
-        Alignment is measured in terminal display columns, not in characters. These
-        rules define how wide a value renders in a monospaced font; the Column width
-        and Cell padding rules build on them.
+        The formatter measures alignment in terminal display columns, not in characters. These
+        rules say how wide a value renders in a monospaced font. The Column width feature and
+        the Cell padding and alignment feature build on them.
         """)
 class DisplayWidthTest {
 
-    @DisplayName("Each code point is zero, one or two columns wide")
+    @DisplayName("Measures a code point as zero, one, or two columns")
     @Description("""
-            Typical Latin characters occupy one display column. CJK characters occupy
-            two. Control characters occupy none. Each row carries every code point
-            that width applies to: A, z and 0; 中 and 你; null, newline and tab.
+            A typical Latin character occupies one display column. A CJK character occupies two. A
+            control character occupies none. Each row carries every code point its width applies
+            to: A, z and 0; 中 and 你; null, newline and tab.
             """)
     @TableTest("""
         Scenario                          | Code point     | Width?
@@ -30,10 +30,10 @@ class DisplayWidthTest {
         assertThat(DisplayWidth.ofCodePoint(codePoint)).isEqualTo(width);
     }
 
-    @DisplayName("String width is the sum of its code point widths")
+    @DisplayName("Adds the code point widths to measure a string")
     @Description("""
-            Emoji and CJK render two columns wide, so mixed-script strings are wider
-            than their character count. A null or empty string has width zero.
+            An emoji and a CJK character render two columns wide, so a mixed-script string is wider
+            than its character count. A null string and an empty string have width zero.
             """)
     @TableTest("""
         Scenario                     | Text                | Width?

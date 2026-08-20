@@ -11,20 +11,22 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("Indentation rules")
+@DisplayName("Indentation")
 public class IndentationTest {
 
     private final TableTestFormatter formatter = new TableTestFormatter();
 
-    @DisplayName("Tables are re-indented from scratch")
+    @DisplayName("Re-indents every table line from scratch")
     @Description("""
-            With a configured indent (style:size), input lines are stripped of their own
-            leading whitespace and re-indented with the base indent (the indentation of
-            the surrounding code) plus one level of the configured indent. Blank lines
-            stay completely empty. The final element of Result lines shows what ends the
-            block: a bare indent that aligns the closing text-block quotes, or nothing
-            when the indent size is zero. The style may be spaces or tabs; with a
-            tab style each level is that many tab characters, kept as tabs.
+            The formatter strips the leading whitespace from each input line. It then re-indents the
+            line with the base indent plus one level of the configured indent. The base indent is
+            the indentation of the surrounding code. A blank line stays completely empty.
+
+            The final element of Result lines shows what ends the block. That is a bare indent
+            aligning the closing text block quotes, or nothing when the indent size is zero.
+
+            The style may be spaces or tabs. With a tab style each level is that many tab
+            characters, kept as tabs.
             """)
     @TableTest("""
         Scenario                             | Table lines                                | Base indent | Configured indent | Result lines?

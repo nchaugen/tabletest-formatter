@@ -32,17 +32,20 @@ public class IndentConfigurationTest {
 
     private final EditorConfigProvider provider = new EditorConfigProvider();
 
-    @DisplayName("The indent comes from the nearest .editorconfig, or from the caller's default")
+    @DisplayName("Reads the indent from .editorconfig, or from the caller")
     @Description("""
-            The formatter carries no indent setting of its own: it asks EditorConfig, the
-            convention the surrounding project already states. The search starts in the source
-            file's own directory and walks up, and the indent_style and indent_size it finds
-            become the style and size the Indentation rules apply. Anything the search cannot
-            use — no file, a file it cannot read, one whose sections do not cover this kind of
-            file, or one that ends the search without setting an indent — leaves the caller's
-            default in force, so a broken .editorconfig never fails a build. Each row writes
-            the file it shows into a temporary project holding one Java source file. An
-            indent is written style:size.
+            The formatter carries no indent setting of its own. It asks EditorConfig, the convention
+            the surrounding project already states. The search starts in the source file's own
+            directory and walks up. The indent_style and indent_size it finds become the style and
+            the size the Indentation feature applies.
+
+            Anything the search cannot use leaves the caller's default in force, so a broken
+            .editorconfig never fails a build. There are four such cases: no file, a file it cannot
+            read, a file whose sections do not cover this kind of file, and a file that ends the
+            search without setting an indent.
+
+            Each row writes the file it shows into a temporary project holding one Java source file.
+            An indent is written style:size.
             """)
     @TableTest("""
         Scenario                    | Config file lines                                                      | Sits     | Caller's default | Indent used?

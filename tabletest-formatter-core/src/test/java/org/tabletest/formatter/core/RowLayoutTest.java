@@ -13,13 +13,13 @@ class RowLayoutTest {
 
     private final TableTestFormatter formatter = new TableTestFormatter();
 
-    @DisplayName("Cells are padded to their column width and joined with pipes")
+    @DisplayName("Pads each cell to its column width and joins with pipes")
     @Description("""
-            Column widths come from the Column width rules and are measured in display
-            columns. Every cell except the last is padded to its column width plus one
-            space before the pipe; every cell after the first gets one space after the
-            pipe. The last column is never padded, so no line carries trailing spaces.
-            The header row is laid out by the same rule as data rows.
+            Column widths come from the Column width feature, measured in display columns. The
+            formatter pads every cell except the last to its column width plus one space before the
+            pipe. It writes one space after the pipe for every cell after the first. It never pads
+            the last column, so no line carries trailing spaces. The header row follows the same
+            rule as a data row.
             """)
     @TableTest("""
         Scenario                            | Cells       | Column widths | Row?

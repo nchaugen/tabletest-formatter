@@ -8,16 +8,16 @@ import org.tabletest.junit.TableTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("Cell value formatting rules")
+@DisplayName("Cell value formatting")
 class CellFormattingTest {
 
     private final TableTestFormatter formatter = new TableTestFormatter();
 
-    @DisplayName("Collection values are normalised")
+    @DisplayName("Normalises a collection value")
     @Description("""
-            Inside a cell, list, set and map values are rewritten with one space after
-            each comma and colon and no spaces directly inside the brackets, recursively
-            through nested collections. Quoted keys keep their quotes.
+            Inside a cell, the formatter rewrites a list, a set, and a map. It writes one space
+            after each comma and each colon. It writes no space directly inside a bracket. It does
+            the same through a nested collection. A quoted key keeps its quotes.
             """)
     @TableTest("""
         Scenario                              | Value                   | Formatted?
@@ -40,13 +40,14 @@ class CellFormattingTest {
         assertThat(formatSingleCell(value)).isEqualTo(formatted);
     }
 
-    @DisplayName("Quoted values are preserved as written")
+    @DisplayName("Preserves a quoted value as written")
     @Description("""
-            The formatter never rewrites quoting: a quoted value keeps its quote style,
-            pipes inside quotes do not split the cell, and backslash sequences are kept
-            literally. Values that mix both quote styles, use unmatched quotes, or hold
-            quoted list elements cannot be written inside this table (they would break
-            the table's own parsing) and are covered by the plain tests below.
+            The formatter never rewrites quoting. A quoted value keeps its quote style. A pipe
+            inside quotes does not split the cell. A backslash sequence stays literal.
+
+            Three kinds of value cannot be written inside this table, because they would break the
+            table's own parsing: a value that mixes both quote styles, a value with unmatched
+            quotes, and a value holding quoted list elements. The plain tests below cover them.
             """)
     @TableTest("""
         Scenario                 | Value     | Formatted?

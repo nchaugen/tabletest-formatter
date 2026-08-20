@@ -9,16 +9,15 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("Comment and blank line rules")
+@DisplayName("Comments and blank lines")
 class CommentAndBlankLineTest {
 
     private final TableTestFormatter formatter = new TableTestFormatter();
 
-    @DisplayName("Which lines count as comments or blanks")
+    @DisplayName("Counts a line as a comment or a blank")
     @Description("""
-            A comment line starts with // after any leading whitespace; a blank line
-            contains nothing but whitespace. A // marker after cell content does not
-            make the line a comment.
+            A comment line starts with // after any leading whitespace. A blank line holds nothing
+            but whitespace. A // marker after cell content does not make the line a comment.
             """)
     @TableTest("""
         Scenario                    | Line          | Comment line? | Blank line?
@@ -34,11 +33,11 @@ class CommentAndBlankLineTest {
         assertThat(formatter.isBlankLine(line)).isEqualTo(blankLine);
     }
 
-    @DisplayName("Comment and blank lines keep their place and content")
+    @DisplayName("Keeps a comment or blank line in place, with its text")
     @Description("""
-            Comment and blank lines take no part in column alignment: the surrounding
-            rows are formatted as one table and the preserved lines are re-inserted at
-            their original positions, byte for byte.
+            A comment line and a blank line take no part in column alignment. The formatter formats
+            the rows around them as one table. It then puts the kept lines back at their original
+            positions, byte for byte.
             """)
     @TableTest("""
         Scenario                     | Table lines                                                     | Formatted?

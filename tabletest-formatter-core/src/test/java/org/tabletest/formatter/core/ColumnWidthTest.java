@@ -8,16 +8,16 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("Column width rules")
+@DisplayName("Column width")
 class ColumnWidthTest {
 
     private final TableTestFormatter formatter = new TableTestFormatter();
 
-    @DisplayName("A column is as wide as its widest cell")
+    @DisplayName("Widens a column to fit its widest cell")
     @Description("""
-            Widths are measured in terminal display columns (see Display width rules),
-            not in characters. The header counts as a cell like any other; the column
-            separator is not part of the width.
+            The formatter measures a width in terminal display columns, not in characters. See the
+            Display width feature. The header counts as a cell like any other. The column separator
+            is not part of the width.
             """)
     @TableTest("""
         Scenario                            | Cells in column      | Width?
@@ -31,7 +31,7 @@ class ColumnWidthTest {
         assertThat(formatter.columnWidth(cells)).isEqualTo(width);
     }
 
-    @DisplayName("Each column is measured independently")
+    @DisplayName("Measures each column on its own")
     @TableTest("""
         Scenario                   | Table lines                | Column widths?
         Widest cell in each column | ["a|bb|ccc", "dddd|e|ff"]  | [4, 2, 3]

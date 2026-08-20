@@ -16,15 +16,18 @@ public class StringArrayLayoutTest {
 
     private final SourceFileFormatter formatter = new SourceFileFormatter();
 
-    @DisplayName("Each entry is written on its own line, padded so the closing quotes align")
+    @DisplayName("Writes each entry on its own line, closing quotes aligned")
     @Description("""
-            A table written as an array of string literals is laid out as a block: the opening
-            brace ends its line, every entry gets a line of its own, and the closing brace and
-            parenthesis end the block. Entries are padded with trailing spaces inside the
-            quotes, so the closing quote of every entry sits in the same column — the array
-            form's equivalent of aligned pipes. The configured indent is what the entries are
-            written at; what an indent does in general is the Indentation rules feature. An
-            indent is written style:size.
+            The formatter lays out a table written as an array of string literals as a block. The
+            opening brace ends its line. Every entry gets a line of its own. The closing brace and
+            parenthesis end the block.
+
+            The formatter pads an entry with trailing spaces inside the quotes, so the closing quote
+            of every entry sits in the same column. That is the array form's equivalent of aligned
+            pipes.
+
+            The entries are written at the configured indent. The Indentation feature says what an
+            indent does in general. An indent is written style:size.
             """)
     @TableTest("""
         Scenario                 | Source lines                                          | Configured indent | Formatted lines?
@@ -40,12 +43,11 @@ public class StringArrayLayoutTest {
         assertThat(formatted(sourceLines, configuredIndent)).isEqualTo(formattedLines);
     }
 
-    @DisplayName("Comments in the array keep their place and their text")
+    @DisplayName("Keeps a comment in the array, in place and unchanged")
     @Description("""
-            Entries commented out to disable a scenario, and notes written between entries, are
-            reproduced byte for byte where they stand — they take no part in the alignment of
-            the entries around them. A comment written after an entry stays on that entry's
-            line.
+            An entry commented out to disable a scenario stays where it is, byte for byte. So does a
+            note written between entries. Neither takes part in the alignment of the entries around
+            it. A comment written after an entry stays on that entry's line.
             """)
     @TableTest("""
         Scenario               | Source lines                                                                   | Configured indent | Formatted lines?

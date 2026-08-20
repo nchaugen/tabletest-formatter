@@ -54,13 +54,12 @@ class TableTestFormatterTest {
             """);
     }
 
-    @DisplayName("Unparseable input is returned unchanged")
+    @DisplayName("Returns input it cannot parse unchanged")
     @Description("""
-            Formatting must never break a build: input that cannot be parsed as a
-            well-formed table is returned exactly as it was, whatever indent is
-            configured. Escaped quotes are not part of the table grammar, so tables
-            containing them are left alone. The well-formed row shows the contrast:
-            parseable input is reformatted.
+            Formatting must never break a build. The formatter returns input it cannot parse as a
+            well-formed table exactly as it was, whatever indent is configured. An escaped quote is
+            not part of the table grammar, so the formatter leaves a table holding one alone. The
+            well-formed row shows the contrast: the formatter reformats parseable input.
             """)
     @TableTest("""
         Scenario                     | Table lines                                    | Configured indent      | Unchanged?

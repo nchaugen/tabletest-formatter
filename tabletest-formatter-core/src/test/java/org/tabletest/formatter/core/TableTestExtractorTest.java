@@ -15,15 +15,17 @@ class TableTestExtractorTest {
 
     private final TableTestExtractor extractor = new TableTestExtractor();
 
-    @DisplayName("Tables are extracted from text blocks and string arrays")
+    @DisplayName("Extracts a table from a text block or a string array")
     @Description("""
-            The formatter reads a table from either form the annotation accepts: a text block
-            (Java or Kotlin, both delimited by three quotes) or an array of string literals.
-            A source file is scanned end to end, so every annotated table in it is extracted,
-            in the order it appears. The Table forms column names the form each extracted
-            table was written in. How the array is laid out makes no difference to what is
-            extracted, so both layouts share one row; laying it back out is the String array
-            layout feature.
+            The formatter reads a table from either form the annotation accepts: a text block, or an
+            array of string literals. Java and Kotlin both delimit a text block with three quotes.
+
+            The formatter scans a source file end to end, so it extracts every annotated table in
+            it, in the order it appears. The Table forms column names the form each extracted table
+            was written in.
+
+            The layout of the array makes no difference to what is extracted, so both layouts share
+            one row. The String array layout feature covers laying it back out.
             """)
     @TableTest("""
         Scenario                                       | Source lines                                                                                                                        | Table forms?
@@ -37,12 +39,13 @@ class TableTestExtractorTest {
         assertThat(formsExtractedFrom(sourceLines)).isEqualTo(tableForms);
     }
 
-    @DisplayName("Only a real annotation argument is extracted")
+    @DisplayName("Extracts only a real annotation argument")
     @Description("""
-            Text that merely looks like an annotated table is left alone: the formatter would
+            The formatter leaves alone text that merely looks like an annotated table. It would
             otherwise rewrite the example in a comment, or the fixture a test feeds to a tool.
-            The last row is the same table written for real, and shows the rule is about where
-            the text sits rather than how it is written.
+
+            The last row is the same table written for real. It shows that the rule is about where
+            the text sits, not about how it is written.
             """)
     @TableTest("""
         Scenario                      | Source lines                                                                  | Table forms?
@@ -59,15 +62,16 @@ class TableTestExtractorTest {
         assertThat(formsExtractedFrom(sourceLines)).isEqualTo(tableForms);
     }
 
-    @DisplayName("The annotation is recognised however it is written")
+    @DisplayName("Recognises the annotation however it is written")
     @Description("""
-            Only the opening line varies below; each row is completed with the same two-row
-            text block and a method declaration. The annotation is matched on its simple name,
-            so any import style works — and so does any annotation whose simple name is
-            exactly TableTest, whatever package it came from. That is a deliberate
-            limitation: the formatter reads source text without resolving imports. The last
-            two rows are where it stops — a different package still matches, a longer name
-            does not.
+            Only the opening line varies below. Each row is completed with the same two-row text
+            block and a method declaration.
+
+            The formatter matches the annotation on its simple name, so any import style works. Any
+            annotation whose simple name is exactly TableTest also matches, whatever package it came
+            from. That is a deliberate limitation, because the formatter reads source text without
+            resolving imports. The last two rows are where it stops: a different package still
+            matches, a longer name does not.
             """)
     @TableTest("""
         Scenario                   | Annotation opening                                   | Table forms?
@@ -1002,11 +1006,11 @@ class TableTestExtractorTest {
         assertThat(extractedIndent).isEqualTo("    ");
     }
 
-    @DisplayName("The annotation line's leading whitespace is the base indent")
+    @DisplayName("Takes the base indent from the annotation line")
     @Description("""
-            The base indent is the indentation of the code surrounding the table; the
-            Indentation rules re-indent the formatted table relative to it. In the
-            Source code column, \\n stands for a line break.
+            The base indent is the indentation of the code surrounding the table. The Indentation
+            feature re-indents the formatted table relative to it. In the Source code column, \\n
+            stands for a line break.
             """)
     @TableTest("""
         Scenario                  | Source code                                   | Base indent?
@@ -1026,11 +1030,11 @@ class TableTestExtractorTest {
         assertThat(extractedIndent).isEqualTo(indent);
     }
 
-    @DisplayName("Tabs and spaces in the base indent are preserved exactly")
+    @DisplayName("Preserves the tabs and spaces of the base indent")
     @Description("""
-            The base indent is reproduced verbatim, never normalised — code indented
-            with tabs, or a mix of tabs and spaces, keeps that exact whitespace. In
-            the Source code column, \\n stands for a line break.
+            The formatter reproduces the base indent verbatim and never normalises it. Code indented
+            with tabs, or with a mix of tabs and spaces, keeps that exact whitespace. In the Source
+            code column, \\n stands for a line break.
             """)
     @TableTest("""
         Scenario                 | Source code                               | Base indent?
