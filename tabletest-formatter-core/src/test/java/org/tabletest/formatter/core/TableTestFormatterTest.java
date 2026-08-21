@@ -7,6 +7,7 @@ import org.tabletest.formatter.config.IndentStyle;
 import org.tabletest.junit.Description;
 import org.tabletest.junit.TableTest;
 import org.tabletest.junit.TypeConverterSources;
+import org.tabletest.reporter.junit.Lines;
 
 import java.util.List;
 
@@ -70,7 +71,7 @@ class TableTestFormatterTest {
         Empty input                  | []                                             | {'space:0', 'space:4'} | true
         Whitespace-only input        | ["   ", "  ", "   "]                           | {'space:0', 'space:4'} | true
         """)
-    void leavesUnparseableInputUntouched(List<String> tableLines, Config indent, boolean unchanged) {
+    void leavesUnparseableInputUntouched(@Lines List<String> tableLines, Config indent, boolean unchanged) {
         String input = String.join("\n", tableLines);
 
         assertThat(formatter.format(input, "", indent).equals(input)).isEqualTo(unchanged);

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.tabletest.formatter.config.Config;
 import org.tabletest.junit.Description;
 import org.tabletest.junit.TableTest;
+import org.tabletest.reporter.junit.Lines;
 
 import java.util.List;
 
@@ -45,7 +46,7 @@ class CommentAndBlankLineTest {
         Blank line between rows      | ["name|age", "Alice|30", "", "Bob|25"]                          | ["name  | age", "Alice | 30", "", "Bob   | 25"]
         Comments and blanks together | ["name|age", "// First", "Alice|30", "", "// Second", "Bob|25"] | ["name  | age", "// First", "Alice | 30", "", "// Second", "Bob   | 25"]
         """)
-    void preservesCommentAndBlankLinesInPlace(List<String> tableLines, List<String> formattedLines) {
+    void preservesCommentAndBlankLinesInPlace(@Lines List<String> tableLines, @Lines List<String> formattedLines) {
         String result = formatter.format(String.join("\n", tableLines) + "\n", "", Config.NO_INDENT);
 
         assertThat(result).isEqualTo(String.join("\n", formattedLines) + "\n");

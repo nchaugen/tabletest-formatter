@@ -6,6 +6,7 @@ import org.tabletest.formatter.config.IndentStyle;
 import org.tabletest.junit.Description;
 import org.tabletest.junit.TableTest;
 import org.tabletest.junit.TypeConverter;
+import org.tabletest.reporter.junit.Lines;
 
 import java.util.List;
 
@@ -40,7 +41,8 @@ public class IndentationTest {
         Tab style indents with a tab         | ["name|age", "Alice|30"]                   | ''          | tab:1             | ["\tname  | age", "\tAlice | 30", "\t"]
         Tab size sets tabs per level         | ["name|age", "Alice|30"]                   | ''          | tab:2             | ["\t\tname  | age", "\t\tAlice | 30", "\t\t"]
         """)
-    void appliesIndentation(List<String> tableLines, String baseIndent, Config indent, List<String> resultLines) {
+    void appliesIndentation(
+            @Lines List<String> tableLines, String baseIndent, Config indent, @Lines List<String> resultLines) {
         String result = formatter.format(String.join("\n", tableLines) + "\n", baseIndent, indent);
 
         assertThat(result).isEqualTo(String.join("\n", resultLines));

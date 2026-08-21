@@ -6,6 +6,7 @@ import org.tabletest.formatter.config.IndentStyle;
 import org.tabletest.junit.Description;
 import org.tabletest.junit.TableTest;
 import org.tabletest.junit.TypeConverter;
+import org.tabletest.reporter.junit.Lines;
 
 import java.util.List;
 
@@ -39,7 +40,8 @@ public class StringArrayLayoutTest {
         Already laid out         | ['@TableTest({', '    "a | b",', '    "1 | 2"', '})'] | space:4           | ['@TableTest({', '    "a | b",', '    "1 | 2"', '})']
         No indent configured     | ['@TableTest({"name|age","Alice|30"})']               | space:0           | ['@TableTest({', '"name  | age",', '"Alice | 30 "', '})']
         """)
-    void laysOutEachEntryOnItsOwnLine(List<String> sourceLines, Config configuredIndent, List<String> formattedLines) {
+    void laysOutEachEntryOnItsOwnLine(
+            @Lines List<String> sourceLines, Config configuredIndent, @Lines List<String> formattedLines) {
         assertThat(formatted(sourceLines, configuredIndent)).isEqualTo(formattedLines);
     }
 
@@ -57,7 +59,8 @@ public class StringArrayLayoutTest {
         Comment after an entry | ['@TableTest({', '"name|age", // header', '"Alice|30" // adult', '})']         | space:4           | ['@TableTest({', '    "name  | age", // header', '    "Alice | 30 " // adult', '})']
         Nothing but a comment  | ['@TableTest({ /* "a|b" */ })']                                                | space:4           | ['@TableTest({ /* "a|b" */ })']
         """)
-    void preservesCommentsInPlace(List<String> sourceLines, Config configuredIndent, List<String> formattedLines) {
+    void preservesCommentsInPlace(
+            @Lines List<String> sourceLines, Config configuredIndent, @Lines List<String> formattedLines) {
         assertThat(formatted(sourceLines, configuredIndent)).isEqualTo(formattedLines);
     }
 

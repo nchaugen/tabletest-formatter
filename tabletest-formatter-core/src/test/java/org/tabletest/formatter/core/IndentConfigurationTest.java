@@ -8,6 +8,7 @@ import org.tabletest.formatter.config.IndentStyle;
 import org.tabletest.junit.Description;
 import org.tabletest.junit.TableTest;
 import org.tabletest.junit.TypeConverter;
+import org.tabletest.reporter.junit.Lines;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -59,7 +60,7 @@ public class IndentConfigurationTest {
         Caller asking for no indent | []                                                                     | NOWHERE  | space:0          | space:0
         """)
     void resolvesTheIndentForASourceFile(
-            List<String> configFileLines, ConfigFileLocation sits, Config callersDefault, Config indentUsed)
+            @Lines List<String> configFileLines, ConfigFileLocation sits, Config callersDefault, Config indentUsed)
             throws IOException {
 
         Path sourceFile = sourceFileIn(sits, configFileLines);

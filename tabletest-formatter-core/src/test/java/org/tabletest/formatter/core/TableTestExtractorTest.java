@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.tabletest.junit.Description;
 import org.tabletest.junit.TableTest;
+import org.tabletest.reporter.junit.Lines;
 
 import java.util.List;
 
@@ -35,7 +36,7 @@ class TableTestExtractorTest {
         Two tables in one file                         | ['@TableTest(\"""', 'a | b', '1 | 2', '\""")', '@TableTest({"x|y", "3|4"})']                                                        | [TEXT_BLOCK, STRING_ARRAY]
         No annotated table                             | ['@Test', 'void test() {}']                                                                                                         | []
         """)
-    void extractsEachAnnotatedTable(List<String> sourceLines, List<TableMatch.MatchType> tableForms) {
+    void extractsEachAnnotatedTable(@Lines List<String> sourceLines, List<TableMatch.MatchType> tableForms) {
         assertThat(formsExtractedFrom(sourceLines)).isEqualTo(tableForms);
     }
 
@@ -58,7 +59,7 @@ class TableTestExtractorTest {
         Unterminated text block       | ['@TableTest(\"""', 'name | age', 'Alice | 30']                               | []
         The same table, for real      | ['@TableTest(\"""', 'name | age', 'Alice | 30', '\""")', 'void test() {}']    | [TEXT_BLOCK]
         """)
-    void extractsOnlyRealAnnotations(List<String> sourceLines, List<TableMatch.MatchType> tableForms) {
+    void extractsOnlyRealAnnotations(@Lines List<String> sourceLines, List<TableMatch.MatchType> tableForms) {
         assertThat(formsExtractedFrom(sourceLines)).isEqualTo(tableForms);
     }
 
