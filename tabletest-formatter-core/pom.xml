@@ -44,6 +44,15 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- The reporter's column-role annotations, used by the spec tables; the extension
+             itself only runs under -Preport. -->
+        <dependency>
+            <groupId>org.tabletest</groupId>
+            <artifactId>tabletest-reporter-junit</artifactId>
+            <version>${version.tabletest.reporter}</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- AssertJ for fluent assertions -->
         <dependency>
             <groupId>org.assertj</groupId>
@@ -58,16 +67,19 @@
              the HTML report with `mvn -Preport test org.tabletest:tabletest-reporter-maven-plugin:report`. -->
         <profile>
             <id>report</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.tabletest</groupId>
-                    <artifactId>tabletest-reporter-junit</artifactId>
-                    <version>${version.tabletest.reporter}</version>
-                    <scope>test</scope>
-                </dependency>
-            </dependencies>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <properties>
+                                <configurationParameters>
+                                    junit.jupiter.extensions.autodetection.enabled=true
+                                </configurationParameters>
+                            </properties>
+                        </configuration>
+                    </plugin>
                     <plugin>
                         <groupId>org.tabletest</groupId>
                         <artifactId>tabletest-reporter-maven-plugin</artifactId>
