@@ -58,23 +58,26 @@ class TableTestFormatterTest {
     @DisplayName("Returns input it cannot parse unchanged")
     @Description("""
             Formatting must never break a build. The formatter returns input it cannot parse as a
-            well-formed table exactly as it was, whatever indent is configured. An escaped quote is
+            well-formed table exactly as it was, and does not indent it either. An escaped quote is
             not part of the table grammar, so the formatter leaves a table holding one alone. The
-            well-formed row shows the contrast: the formatter reformats parseable input.
+            first row shows the contrast: the formatter reformats parseable input, and Formatted
+            lines then differs from Table lines.
             """)
     @TableTest("""
-        Scenario                     | Table lines                                    | Configured indent      | Unchanged?
-        Well-formed table            | ["name|age", "Alice|30"]                       | {'space:0', 'space:4'} | false
-        Extra column in a data row   | ["name|age", "Alice|30", "Bob|25|London"]      | {'space:0', 'space:4'} | true
-        Missing column in a data row | ["name|age|city", "Alice|30", "Bob|25|London"] | {'space:0', 'space:4'} | true
-        Escaped quotes in a value    | ["name|message", 'test|"He said \\"hello\\""'] | {'space:0', 'space:4'} | true
-        Empty input                  | []                                             | {'space:0', 'space:4'} | true
-        Whitespace-only input        | ["   ", "  ", "   "]                           | {'space:0', 'space:4'} | true
+        Scenario                     | Table lines                                    | Configured indent | Formatted lines?
+        Well-formed table            | ["name|age", "Alice|30"]                       | space:0           | ["name  | age", "Alice | 30"]
+        Extra column in a data row   | ["name|age", "Alice|30", "Bob|25|London"]      | space:0           | ["name|age", "Alice|30", "Bob|25|London"]
+        Missing column in a data row | ["name|age|city", "Alice|30", "Bob|25|London"] | space:0           | ["name|age|city", "Alice|30", "Bob|25|London"]
+        Escaped quotes in a value    | ["name|message", 'test|"He said \\"hello\\""'] | space:0           | ["name|message", 'test|"He said \\"hello\\""']
+        Empty input                  | []                                             | space:0           | []
+        Whitespace-only input        | ["   ", "  ", "   "]                           | space:0           | ["   ", "  ", "   "]
+        An indent configured as well | ["name|age", "Alice|30", "Bob|25|London"]      | space:4           | ["name|age", "Alice|30", "Bob|25|London"]
         """)
-    void leavesUnparseableInputUntouched(@Lines List<String> tableLines, Config indent, boolean unchanged) {
+    void leavesUnparseableInputUntouched(
+            @Lines List<String> tableLines, Config indent, @Lines List<String> formattedLines) {
         String input = String.join("\n", tableLines);
 
-        assertThat(formatter.format(input, "", indent).equals(input)).isEqualTo(unchanged);
+        assertThat(formatter.format(input, "", indent)).isEqualTo(String.join("\n", formattedLines));
     }
 
     // ========== Input Validation Tests ==========
