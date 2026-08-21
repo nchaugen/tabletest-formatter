@@ -14,7 +14,9 @@
 # than the alphabetical default: find the tables, measure what the cells need, format each
 # cell, size each column, lay out the row, then indent the result — with the lines that take
 # no part in alignment, and the inputs that defeat formatting altogether, at the end. Names
-# match a page by its slug; these pages are one test class each, so the slug is the class's.
+# match a page by its slug, and the slug comes from the feature's @DisplayName — so retitling a
+# feature renames its page, and the name below has to follow or the order silently goes back to
+# alphabetical.
 title: "TableTest Formatter"
 intro: >
   How the formatter lays out a TableTest table: where it finds the tables in a source file,
@@ -24,12 +26,12 @@ intro: >
   one row of that test's table.
 features:
   - name: table-extraction            # finding the tables in a source file
-  - name: display-width-rules         # how wide a value renders
-  - name: cell-value-formatting-rules # normalising the value inside a cell
-  - name: column-width-rules          # sizing a column to its widest cell
+  - name: display-width               # how wide a value renders
+  - name: cell-value-formatting       # normalising the value inside a cell
+  - name: column-width                # sizing a column to its widest cell
   - name: cell-padding-and-alignment  # laying the padded cells out as a row
   - name: string-array-layout        # writing a laid-out table back as an array of literals
-  - name: comment-and-blank-line-rules # the lines that take no part in alignment
+  - name: comments-and-blank-lines    # the lines that take no part in alignment
   - name: indent-configuration       # where the indent setting comes from
-  - name: indentation-rules           # placing the finished table back in its source
+  - name: indentation                 # placing the finished table back in its source
   - name: graceful-degradation        # input the formatter cannot lay out
