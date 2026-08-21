@@ -6,7 +6,6 @@ import org.tabletest.formatter.config.Config;
 import org.tabletest.formatter.config.IndentStyle;
 import org.tabletest.junit.Description;
 import org.tabletest.junit.TableTest;
-import org.tabletest.junit.TypeConverterSources;
 import org.tabletest.reporter.junit.Lines;
 
 import java.util.List;
@@ -20,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * CommentAndBlankLineTest and IndentationTest.
  */
 @DisplayName("Graceful degradation")
-@TypeConverterSources(IndentationTest.class)
 class TableTestFormatterTest {
 
     private final TableTestFormatter formatter = new TableTestFormatter();
@@ -58,26 +56,32 @@ class TableTestFormatterTest {
     @DisplayName("Returns input it cannot parse unchanged")
     @Description("""
             Formatting must never break a build. The formatter returns input it cannot parse as a
-            well-formed table exactly as it was, and does not indent it either. An escaped quote is
-            not part of the table grammar, so the formatter leaves a table holding one alone. The
-            first row shows the contrast: the formatter reformats parseable input, and Formatted
-            lines then differs from Table lines.
+            well-formed table exactly as it was. An escaped quote is not part of the table grammar,
+            so the formatter leaves a table holding one alone. The first row shows the contrast: the
+            formatter reformats parseable input, and Formatted lines then differs from Table lines.
             """)
     @TableTest("""
-        Scenario                     | Table lines                                    | Configured indent | Formatted lines?
-        Well-formed table            | ["name|age", "Alice|30"]                       | space:0           | ["name  | age", "Alice | 30"]
-        Extra column in a data row   | ["name|age", "Alice|30", "Bob|25|London"]      | space:0           | ["name|age", "Alice|30", "Bob|25|London"]
-        Missing column in a data row | ["name|age|city", "Alice|30", "Bob|25|London"] | space:0           | ["name|age|city", "Alice|30", "Bob|25|London"]
-        Escaped quotes in a value    | ["name|message", 'test|"He said \\"hello\\""'] | space:0           | ["name|message", 'test|"He said \\"hello\\""']
-        Empty input                  | []                                             | space:0           | []
-        Whitespace-only input        | ["   ", "  ", "   "]                           | space:0           | ["   ", "  ", "   "]
-        An indent configured as well | ["name|age", "Alice|30", "Bob|25|London"]      | space:4           | ["name|age", "Alice|30", "Bob|25|London"]
+        Scenario                     | Table lines                                    | Formatted lines?
+        Well-formed table            | ["name|age", "Alice|30"]                       | ["name  | age", "Alice | 30"]
+        Extra column in a data row   | ["name|age", "Alice|30", "Bob|25|London"]      | ["name|age", "Alice|30", "Bob|25|London"]
+        Missing column in a data row | ["name|age|city", "Alice|30", "Bob|25|London"] | ["name|age|city", "Alice|30", "Bob|25|London"]
+        Escaped quotes in a value    | ["name|message", 'test|"He said \\"hello\\""'] | ["name|message", 'test|"He said \\"hello\\""']
+        Empty input                  | []                                             | []
+        Whitespace-only input        | ["   ", "  ", "   "]                           | ["   ", "  ", "   "]
         """)
-    void leavesUnparseableInputUntouched(
-            @Lines List<String> tableLines, Config indent, @Lines List<String> formattedLines) {
+    void leavesUnparseableInputUntouched(@Lines List<String> tableLines, @Lines List<String> formattedLines) {
         String input = String.join("\n", tableLines);
 
-        assertThat(formatter.format(input, "", indent)).isEqualTo(String.join("\n", formattedLines));
+        assertThat(formatter.format(input, "", Config.NO_INDENT)).isEqualTo(String.join("\n", formattedLines));
+    }
+
+    @Test
+    void shouldNotIndentInputItCannotParse() {
+        String input = "name|age\nAlice|30\nBob|25|London";
+
+        String result = formatter.format(input, "", new Config(IndentStyle.SPACE, 4));
+
+        assertThat(result).isEqualTo(input);
     }
 
     // ========== Input Validation Tests ==========
