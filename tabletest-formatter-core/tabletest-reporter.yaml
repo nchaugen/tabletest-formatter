@@ -35,3 +35,10 @@ features:
   - name: indent-configuration       # where the indent setting comes from
   - name: indentation                 # placing the finished table back in its source
   - name: graceful-degradation        # input the formatter cannot lay out
+
+# --- Site link ------------------------------------------------------------------------
+# The spec is published under tabletest.org/spec/formatter, where every link inside the
+# report is relative to the report's own tree. This is the one link back out to the site.
+site:
+  label: "TableTest"
+  url: "https://tabletest.org/"
