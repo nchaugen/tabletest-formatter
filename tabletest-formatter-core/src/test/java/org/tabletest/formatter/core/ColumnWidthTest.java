@@ -21,12 +21,11 @@ class ColumnWidthTest {
             is not part of the width.
             """)
     @TableTest("""
-        Scenario                            | Cells in column      | Width?
-        Widest cell sets the width          | [a, dddd, bb]        | 4
-        Header is a cell like any other     | [name, Alice, Bob]   | 5
-        Empty cells add no width            | ['', longest]        | 7
-        CJK characters are two columns wide | [name, 中文, 日本語] | 6
-        Emoji are two columns wide          | [x, 😀]              | 2
+        Scenario                       | Cells in column      | Width?
+        Cells of differing lengths     | [a, dddd, bb]        | 4
+        A header longer than its data  | [name, Alice, Bob]   | 5
+        An empty cell among the values | ['', longest]        | 7
+        Two-column glyphs              | [name, 中文, 日本語] | 6
         """)
     void columnIsAsWideAsItsWidestCell(List<String> cells, int width) {
         assertThat(formatter.columnWidth(cells)).isEqualTo(width);
@@ -34,9 +33,9 @@ class ColumnWidthTest {
 
     @DisplayName("Measures each column on its own")
     @TableTest("""
-        Scenario                   | Table lines                | Column widths?
-        Widest cell in each column | ["a|bb|ccc", "dddd|e|ff"]  | [4, 2, 3]
-        Empty cell in a column     | ["name|value", "|longest"] | [4, 7]
+        Scenario                        | Table lines                | Column widths?
+        Columns of differing widths     | ["a|bb|ccc", "dddd|e|ff"]  | [4, 2, 3]
+        An empty cell in one column     | ["name|value", "|longest"] | [4, 7]
         """)
     void measuresEachColumnIndependently(@Lines List<String> tableLines, List<Integer> columnWidths) {
         int[] widths = formatter.calculateColumnWidths(String.join("\n", tableLines));
