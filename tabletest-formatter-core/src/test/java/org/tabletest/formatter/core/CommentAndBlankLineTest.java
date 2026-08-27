@@ -40,9 +40,9 @@ class CommentAndBlankLineTest {
             the rows around them as one table. It then puts the kept lines back at their original
             positions, byte for byte.
 
-            A comment above the header is the position that costs something to get right: the
-            header is the first line that is neither, so the formatter has to pass over the comment
-            to find it and put it back afterwards.
+            A comment above the header is the position to get right. The header is the first line
+            that is neither a comment nor a blank. The formatter passes over the comment to find
+            the header, and puts the comment back afterwards.
             """)
     @TableTest("""
         Scenario                     | Table lines                                                     | Formatted?

@@ -45,9 +45,9 @@ class CellFormattingTest {
             The formatter never rewrites quoting. A quoted value keeps its quote style. A pipe
             inside quotes does not split the cell. A backslash sequence stays literal.
 
-            Three kinds of value cannot be written inside this table, because they would break the
-            table's own parsing: a value that mixes both quote styles, a value with unmatched
-            quotes, and a value holding quoted list elements. The plain tests below cover them.
+            Three kinds of value have no row here, because each one breaks the parsing of this
+            table. They are a value that mixes both quote styles, a value with unmatched quotes,
+            and a value that holds quoted list elements. The plain tests below cover all three.
             """)
     @TableTest("""
         Scenario                 | Value     | Formatted?

@@ -24,12 +24,12 @@ public class IndentationTest {
             line with the base indent plus one level of the configured indent. The base indent is
             the indentation of the surrounding code. A blank line stays completely empty.
 
-            The final element of Result lines is the indent the closing text block quotes are
-            written at. It is empty when the indent size is zero. The next rule shows that line
-            in place, with the quotes on it.
+            The final element of Result lines is the indent of the closing text block quotes. It
+            is empty when the indent size is zero. The next rule shows that line with the quotes
+            on it.
 
-            The style may be spaces or tabs. With a tab style each level is that many tab
-            characters, kept as tabs.
+            The style is spaces or tabs. With a tab style, each level is that many tab characters,
+            and the formatter keeps them as tabs.
             """)
     @TableTest("""
         Scenario                        | Table lines                                | Base indent | Configured indent | Result lines?
@@ -52,16 +52,16 @@ public class IndentationTest {
 
     @DisplayName("Starts the indent from the annotation's own line")
     @Description("""
-            A table written in a source text sits inside an annotation. The formatter indents every
-            line of the block — the table lines and the closing quotes alike — to the indentation of
-            the annotation's own line plus one level of the configured indent.
+            A table written in a source text sits inside an annotation. The formatter indents
+            every line of the block, which means the table lines and the closing quotes. It indents
+            them to the indentation of the annotation's own line, plus one configured level.
 
-            The annotation's own indentation is reproduced exactly as written, whatever mix of tabs
-            and spaces it holds, and the configured level is added after it in the configured style.
+            The formatter reproduces the indentation of the annotation exactly, whatever mix of
+            tabs and spaces it holds. It then adds the configured level in the configured style.
 
-            Source lines hold the block as it was written. Formatted lines hold what the formatter
-            wrote back. The rule above says what one level of indent is; this one says where the
-            level starts from.
+            Source lines hold the block as the author wrote it. Formatted lines hold what the
+            formatter writes back. The rule above says what one level of indent is. This rule says
+            where the level starts from.
             """)
     @TableTest("""
         Scenario                       | Source lines                                                                     | Configured indent | Formatted lines?

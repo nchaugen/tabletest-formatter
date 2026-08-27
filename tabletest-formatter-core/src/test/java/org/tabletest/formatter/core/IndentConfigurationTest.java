@@ -35,17 +35,17 @@ public class IndentConfigurationTest {
 
     @DisplayName("Reads the indent from .editorconfig, or from the caller")
     @Description("""
-            The formatter carries no indent setting of its own. It asks EditorConfig, the convention
-            the surrounding project already states. The search starts in the source file's own
-            directory and walks up. The indent_style and indent_size it finds become the style and
-            the size the Indentation feature applies.
+            The formatter carries no indent setting of its own. It asks EditorConfig, the
+            convention the surrounding project already states. The search starts in the directory
+            of the source file and walks up. The indent_style and indent_size it finds become the
+            style and the size the Indentation feature applies.
 
-            The style and the size are resolved one at a time, so a file that sets only one of them
-            leaves the caller's default in force for the other. Anything else the search cannot use
-            leaves both defaults in force, and a broken .editorconfig never fails a build.
+            The formatter resolves the style and the size one at a time. A file that sets only one
+            of them leaves the caller's default in force for the other. Anything else the search
+            cannot use leaves both defaults in force. A broken .editorconfig never fails a build.
 
-            Each row writes the file it shows into a temporary project holding one Java source file.
-            An indent is written style:size.
+            Each row writes the file it shows into a temporary project with one Java source file.
+            An indent takes the form style:size.
             """)
     @TableTest("""
         Scenario                    | Config file lines                                                      | Sits     | Caller's default | Indent used?

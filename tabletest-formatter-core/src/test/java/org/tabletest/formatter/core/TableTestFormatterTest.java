@@ -56,9 +56,11 @@ class TableTestFormatterTest {
     @DisplayName("Returns input it cannot parse unchanged")
     @Description("""
             Formatting must never break a build. The formatter returns input it cannot parse as a
-            well-formed table exactly as it was. An escaped quote is not part of the table grammar,
-            so the formatter leaves a table holding one alone. The first row shows the contrast: the
-            formatter reformats parseable input, and Formatted lines then differs from Table lines.
+            well-formed table, exactly as the author wrote it. An escaped quote is not part of the
+            table grammar, so the formatter leaves a table holding one alone.
+
+            The first row shows the contrast. The formatter reformats parseable input, and
+            Formatted lines then differs from Table lines.
             """)
     @TableTest("""
         Scenario                     | Table lines                                    | Formatted lines?

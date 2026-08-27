@@ -16,20 +16,20 @@ class DisplayWidthTest {
 
     @DisplayName("Measures a code point as zero, one, or two columns")
     @Description("""
-            A code point renders at one of three widths, and its script decides which. An ordinary
-            letter, digit or sign takes one column whatever alphabet it belongs to. A glyph drawn on
-            a square body takes two. A code point that puts no glyph of its own on the line takes
-            none, and there are two kinds: a control character, and a mark that combines with the
-            letter before it.
+            A code point renders at one of three widths. The script of the code point decides
+            which. An ordinary letter, digit or sign takes one column, in any alphabet. A glyph
+            drawn on a square body takes two columns. A code point that draws no glyph of its own
+            takes none. There are two kinds of such code point: a control character, and a mark
+            that combines with the letter before it.
 
-            A code point is written as a number, because the two zero-width kinds have no glyph to
-            write. Each row carries one of each script or kind its width covers:
+            Each row holds the code point as a number, because the two zero-width kinds have no
+            glyph to write. Each row carries one code point per script or kind of its width:
 
-            One column — A, z, 0, æ, «, alpha, Cyrillic pe, Arabic meem, Hebrew shin, a box-drawing
+            One column: A, z, 0, æ, «, alpha, Cyrillic pe, Arabic meem, Hebrew shin, a box-drawing
             corner, the euro sign, the summation sign.
-            Two columns — the ideograph for middle, the ideograph for you, the hiragana ko, the
+            Two columns: the ideograph for middle, the ideograph for you, the hiragana ko, the
             Hangul syllable guk, a grinning face, fullwidth A.
-            No columns — the null character, a line feed, a tab, a combining acute accent, a
+            No columns: the null character, a line feed, a tab, a combining acute accent, a
             combining diaeresis.
             """)
     @TableTest("""
@@ -44,12 +44,13 @@ class DisplayWidthTest {
 
     @DisplayName("Adds the code point widths to measure a string")
     @Description("""
-            A string is as wide as its code points together, so a string of square-bodied glyphs is
-            twice as wide as its character count and a mixed string is wider than its count without
-            being twice it. The rule above says what each code point contributes.
+            A string is as wide as its code points together. The rule above says what each code
+            point contributes. A string of square-bodied glyphs is twice as wide as its character
+            count. A string of both kinds is wider than its character count, and less than twice
+            it.
 
-            A null string and an empty string are both nothing to draw, and the formatter treats
-            them alike rather than rejecting the null.
+            A null string and an empty string both draw nothing. The formatter measures both as
+            zero, and rejects neither.
             """)
     @TableTest("""
         Scenario                        | Text           | Width?

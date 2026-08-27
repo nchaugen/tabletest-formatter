@@ -23,12 +23,12 @@ public class StringArrayLayoutTest {
             opening brace ends its line. Every entry gets a line of its own. The closing brace and
             parenthesis end the block.
 
-            The formatter pads an entry with trailing spaces inside the quotes, so the closing quote
-            of every entry sits in the same column. That is the array form's equivalent of aligned
-            pipes.
+            The formatter pads an entry with trailing spaces inside the quotes. The closing quote
+            of every entry then sits in the same column. That is how the array form aligns, where a
+            text block aligns its pipes.
 
-            The entries are written at the configured indent. The Indentation feature says what an
-            indent does in general. An indent is written style:size.
+            The formatter writes the entries at the configured indent. The Indentation feature says
+            what an indent does in general. An indent takes the form style:size.
             """)
     @TableTest("""
         Scenario                 | Source lines                                          | Configured indent | Formatted lines?
