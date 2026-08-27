@@ -68,11 +68,11 @@ class TableTestExtractorTest {
             Only the opening line varies below. Each row is completed with the same two-row text
             block and a method declaration.
 
-            The formatter matches the annotation on its simple name, so any import style works. Any
-            annotation whose simple name is exactly TableTest also matches, whatever package it came
-            from. That is a deliberate limitation, because the formatter reads source text without
-            resolving imports. The last two rows are where it stops: a different package still
-            matches, a longer name does not.
+            The formatter matches the annotation on its simple name, so any import style works. That
+            is a deliberate limitation, because the formatter reads source text without resolving
+            imports, and the Any package row states it: the package is not read, so this project's
+            own package, the one it was donated from, and an unrelated one all match alike. The last
+            row is where the match stops, on the name itself.
             """)
     @TableTest("""
         Scenario                   | Annotation opening                                   | Table forms?
@@ -80,9 +80,7 @@ class TableTestExtractorTest {
         Named value member         | '@TableTest(value = \"""'                            | [TEXT_BLOCK]
         Spaces around parentheses  | '@TableTest   (   \"""'                              | [TEXT_BLOCK]
         Alongside another member   | '@TableTest(resource = "data.csv", value = \"""'     | [TEXT_BLOCK]
-        Fully qualified            | '@org.tabletest.junit.TableTest(\"""'                | [TEXT_BLOCK]
-        Pre-donation package       | '@io.github.nchaugen.tabletest.junit.TableTest(\"""' | [TEXT_BLOCK]
-        Any package ending in name | '@com.example.different.TableTest(\"""'              | [TEXT_BLOCK]
+        Any package at all         | {'@org.tabletest.junit.TableTest(\"""', '@io.github.nchaugen.tabletest.junit.TableTest(\"""', '@com.example.different.TableTest(\"""'} | [TEXT_BLOCK]
         A longer annotation name   | '@TableTestSource(\"""'                              | []
         """)
     void recognisesEveryAnnotationForm(String annotationOpening, List<TableMatch.MatchType> tableForms) {
@@ -1010,49 +1008,44 @@ class TableTestExtractorTest {
     @DisplayName("Takes the base indent from the annotation line")
     @Description("""
             The base indent is the indentation of the code surrounding the table. The Indentation
-            feature re-indents the formatted table relative to it. In the Source code column, \\n
-            stands for a line break.
+            feature re-indents the formatted table relative to it.
+
+            Two indented rows rather than one, because a single one would be satisfied by an
+            indent fixed in the code.
             """)
     @TableTest("""
-        Scenario                  | Source code                                   | Base indent?
-        Top-level annotation      | '@TableTest(\"""\\nx|y\\n1|2\\n\""")'         | ''
-        Two-space indented code   | '  @TableTest(\"""\\nx|y\\n1|2\\n\""")'       | '  '
-        Four-space indented code  | '    @TableTest(\"""\\nx|y\\n1|2\\n\""")'     | '    '
-        Eight-space indented code | '        @TableTest(\"""\\nx|y\\n1|2\\n\""")' | '        '
+        Scenario                 | Source lines                                                    | Base indent?
+        Top-level annotation     | ['@TableTest(\"""', 'x|y', '1|2', '\""")']                     | ''
+        Two-space indented code  | ['  @TableTest(\"""', '  x|y', '  1|2', '  \""")']             | '  '
+        Four-space indented code | ['    @TableTest(\"""', '    x|y', '    1|2', '    \""")']     | '    '
         """)
-    void detectsBaseIndent(String sourceCode, String indent) {
-        String actualSource = sourceCode.replace("\\n", "\n");
-
-        List<TableMatch> matches = extractor.findAll(actualSource);
-
-        assertThat(matches).hasSize(1);
-        String extractedIndent = actualSource.substring(
-                matches.get(0).baseIndentStart(), matches.get(0).baseIndentEnd());
-        assertThat(extractedIndent).isEqualTo(indent);
+    void detectsBaseIndent(@Lines List<String> sourceLines, String indent) {
+        assertThat(baseIndentOf(sourceLines)).isEqualTo(indent);
     }
 
     @DisplayName("Preserves the tabs and spaces of the base indent")
     @Description("""
             The formatter reproduces the base indent verbatim and never normalises it. Code indented
-            with tabs, or with a mix of tabs and spaces, keeps that exact whitespace. In the Source
-            code column, \\n stands for a line break.
+            with tabs, or with a mix of tabs and spaces, keeps that exact whitespace.
             """)
     @TableTest("""
-        Scenario                 | Source code                               | Base indent?
-        Single-tab indented code | '\t@TableTest(\"""\\nx|y\\n1|2\\n\""")'   | '\t'
-        Two-tab indented code    | '\t\t@TableTest(\"""\\nx|y\\n1|2\\n\""")' | '\t\t'
-        Tab then two spaces      | '\t  @TableTest(\"""\\nx|y\\n1|2\\n\""")' | '\t  '
-        Two spaces then tab      | '  \t@TableTest(\"""\\nx|y\\n1|2\\n\""")' | '  \t'
+        Scenario                 | Source lines                                                    | Base indent?
+        Single-tab indented code | ['\t@TableTest(\"""', '\tx|y', '\t1|2', '\t\""")']             | '\t'
+        Two-tab indented code    | ['\t\t@TableTest(\"""', '\t\tx|y', '\t\t1|2', '\t\t\""")']     | '\t\t'
+        Tab then two spaces      | ['\t  @TableTest(\"""', '\t  x|y', '\t  1|2', '\t  \""")']     | '\t  '
+        Two spaces then tab      | ['  \t@TableTest(\"""', '  \tx|y', '  \t1|2', '  \t\""")']     | '  \t'
         """)
-    void preservesTabsAndSpacesInBaseIndent(String sourceCode, String indent) {
-        String actualSource = sourceCode.replace("\\n", "\n");
+    void preservesTabsAndSpacesInBaseIndent(@Lines List<String> sourceLines, String indent) {
+        assertThat(baseIndentOf(sourceLines)).isEqualTo(indent);
+    }
 
-        List<TableMatch> matches = extractor.findAll(actualSource);
+    /** The base indent the extractor reads from the one table in these lines of source. */
+    private String baseIndentOf(List<String> sourceLines) {
+        String source = String.join("\n", sourceLines) + "\n";
+        List<TableMatch> matches = extractor.findAll(source);
 
         assertThat(matches).hasSize(1);
-        String extractedIndent = actualSource.substring(
-                matches.get(0).baseIndentStart(), matches.get(0).baseIndentEnd());
-        assertThat(extractedIndent).isEqualTo(indent);
+        return source.substring(matches.get(0).baseIndentStart(), matches.get(0).baseIndentEnd());
     }
 
     // ========== String Array Tests ==========
