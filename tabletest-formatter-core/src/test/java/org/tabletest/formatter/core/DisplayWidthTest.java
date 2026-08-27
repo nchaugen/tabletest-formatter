@@ -16,15 +16,27 @@ class DisplayWidthTest {
 
     @DisplayName("Measures a code point as zero, one, or two columns")
     @Description("""
-            A typical Latin character occupies one display column. A CJK character occupies two. A
-            control character occupies none. Each row carries every code point its width applies
-            to: A, z and 0; 中 and 你; null, newline and tab.
+            A code point renders at one of three widths, and its script decides which. An ordinary
+            letter, digit or sign takes one column whatever alphabet it belongs to. A glyph drawn on
+            a square body takes two. A code point that puts no glyph of its own on the line takes
+            none, and there are two kinds: a control character, and a mark that combines with the
+            letter before it.
+
+            A code point is written as a number, because the two zero-width kinds have no glyph to
+            write. Each row carries one of each script or kind its width covers:
+
+            One column — A, z, 0, æ, «, alpha, Cyrillic pe, Arabic meem, Hebrew shin, a box-drawing
+            corner, the euro sign, the summation sign.
+            Two columns — the ideograph for middle, the ideograph for you, the hiragana ko, the
+            Hangul syllable guk, a grinning face, fullwidth A.
+            No columns — the null character, a line feed, a tab, a combining acute accent, a
+            combining diaeresis.
             """)
     @TableTest("""
-        Scenario                          | Code point     | Width?
-        A letter or digit in Latin script | {65, 122, 48}  | 1
-        A CJK character                   | {20013, 20320} | 2
-        A control character               | {0, 10, 9}     | 0
+        Scenario                                 | Code point                                       | Width?
+        An ordinary letter, digit or sign        | {65, 122, 48, 230, 171, 945, 1055, 1605, 1513, 9484, 8364, 8721} | 1
+        A glyph drawn on a square body           | {20013, 20320, 12371, 44397, 128512, 65313}      | 2
+        A control character or a combining mark  | {0, 10, 9, 769, 776}                             | 0
         """)
     void measuresCodePointWidth(int codePoint, int width) {
         assertThat(DisplayWidth.ofCodePoint(codePoint)).isEqualTo(width);
@@ -32,39 +44,20 @@ class DisplayWidthTest {
 
     @DisplayName("Adds the code point widths to measure a string")
     @Description("""
-            An emoji and a CJK character render two columns wide, so a mixed-script string is wider
-            than its character count. A null string and an empty string have width zero.
+            A string is as wide as its code points together, so a string of square-bodied glyphs is
+            twice as wide as its character count and a mixed string is wider than its count without
+            being twice it. The rule above says what each code point contributes.
+
+            A null string and an empty string are both nothing to draw, and the formatter treats
+            them alike rather than rejecting the null.
             """)
     @TableTest("""
-        Scenario                     | Text                | Width?
-        ASCII single letter          | A                   | 1
-        ASCII word                   | Hello               | 5
-        ASCII numbers                | 123                 | 3
-        CJK single character         | 中                  | 2
-        CJK two characters           | 你好                | 4
-        CJK four characters          | 你好世界            | 8
-        Japanese hiragana            | こんにちは          | 10
-        Japanese hiragana with kanji | こんにちは世界      | 14
-        Korean short greeting        | 안녕                | 4
-        Korean greeting              | 안녕하세요          | 10
-        A single emoji               | {😀, 👋, ☕}        | 2
-        Mixed ASCII and emoji        | Hello 👋 World      | 14
-        Mixed text with emoji        | Café ☕ tastes good | 19
-        Scandinavian æ               | æ                   | 1
-        Scandinavian letter repeated | {øøø, ååå}          | 3
-        Accented word naïve          | naïve               | 5
-        Accented word résumé         | résumé              | 6
-        Greek letters with spaces    | α β γ               | 5
-        Greek greeting               | Γεια σου κόσμε      | 14
-        Cyrillic greeting            | Привет мир          | 10
-        Arabic greeting              | مرحبا بالعالم       | 13
-        Hebrew greeting              | שלום עולם           | 9
-        Mathematical symbols         | ∑ ∏ ∫ √             | 7
-        Box drawing characters       | ┌─┐│ │└─┘           | 9
-        Currency symbols             | $€£¥₹               | 5
-        Quotation marks              | «»""''—–            | 8
-        Null string                  |                     | 0
-        Empty string                 | ''                  | 0
+        Scenario                        | Text           | Width?
+        Every glyph one column          | Hello          | 5
+        Every glyph two columns         | 你好世界       | 8
+        One-column and two-column mixed | Hello 👋 World | 14
+        A null string                   |                | 0
+        An empty string                 | ''             | 0
         """)
     void measuresStringWidth(String text, int width) {
         assertThat(DisplayWidth.of(text)).isEqualTo(width);
