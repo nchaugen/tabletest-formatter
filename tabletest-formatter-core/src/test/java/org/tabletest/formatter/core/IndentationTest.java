@@ -32,16 +32,16 @@ public class IndentationTest {
             characters, kept as tabs.
             """)
     @TableTest("""
-        Scenario                             | Table lines                                | Base indent | Configured indent | Result lines?
-        Indent size zero leaves table flush  | ["name|age", "Alice|30"]                   | ''          | space:0           | ["name  | age", "Alice | 30", ""]
-        Every line indented one level        | ["name|age", "Alice|30"]                   | ''          | space:4           | ["    name  | age", "    Alice | 30", "    "]
-        Base indent added beneath the level  | ["name|age", "Alice|30"]                   | '    '      | space:2           | ["      name  | age", "      Alice | 30", "      "]
-        Varying input indentation normalised | ["  name|age", "      Alice|30", "Bob|25"] | ''          | space:4           | ["    name  | age", "    Alice | 30", "    Bob   | 25", "    "]
-        Header-only table                    | ["name|age"]                               | ''          | space:4           | ["    name | age", "    "]
-        Comment lines indented too           | ["name|age", "// note", "Alice|30"]        | ''          | space:2           | ["  name  | age", "  // note", "  Alice | 30", "  "]
-        Blank lines never indented           | ["name|age", "Alice|30", "", "Bob|25"]     | ''          | space:2           | ["  name  | age", "  Alice | 30", "", "  Bob   | 25", "  "]
-        Tab style indents with a tab         | ["name|age", "Alice|30"]                   | ''          | tab:1             | ["\tname  | age", "\tAlice | 30", "\t"]
-        Tab size sets tabs per level         | ["name|age", "Alice|30"]                   | ''          | tab:2             | ["\t\tname  | age", "\t\tAlice | 30", "\t\t"]
+        Scenario                        | Table lines                                | Base indent | Configured indent | Result lines?
+        No indent configured            | ["name|age", "Alice|30"]                   | ''          | space:0           | ["name  | age", "Alice | 30", ""]
+        Spaces, no base indent          | ["name|age", "Alice|30"]                   | ''          | space:4           | ["    name  | age", "    Alice | 30", "    "]
+        Spaces on top of a base indent  | ["name|age", "Alice|30"]                   | '    '      | space:2           | ["      name  | age", "      Alice | 30", "      "]
+        Tabs, one per level             | ["name|age", "Alice|30"]                   | ''          | tab:1             | ["\tname  | age", "\tAlice | 30", "\t"]
+        Tabs, two per level             | ["name|age", "Alice|30"]                   | ''          | tab:2             | ["\t\tname  | age", "\t\tAlice | 30", "\t\t"]
+        Input lines indented unevenly   | ["  name|age", "      Alice|30", "Bob|25"] | ''          | space:4           | ["    name  | age", "    Alice | 30", "    Bob   | 25", "    "]
+        A header and no data rows       | ["name|age"]                               | ''          | space:4           | ["    name | age", "    "]
+        A comment line among the rows   | ["name|age", "// note", "Alice|30"]        | ''          | space:2           | ["  name  | age", "  // note", "  Alice | 30", "  "]
+        A blank line among the rows     | ["name|age", "Alice|30", "", "Bob|25"]     | ''          | space:2           | ["  name  | age", "  Alice | 30", "", "  Bob   | 25", "  "]
         """)
     void appliesIndentation(
             @Lines List<String> tableLines, String baseIndent, Config indent, @Lines List<String> resultLines) {

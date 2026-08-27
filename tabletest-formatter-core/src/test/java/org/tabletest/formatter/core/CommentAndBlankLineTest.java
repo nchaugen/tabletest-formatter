@@ -39,10 +39,16 @@ class CommentAndBlankLineTest {
             A comment line and a blank line take no part in column alignment. The formatter formats
             the rows around them as one table. It then puts the kept lines back at their original
             positions, byte for byte.
+
+            A comment above the header is the position that costs something to get right: the
+            header is the first line that is neither, so the formatter has to pass over the comment
+            to find it and put it back afterwards.
             """)
     @TableTest("""
         Scenario                     | Table lines                                                     | Formatted?
+        Comment above the header     | ['// intro', "name|age", "Alice|30"]                            | ['// intro', "name  | age", "Alice | 30"]
         Comment between rows         | ["name|age", "// note", "Alice|30"]                             | ["name  | age", "// note", "Alice | 30"]
+        Comment below the last row   | ["name|age", "Alice|30", '// trailing']                         | ["name  | age", "Alice | 30", '// trailing']
         Blank line between rows      | ["name|age", "Alice|30", "", "Bob|25"]                          | ["name  | age", "Alice | 30", "", "Bob   | 25"]
         Comments and blanks together | ["name|age", "// First", "Alice|30", "", "// Second", "Bob|25"] | ["name  | age", "// First", "Alice | 30", "", "// Second", "Bob   | 25"]
         """)

@@ -40,10 +40,9 @@ public class IndentConfigurationTest {
             directory and walks up. The indent_style and indent_size it finds become the style and
             the size the Indentation feature applies.
 
-            Anything the search cannot use leaves the caller's default in force, so a broken
-            .editorconfig never fails a build. There are four such cases: no file, a file it cannot
-            read, a file whose sections do not cover this kind of file, and a file that ends the
-            search without setting an indent.
+            The style and the size are resolved one at a time, so a file that sets only one of them
+            leaves the caller's default in force for the other. Anything else the search cannot use
+            leaves both defaults in force, and a broken .editorconfig never fails a build.
 
             Each row writes the file it shows into a temporary project holding one Java source file.
             An indent is written style:size.
@@ -54,6 +53,8 @@ public class IndentConfigurationTest {
         Tabs, one per level         | ['root = true', '[*.java]', 'indent_style = tab', 'indent_size = 1']   | BESIDE   | space:4          | tab:1
         Setting from a parent       | ['root = true', '[*.java]', 'indent_style = tab', 'indent_size = 1']   | ANCESTOR | space:4          | tab:1
         A file that ends the search | ['root = true']                                                        | BESIDE   | space:4          | space:4
+        A style but no size         | ['root = true', '[*.java]', 'indent_style = tab']                      | BESIDE   | space:4          | tab:4
+        A size but no style         | ['root = true', '[*.java]', 'indent_size = 2']                         | BESIDE   | tab:1            | tab:2
         A section for other files   | ['root = true', '[*.kt]', 'indent_style = tab', 'indent_size = 1']     | BESIDE   | space:4          | space:4
         No .editorconfig at all     | []                                                                     | NOWHERE  | space:4          | space:4
         A file that cannot be read  | ['this is not valid editorconfig', '[unclosed section']                | BESIDE   | space:4          | space:4
