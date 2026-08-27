@@ -16,6 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class IndentationTest {
 
     private final TableTestFormatter formatter = new TableTestFormatter();
+    private final SourceFileFormatter sourceFormatter = new SourceFileFormatter();
 
     @DisplayName("Re-indents every table line from scratch")
     @Description("""
@@ -23,8 +24,9 @@ public class IndentationTest {
             line with the base indent plus one level of the configured indent. The base indent is
             the indentation of the surrounding code. A blank line stays completely empty.
 
-            The final element of Result lines shows what ends the block. That is a bare indent
-            aligning the closing text block quotes, or nothing when the indent size is zero.
+            The final element of Result lines is the indent the closing text block quotes are
+            written at. It is empty when the indent size is zero. The next rule shows that line
+            in place, with the quotes on it.
 
             The style may be spaces or tabs. With a tab style each level is that many tab
             characters, kept as tabs.
@@ -46,6 +48,38 @@ public class IndentationTest {
         String result = formatter.format(String.join("\n", tableLines) + "\n", baseIndent, indent);
 
         assertThat(result).isEqualTo(String.join("\n", resultLines));
+    }
+
+    @DisplayName("Starts the indent from the annotation's own line")
+    @Description("""
+            A table written in a source text sits inside an annotation. The formatter indents every
+            line of the block — the table lines and the closing quotes alike — to the indentation of
+            the annotation's own line plus one level of the configured indent.
+
+            The annotation's own indentation is reproduced exactly as written, whatever mix of tabs
+            and spaces it holds, and the configured level is added after it in the configured style.
+
+            Source lines hold the block as it was written. Formatted lines hold what the formatter
+            wrote back. The rule above says what one level of indent is; this one says where the
+            level starts from.
+            """)
+    @TableTest("""
+        Scenario                       | Source lines                                                                     | Configured indent | Formatted lines?
+        Annotation at the left margin  | ['@TableTest(\"""', 'name|age', 'Alice|30', '\""")']                             | space:4           | ['@TableTest(\"""', '    name  | age', '    Alice | 30', '    \""")']
+        Annotation indented one level  | ['    @TableTest(\"""', '    name|age', '    Alice|30', '    \""")']             | space:4           | ['    @TableTest(\"""', '        name  | age', '        Alice | 30', '        \""")']
+        Tab indentation kept as a tab  | ['\t@TableTest(\"""', '\tname|age', '\tAlice|30', '\t\""")']                   | space:1           | ['\t@TableTest(\"""', '\t name  | age', '\t Alice | 30', '\t \""")']
+        Tab style added after a space  | ['    @TableTest(\"""', '    name|age', '    Alice|30', '    \""")']             | tab:1             | ['    @TableTest(\"""', '    \tname  | age', '    \tAlice | 30', '    \t\""")']
+        Indent size zero stays flush   | ['@TableTest(\"""', 'name|age', 'Alice|30', '\""")']                             | space:0           | ['@TableTest(\"""', 'name  | age', 'Alice | 30', '\""")']
+        """)
+    void startsTheIndentFromTheAnnotationLine(
+            @Lines List<String> sourceLines, Config configuredIndent, @Lines List<String> formattedLines) {
+        assertThat(formatted(sourceLines, configuredIndent)).isEqualTo(formattedLines);
+    }
+
+    /** The lines the source formatter produces for these lines of source at the configured indent. */
+    private List<String> formatted(List<String> sourceLines, Config configuredIndent) {
+        String result = sourceFormatter.format(String.join("\n", sourceLines) + "\n", configuredIndent);
+        return List.of(result.stripTrailing().split("\n", -1));
     }
 
     @TypeConverter
