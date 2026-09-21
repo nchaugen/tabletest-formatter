@@ -28,8 +28,8 @@
         <version.plugin.compiler>3.16.0</version.plugin.compiler>
         <version.plugin.surefire>3.6.0</version.plugin.surefire>
         <version.plugin.jar>3.5.1</version.plugin.jar>
-        <version.plugin.install>3.1.4</version.plugin.install>
-        <version.plugin.deploy>3.1.4</version.plugin.deploy>
+        <version.plugin.install>3.2.0</version.plugin.install>
+        <version.plugin.deploy>3.2.0</version.plugin.deploy>
         <version.plugin.site>3.22.0</version.plugin.site>
         <version.plugin.help>3.5.2</version.plugin.help>
         <version.plugin.assembly>3.8.0</version.plugin.assembly>
@@ -42,7 +42,7 @@
         <version.plugin.publishing>0.11.0</version.plugin.publishing>
         <version.plugin.release>3.3.1</version.plugin.release>
         <version.plugin.spotless>3.10.2</version.plugin.spotless>
-        <version.plugin.versions>2.21.0</version.plugin.versions>
+        <version.plugin.versions>2.22.0</version.plugin.versions>
         <version.tabletest>1.2.2</version.tabletest>
         <version.tabletest.parser>1.2.1</version.tabletest.parser>
         <version.tabletest.reporter>1.5.0</version.tabletest.reporter>
@@ -160,7 +160,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.6.3</version>
+                <version>3.6.4</version>
                 <inherited>false</inherited>
                 <executions>
                     <execution>
