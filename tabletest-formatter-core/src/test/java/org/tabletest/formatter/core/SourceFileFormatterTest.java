@@ -367,6 +367,82 @@ class SourceFileFormatterTest {
     // ========== String Array Tests ==========
 
     @Test
+    void shouldLeaveStringArraysWithExpressionsUnchanged() {
+        String input = """
+                class Test {
+                    static final String ROW = "1|2";
+
+                    @TableTest({"a|b", ROW})
+                    void constantRow() {}
+
+                    @TableTest({ROW, "3|4"})
+                    void constantHeader() {}
+
+                    @TableTest({("a|b"), "1|2"})
+                    void parenthesisedHeader() {}
+                }
+                """;
+
+        assertThat(formatter.format(input, Config.SPACES_4)).isEqualTo(input);
+    }
+
+    @Test
+    void shouldFormatLiteralArrayBesideConcatenatedArray() {
+        String input = """
+                class Test {
+                    @TableTest({
+                        "a|" /* header */ + "b",
+                        "1|" + // row
+                            "2"
+                    })
+                    void concatenated() {}
+
+                    @TableTest({"x|y", "3|4"})
+                    void literals() {}
+                }
+                """;
+
+        String result = formatter.format(input, Config.SPACES_4);
+
+        assertThat(result).isEqualTo("""
+                class Test {
+                    @TableTest({
+                        "a|" /* header */ + "b",
+                        "1|" + // row
+                            "2"
+                    })
+                    void concatenated() {}
+
+                    @TableTest({
+                        "x | y",
+                        "3 | 4"
+                    })
+                    void literals() {}
+                }
+                """);
+        assertThat(formatter.format(result, Config.SPACES_4)).isEqualTo(result);
+    }
+
+    @Test
+    void shouldFormatPlusSignsInsideLiteralsAndComments() {
+        String input = """
+                @TableTest({"name|expression", // "+"
+                    "sum|a+b" /* + */})
+                void test() {}
+                """;
+
+        String result = formatter.format(input, Config.SPACES_4);
+
+        assertThat(result).isEqualTo("""
+                @TableTest({
+                    "name | expression", // "+"
+                    "sum  | a+b       " /* + */
+                })
+                void test() {}
+                """);
+    }
+
+    @Test
     void shouldFormatStringArray() {
         String input = """
                 class Test {

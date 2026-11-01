@@ -24,6 +24,7 @@ import java.util.List;
  *
  * <p>Comment-aware: a string inside a comment is part of the comment text, never
  * an entry, so commented-out rows are not mistaken for live table rows.
+ * Arrays containing expressions return no items so their source is left unchanged.
  */
 final class StringArrayContentParser {
 
@@ -51,6 +52,8 @@ final class StringArrayContentParser {
                 items.add(new StringArrayItem.Comment(arrayContent.substring(i, end), firstOnLine));
                 firstOnLine = false;
                 i = end;
+            } else if (c != ',' && !Character.isWhitespace(c)) {
+                return List.of();
             } else {
                 if (c == '\n') {
                     firstOnLine = true;
