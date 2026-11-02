@@ -22,3 +22,9 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-build-
       - name: Build and test
         run: mvn clean install --no-transfer-progress
+      - name: Fail if the build reformatted files
+        run: |
+          git diff --stat --exit-code || {
+            echo "::error::The build changed the files above. Run 'mvn verify' locally and commit the result."
+            exit 1
+          }
