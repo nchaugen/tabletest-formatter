@@ -98,6 +98,30 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- Dogfooding: format our own @TableTest tables with the jar packaged above -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.6.4</version>
+                <executions>
+                    <execution>
+                        <id>dogfood-format-tabletests</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-jar</argument>
+                                <argument>${project.build.directory}/${project.build.finalName}.jar</argument>
+                                <argument>${project.basedir}/../tabletest-formatter-core/src/test/java</argument>
+                                <argument>${project.basedir}/src/test/java</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
