@@ -22,7 +22,7 @@ class RowLayoutTest {
             rule as a data row.
             """)
     @TableTest("""
-        Scenario                             | Cells       | Column widths | Row?
+        Scenario                              | Cells       | Column widths | Row?
         Cells that exactly fill their columns | [Alice, 30] | [5, 3]        | 'Alice | 30'
         Cells shorter than their columns      | [Bob, 7]    | [5, 3]        | 'Bob   | 7'
         Three columns                         | [a, bb, c]  | [1, 2, 1]     | 'a | bb | c'

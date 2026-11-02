@@ -33,10 +33,10 @@ class DisplayWidthTest {
             combining diaeresis.
             """)
     @TableTest("""
-        Scenario                                 | Code point                                       | Width?
-        An ordinary letter, digit or sign        | {65, 122, 48, 230, 171, 945, 1055, 1605, 1513, 9484, 8364, 8721} | 1
-        A glyph drawn on a square body           | {20013, 20320, 12371, 44397, 128512, 65313}      | 2
-        A control character or a combining mark  | {0, 10, 9, 769, 776}                             | 0
+        Scenario                                | Code point                                                       | Width?
+        An ordinary letter, digit or sign       | {65, 122, 48, 230, 171, 945, 1055, 1605, 1513, 9484, 8364, 8721} | 1
+        A glyph drawn on a square body          | {20013, 20320, 12371, 44397, 128512, 65313}                      | 2
+        A control character or a combining mark | {0, 10, 9, 769, 776}                                             | 0
         """)
     void measuresCodePointWidth(int codePoint, int width) {
         assertThat(DisplayWidth.ofCodePoint(codePoint)).isEqualTo(width);

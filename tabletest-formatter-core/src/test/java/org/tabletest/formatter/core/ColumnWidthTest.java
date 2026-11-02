@@ -33,9 +33,9 @@ class ColumnWidthTest {
 
     @DisplayName("Measures each column on its own")
     @TableTest("""
-        Scenario                        | Table lines                | Column widths?
-        Columns of differing widths     | ["a|bb|ccc", "dddd|e|ff"]  | [4, 2, 3]
-        An empty cell in one column     | ["name|value", "|longest"] | [4, 7]
+        Scenario                    | Table lines                | Column widths?
+        Columns of differing widths | ["a|bb|ccc", "dddd|e|ff"]  | [4, 2, 3]
+        An empty cell in one column | ["name|value", "|longest"] | [4, 7]
         """)
     void measuresEachColumnIndependently(@Lines List<String> tableLines, List<Integer> columnWidths) {
         int[] widths = formatter.calculateColumnWidths(String.join("\n", tableLines));

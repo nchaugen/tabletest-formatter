@@ -32,16 +32,16 @@ public class IndentationTest {
             and the formatter keeps them as tabs.
             """)
     @TableTest("""
-        Scenario                        | Table lines                                | Base indent | Configured indent | Result lines?
-        No indent configured            | ["name|age", "Alice|30"]                   | ''          | space:0           | ["name  | age", "Alice | 30", ""]
-        Spaces, no base indent          | ["name|age", "Alice|30"]                   | ''          | space:4           | ["    name  | age", "    Alice | 30", "    "]
-        Spaces on top of a base indent  | ["name|age", "Alice|30"]                   | '    '      | space:2           | ["      name  | age", "      Alice | 30", "      "]
-        Tabs, one per level             | ["name|age", "Alice|30"]                   | ''          | tab:1             | ["\tname  | age", "\tAlice | 30", "\t"]
-        Tabs, two per level             | ["name|age", "Alice|30"]                   | ''          | tab:2             | ["\t\tname  | age", "\t\tAlice | 30", "\t\t"]
-        Input lines indented unevenly   | ["  name|age", "      Alice|30", "Bob|25"] | ''          | space:4           | ["    name  | age", "    Alice | 30", "    Bob   | 25", "    "]
-        A header and no data rows       | ["name|age"]                               | ''          | space:4           | ["    name | age", "    "]
-        A comment line among the rows   | ["name|age", "// note", "Alice|30"]        | ''          | space:2           | ["  name  | age", "  // note", "  Alice | 30", "  "]
-        A blank line among the rows     | ["name|age", "Alice|30", "", "Bob|25"]     | ''          | space:2           | ["  name  | age", "  Alice | 30", "", "  Bob   | 25", "  "]
+        Scenario                       | Table lines                                | Base indent | Configured indent | Result lines?
+        No indent configured           | ["name|age", "Alice|30"]                   | ''          | space:0           | ["name  | age", "Alice | 30", ""]
+        Spaces, no base indent         | ["name|age", "Alice|30"]                   | ''          | space:4           | ["    name  | age", "    Alice | 30", "    "]
+        Spaces on top of a base indent | ["name|age", "Alice|30"]                   | '    '      | space:2           | ["      name  | age", "      Alice | 30", "      "]
+        Tabs, one per level            | ["name|age", "Alice|30"]                   | ''          | tab:1             | ["\tname  | age", "\tAlice | 30", "\t"]
+        Tabs, two per level            | ["name|age", "Alice|30"]                   | ''          | tab:2             | ["\t\tname  | age", "\t\tAlice | 30", "\t\t"]
+        Input lines indented unevenly  | ["  name|age", "      Alice|30", "Bob|25"] | ''          | space:4           | ["    name  | age", "    Alice | 30", "    Bob   | 25", "    "]
+        A header and no data rows      | ["name|age"]                               | ''          | space:4           | ["    name | age", "    "]
+        A comment line among the rows  | ["name|age", "// note", "Alice|30"]        | ''          | space:2           | ["  name  | age", "  // note", "  Alice | 30", "  "]
+        A blank line among the rows    | ["name|age", "Alice|30", "", "Bob|25"]     | ''          | space:2           | ["  name  | age", "  Alice | 30", "", "  Bob   | 25", "  "]
         """)
     void appliesIndentation(
             @Lines List<String> tableLines, String baseIndent, Config indent, @Lines List<String> resultLines) {
@@ -64,12 +64,12 @@ public class IndentationTest {
             where the level starts from.
             """)
     @TableTest("""
-        Scenario                       | Source lines                                                                     | Configured indent | Formatted lines?
-        Annotation at the left margin  | ['@TableTest(\"""', 'name|age', 'Alice|30', '\""")']                             | space:4           | ['@TableTest(\"""', '    name  | age', '    Alice | 30', '    \""")']
-        Annotation indented one level  | ['    @TableTest(\"""', '    name|age', '    Alice|30', '    \""")']             | space:4           | ['    @TableTest(\"""', '        name  | age', '        Alice | 30', '        \""")']
-        Tab indentation kept as a tab  | ['\t@TableTest(\"""', '\tname|age', '\tAlice|30', '\t\""")']                   | space:1           | ['\t@TableTest(\"""', '\t name  | age', '\t Alice | 30', '\t \""")']
-        Tab style added after a space  | ['    @TableTest(\"""', '    name|age', '    Alice|30', '    \""")']             | tab:1             | ['    @TableTest(\"""', '    \tname  | age', '    \tAlice | 30', '    \t\""")']
-        Indent size zero stays flush   | ['@TableTest(\"""', 'name|age', 'Alice|30', '\""")']                             | space:0           | ['@TableTest(\"""', 'name  | age', 'Alice | 30', '\""")']
+        Scenario                      | Source lines                                                         | Configured indent | Formatted lines?
+        Annotation at the left margin | ['@TableTest(\"""', 'name|age', 'Alice|30', '\""")']                 | space:4           | ['@TableTest(\"""', '    name  | age', '    Alice | 30', '    \""")']
+        Annotation indented one level | ['    @TableTest(\"""', '    name|age', '    Alice|30', '    \""")'] | space:4           | ['    @TableTest(\"""', '        name  | age', '        Alice | 30', '        \""")']
+        Tab indentation kept as a tab | ['\t@TableTest(\"""', '\tname|age', '\tAlice|30', '\t\""")']         | space:1           | ['\t@TableTest(\"""', '\t name  | age', '\t Alice | 30', '\t \""")']
+        Tab style added after a space | ['    @TableTest(\"""', '    name|age', '    Alice|30', '    \""")'] | tab:1             | ['    @TableTest(\"""', '    \tname  | age', '    \tAlice | 30', '    \t\""")']
+        Indent size zero stays flush  | ['@TableTest(\"""', 'name|age', 'Alice|30', '\""")']                 | space:0           | ['@TableTest(\"""', 'name  | age', 'Alice | 30', '\""")']
         """)
     void startsTheIndentFromTheAnnotationLine(
             @Lines List<String> sourceLines, Config configuredIndent, @Lines List<String> formattedLines) {

@@ -75,13 +75,13 @@ class TableTestExtractorTest {
             all match. The last row is where the match stops, on the name itself.
             """)
     @TableTest("""
-        Scenario                   | Annotation opening                                   | Table forms?
-        Simple name                | '@TableTest(\"""'                                    | [TEXT_BLOCK]
-        Named value member         | '@TableTest(value = \"""'                            | [TEXT_BLOCK]
-        Spaces around parentheses  | '@TableTest   (   \"""'                              | [TEXT_BLOCK]
-        Alongside another member   | '@TableTest(resource = "data.csv", value = \"""'     | [TEXT_BLOCK]
-        Any package at all         | {'@org.tabletest.junit.TableTest(\"""', '@io.github.nchaugen.tabletest.junit.TableTest(\"""', '@com.example.different.TableTest(\"""'} | [TEXT_BLOCK]
-        A longer annotation name   | '@TableTestSource(\"""'                              | []
+        Scenario                  | Annotation opening                                                                                                                     | Table forms?
+        Simple name               | '@TableTest(\"""'                                                                                                                      | [TEXT_BLOCK]
+        Named value member        | '@TableTest(value = \"""'                                                                                                              | [TEXT_BLOCK]
+        Spaces around parentheses | '@TableTest   (   \"""'                                                                                                                | [TEXT_BLOCK]
+        Alongside another member  | '@TableTest(resource = "data.csv", value = \"""'                                                                                       | [TEXT_BLOCK]
+        Any package at all        | {'@org.tabletest.junit.TableTest(\"""', '@io.github.nchaugen.tabletest.junit.TableTest(\"""', '@com.example.different.TableTest(\"""'} | [TEXT_BLOCK]
+        A longer annotation name  | '@TableTestSource(\"""'                                                                                                                | []
         """)
     void recognisesEveryAnnotationForm(String annotationOpening, List<TableMatch.MatchType> tableForms) {
         List<String> sourceLines = List.of(annotationOpening, "name | age", "Alice | 30", "\"\"\")", "void test() {}");
@@ -1014,10 +1014,10 @@ class TableTestExtractorTest {
             in the code.
             """)
     @TableTest("""
-        Scenario                 | Source lines                                                    | Base indent?
-        Top-level annotation     | ['@TableTest(\"""', 'x|y', '1|2', '\""")']                     | ''
-        Two-space indented code  | ['  @TableTest(\"""', '  x|y', '  1|2', '  \""")']             | '  '
-        Four-space indented code | ['    @TableTest(\"""', '    x|y', '    1|2', '    \""")']     | '    '
+        Scenario                 | Source lines                                               | Base indent?
+        Top-level annotation     | ['@TableTest(\"""', 'x|y', '1|2', '\""")']                 | ''
+        Two-space indented code  | ['  @TableTest(\"""', '  x|y', '  1|2', '  \""")']         | '  '
+        Four-space indented code | ['    @TableTest(\"""', '    x|y', '    1|2', '    \""")'] | '    '
         """)
     void detectsBaseIndent(@Lines List<String> sourceLines, String indent) {
         assertThat(baseIndentOf(sourceLines)).isEqualTo(indent);
@@ -1029,11 +1029,11 @@ class TableTestExtractorTest {
             with tabs, or with a mix of tabs and spaces, keeps that exact whitespace.
             """)
     @TableTest("""
-        Scenario                 | Source lines                                                    | Base indent?
-        Single-tab indented code | ['\t@TableTest(\"""', '\tx|y', '\t1|2', '\t\""")']             | '\t'
-        Two-tab indented code    | ['\t\t@TableTest(\"""', '\t\tx|y', '\t\t1|2', '\t\t\""")']     | '\t\t'
-        Tab then two spaces      | ['\t  @TableTest(\"""', '\t  x|y', '\t  1|2', '\t  \""")']     | '\t  '
-        Two spaces then tab      | ['  \t@TableTest(\"""', '  \tx|y', '  \t1|2', '  \t\""")']     | '  \t'
+        Scenario                 | Source lines                                               | Base indent?
+        Single-tab indented code | ['\t@TableTest(\"""', '\tx|y', '\t1|2', '\t\""")']         | '\t'
+        Two-tab indented code    | ['\t\t@TableTest(\"""', '\t\tx|y', '\t\t1|2', '\t\t\""")'] | '\t\t'
+        Tab then two spaces      | ['\t  @TableTest(\"""', '\t  x|y', '\t  1|2', '\t  \""")'] | '\t  '
+        Two spaces then tab      | ['  \t@TableTest(\"""', '  \tx|y', '  \t1|2', '  \t\""")'] | '  \t'
         """)
     void preservesTabsAndSpacesInBaseIndent(@Lines List<String> sourceLines, String indent) {
         assertThat(baseIndentOf(sourceLines)).isEqualTo(indent);
