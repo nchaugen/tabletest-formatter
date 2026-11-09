@@ -72,9 +72,10 @@ Edge case at zero | 0     | 0
 ```
 
 **Width calculation:**
-- Uses wcwidth algorithm (IEEE Std 1002.1-2001) for accurate Unicode width
-- Correctly handles CJK characters (Chinese, Japanese, Korean)
-- Supports emojis including complex ones with flags and skin tones
+- Measures one visible character at a time, by Unicode data: a letter with its accent, a flag, or emoji joined into one picture counts once
+- East Asian wide and fullwidth characters (Chinese, Japanese, Korean) and emoji take two columns
+- Symbols that Unicode draws as text by default (such as ☀) take one column; with the emoji selector (☀️) they take two
+- Control characters, format characters and combining marks take none
 - Note: IDE fonts may not render with true monospace widths; verify output in terminals
 
 ### Row Alignment
@@ -293,7 +294,7 @@ indent_size = 0
 | **Comments & Blank Lines** | Preserves exactly as-is with proper indentation                |
 | **Empty Cell Handling**    | Pads empty cells to maintain alignment                         |
 | **Error Handling**         | Graceful degradation – never breaks builds                     |
-| **Unicode Width**          | Accurate width calculation for CJK, emojis, special characters |
+| **Unicode Width**          | Width per visible character, by Unicode data                   |
 
 ## Platform Support
 

@@ -49,3 +49,14 @@ To test a specific compatibility project:
 cd compatibility-tests/spring-boot-latest
 bash test.sh
 ```
+
+## Unicode width data
+
+`generate-wide-code-points.py` prints the table in `WideCodePoints.java`: the code points that
+draw two columns on their own (East Asian Width W or F, or Emoji_Presentation). Run it with a
+Python whose Unicode version matches the `emoji-data.txt` you give it:
+
+```bash
+curl -sO https://www.unicode.org/Public/17.0.0/ucd/emoji/emoji-data.txt
+python3 scripts/generate-wide-code-points.py emoji-data.txt
+```
