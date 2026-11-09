@@ -131,6 +131,11 @@ public class TableTestFormatter {
         return line.trim().isEmpty();
     }
 
+    /** The carriage return that ends a CRLF line, or nothing for an LF line. */
+    private static String carriageReturnOf(String line) {
+        return line.endsWith("\r") ? "\r" : "";
+    }
+
     private String addBackCommentsAndBlankLines(
             String[] originalLines, List<Integer> commentOrBlankIndices, String formatted) {
         String[] formattedLines = formatted.split("\n", -1);
@@ -144,8 +149,8 @@ public class TableTestFormatter {
                 // Preserve comment or blank line from original
                 result.add(originalLines[i]);
             } else {
-                // Use formatted table line
-                result.add(formattedLines[formattedIndex++]);
+                // Use formatted table line, with the line ending of the original
+                result.add(formattedLines[formattedIndex++] + carriageReturnOf(originalLines[i]));
             }
         }
 
