@@ -15,9 +15,10 @@
  */
 package org.tabletest.formatter.core;
 
+import org.tabletest.parser.WrittenSet;
+
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static java.util.stream.Collectors.joining;
 
@@ -32,7 +33,7 @@ class CellFormatter {
     String formatCell(Object cell) {
         if (cell == null) return "";
         if (cell instanceof List<?> list) return formatList(list);
-        if (cell instanceof Set<?> set) return formatSet(set);
+        if (cell instanceof WrittenSet set) return formatSet(set.elements());
         if (cell instanceof Map<?, ?> map) return formatMap(map);
         return cell.toString();
     }
@@ -41,8 +42,11 @@ class CellFormatter {
         return list.isEmpty() ? "[]" : list.stream().map(this::formatCell).collect(joining(", ", "[", "]"));
     }
 
-    private String formatSet(Set<?> set) {
-        return set.isEmpty() ? "{}" : set.stream().map(this::formatCell).collect(joining(", ", "{", "}"));
+    /** A set as written: every element, a repeat included, because formatting changes only whitespace. */
+    private String formatSet(List<?> elements) {
+        return elements.isEmpty()
+                ? "{}"
+                : elements.stream().map(this::formatCell).collect(joining(", ", "{", "}"));
     }
 
     private String formatMap(Map<?, ?> map) {

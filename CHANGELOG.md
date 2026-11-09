@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - A table with CRLF line endings keeps them: formatted rows came back with LF, while comment and blank lines kept CRLF
+- A set keeps an element written twice: `{a, a, b}` became `{a, b}`, so formatting changed the text and not only its whitespace. Needs tabletest-parser with `WrittenSet`
 - Column widths now follow Unicode data and count each visible character once: flags, emoji joined with a zero-width joiner, emoji with a skin tone and keycaps take two columns (a joined family took six); text-style symbols such as ☀ take one; format characters such as the soft hyphen take none; Tangut, Nüshu and newer kana take two
 
 ## [1.1.3] - 2026-11-02

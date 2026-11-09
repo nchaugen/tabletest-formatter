@@ -17,7 +17,8 @@ class CellFormattingTest {
     @Description("""
             Inside a cell, the formatter rewrites a list, a set, and a map. It writes one space
             after each comma and each colon. It writes no space directly inside a bracket. It does
-            the same through a nested collection. A quoted key keeps its quotes.
+            the same through a nested collection. A quoted key keeps its quotes, and a set keeps
+            an element written twice: the formatter changes only whitespace.
             """)
     @TableTest("""
         Scenario                        | Value                   | Formatted?
@@ -27,6 +28,7 @@ class CellFormattingTest {
         An empty list                   | "[]"                    | "[]"
         An empty map                    | "[:]"                   | "[:]"
         An empty set                    | "{}"                    | "{}"
+        A set with a repeated element   | "{a,a,b}"               | "{a, a, b}"
         Spaces just inside the brackets | "[ [] ]"                | "[[]]"
         A single-quoted key             | "['[a]':1,'b:b':2]"     | "['[a]': 1, 'b:b': 2]"
         A double-quoted key             | '[",a,":1,"b|b":2]'     | '[",a,": 1, "b|b": 2]'
